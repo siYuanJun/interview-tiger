@@ -4,12 +4,15 @@ import logging
 from typing import Generator
 import requests
 
-from config import ARK_MODEL
+from config import ARK_MODEL, WEB_SEARCH_BOT_ID
 
 logger = logging.getLogger("interview-tiger")
 
 # 大模型API配置
-LLM_API_URL = "https://ark.cn-beijing.volces.com/api/v3/chat/completions"
+ARK_BASE_URL = "https://ark.cn-beijing.volces.com/api/v3"
+LLM_API_URL = f"{ARK_BASE_URL}/chat/completions"
+# Bot应用端点（用于联网搜索）
+BOT_API_URL = f"{ARK_BASE_URL}/bots/chat/completions"
 
 
 def call_llm(
@@ -18,7 +21,8 @@ def call_llm(
     model: str = ARK_MODEL,
     temperature: float = 0.7,
     max_tokens: int = 1000,
-    stream: bool = False
+    stream: bool = False,
+    enable_search: bool = False
 ) -> str | None:
     """调用大模型（非流式）
 
@@ -29,6 +33,7 @@ def call_llm(
         temperature: 温度参数 (0-1)
         max_tokens: 最大输出token数
         stream: 是否流式输出
+        enable_search: 是否开启联网搜索
 
     Returns:
         str: 模型生成的文本，失败返回 None
@@ -46,8 +51,21 @@ def call_llm(
         "stream": stream
     }
 
+    # 联网搜索：优先使用 Bot 端点，否则添加 enable_search 参数
+    api_url = LLM_API_URL
+    if enable_search:
+        if WEB_SEARCH_BOT_ID:
+            # 使用 Bot 应用端点（需在控制台创建Bot并开通联网插件）
+            api_url = BOT_API_URL
+            payload["model"] = WEB_SEARCH_BOT_ID
+            logger.info(f"联网搜索启用 (Bot模式): {WEB_SEARCH_BOT_ID}")
+        else:
+            # 尝试通过 enable_search 参数开启
+            payload["enable_search"] = True
+            logger.info("联网搜索启用 (enable_search参数)")
+
     try:
-        response = requests.post(LLM_API_URL, headers=headers, json=payload, timeout=30)
+        response = requests.post(api_url, headers=headers, json=payload, timeout=30)
         if response.status_code == 200:
             result = response.json()
             if 'choices' in result and result['choices']:
@@ -71,7 +89,8 @@ def call_llm_stream(
     api_key: str,
     model: str = ARK_MODEL,
     temperature: float = 0.7,
-    max_tokens: int = 1000
+    max_tokens: int = 1000,
+    enable_search: bool = False
 ) -> Generator[str, None, None]:
     """调用大模型（流式SSE）
 
@@ -81,6 +100,7 @@ def call_llm_stream(
         model: 模型名称
         temperature: 温度参数
         max_tokens: 最大输出token数
+        enable_search: 是否开启联网搜索
 
     Yields:
         str: 逐块生成的文本增量
@@ -98,12 +118,23 @@ def call_llm_stream(
         "stream": True
     }
 
+    # 联网搜索：优先使用 Bot 端点，否则添加 enable_search 参数
+    api_url = LLM_API_URL
+    if enable_search:
+        if WEB_SEARCH_BOT_ID:
+            api_url = BOT_API_URL
+            payload["model"] = WEB_SEARCH_BOT_ID
+            logger.info(f"联网搜索启用 (Bot模式) [stream]: {WEB_SEARCH_BOT_ID}")
+        else:
+            payload["enable_search"] = True
+            logger.info("联网搜索启用 (enable_search参数) [stream]")
+
     try:
         response = requests.post(
-            LLM_API_URL,
+            api_url,
             headers=headers,
             json=payload,
-            timeout=30,
+            timeout=60 if enable_search else 30,  # 联网搜索增加超时
             stream=True
         )
 

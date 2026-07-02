@@ -15,6 +15,10 @@ KB_ID = os.getenv("KB_ID", "siyuan_jianli")
 KB_PROJECT = os.getenv("KB_PROJECT", "default")
 KB_BASE_URL = os.getenv("KB_BASE_URL", "https://api-knowledgebase.mlp.cn-beijing.volces.com")
 
+# 联网搜索配置（知识库无结果时的降级方案）
+# WEB_SEARCH_BOT_ID: Bot应用ID，用于联网搜索（在方舟控制台创建Bot并开通联网插件后获取）
+WEB_SEARCH_BOT_ID = os.getenv("WEB_SEARCH_BOT_ID", "")
+
 # 服务配置
 BACKEND_HOST = os.getenv("BACKEND_HOST", "0.0.0.0")
 BACKEND_PORT = int(os.getenv("BACKEND_PORT", "8000"))
