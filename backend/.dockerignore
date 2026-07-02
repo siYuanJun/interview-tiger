@@ -1,0 +1,22 @@
+# 环境变量（含密钥，不能打进镜像）
+.env
+.env.*
+
+# Python 虚拟环境
+venv/
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Git
+.git
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# 文档
+*.md
