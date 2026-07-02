@@ -183,6 +183,35 @@ export function useSpeech() {
     currentText.value = ''
   }
 
+  function forceStop() {
+    if (!recognition || !isListening.value) return
+
+    const allText = (finalText.value + ' ' + currentText.value).trim()
+    
+    isListening.value = false
+    if (restartTimer) {
+      clearTimeout(restartTimer)
+      restartTimer = null
+    }
+    
+    try {
+      recognition.stop()
+    } catch {
+      // ignore
+    }
+    recognition = null
+    state.value = 'idle'
+
+    if (allText) {
+      return {
+        text: allText,
+        isFinal: true,
+        confidence: 1.0
+      }
+    }
+    return null
+  }
+
   onUnmounted(() => {
     stopListening()
   })
@@ -197,5 +226,6 @@ export function useSpeech() {
     startListening,
     stopListening,
     resetText,
+    forceStop,
   }
 }
