@@ -166,6 +166,36 @@ export function useApi() {
     }
   }
 
+  // 提交识别文本
+  async function submitTranscript(text: string): Promise<ApiResponse | null> {
+    try {
+      const res = await client.post<ApiResponse>('/transcript', { text })
+      return res.data
+    } catch {
+      return null
+    }
+  }
+
+  // 获取对话列表
+  async function getDialogues(): Promise<ApiResponse<{ dialogues: any[] }> | null> {
+    try {
+      const res = await client.get<ApiResponse<{ dialogues: any[] }>>('/dialogues')
+      return res.data
+    } catch {
+      return null
+    }
+  }
+
+  // 清空对话列表
+  async function clearDialogues(): Promise<boolean> {
+    try {
+      const res = await client.delete<ApiResponse>('/dialogues')
+      return res.data.code === 0
+    } catch {
+      return false
+    }
+  }
+
   return {
     isLoading,
     error,
@@ -174,6 +204,9 @@ export function useApi() {
     saveConfig,
     getConfig,
     processQuestion,
-    processQuestionStream
+    processQuestionStream,
+    submitTranscript,
+    getDialogues,
+    clearDialogues
   }
 }

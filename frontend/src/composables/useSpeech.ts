@@ -1,7 +1,5 @@
-// 语音识别 Composable - TASK-005
-// 引擎优先级：火山引擎 ASR > 浏览器 Web Speech API
+// 语音识别 Composable - 使用浏览器 Web Speech API
 import { ref, onUnmounted } from 'vue'
-import { useVolcanoASR } from './useVolcanoASR'
 
 type SpeechRecognition = any
 type SpeechRecognitionEvent = any
@@ -13,21 +11,26 @@ export interface SpeechResult {
   confidence: number
 }
 
+export interface SpeechState {
+  idle: 'idle'
+  starting: 'starting'
+  listening: 'listening'
+  recognizing: 'recognizing'
+  error: 'error'
+}
+
 export function useSpeech() {
   const isListening = ref(false)
   const currentText = ref('')
   const finalText = ref('')
   const error = ref<string | null>(null)
+  const state = ref<'idle' | 'starting' | 'listening' | 'recognizing' | 'error'>('idle')
 
   let recognition: SpeechRecognition | null = null
-  let volcanoASR: ReturnType<typeof useVolcanoASR> | null = null
-  let useVolcano = false
-  let volcanoFailed = false
+  let restartTimer: ReturnType<typeof setTimeout> | null = null
 
   function isSupported(): boolean {
-    // 至少有一种方式可用
-    return !!(window.SpeechRecognition || window.webkitSpeechRecognition) ||
-      !!(window.AudioContext || (window as any).webkitAudioContext)
+    return !!(window.SpeechRecognition || window.webkitSpeechRecognition)
   }
 
   async function startListening(options: {
@@ -35,54 +38,24 @@ export function useSpeech() {
     onError?: (error: string) => void
   } = {}): Promise<boolean> {
     error.value = null
-    volcanoFailed = false
+    state.value = 'starting'
 
-    // 优先尝试火山引擎 ASR
-    volcanoASR = useVolcanoASR()
-    const ok = await volcanoASR.startListening({
-      onResult: (r) => {
-        currentText.value = volcanoASR!.currentText.value
-        finalText.value = volcanoASR!.finalText.value
-        isListening.value = volcanoASR!.isListening.value
-        options.onResult?.({
-          text: r.text,
-          isFinal: r.isFinal,
-          confidence: r.isFinal ? 1.0 : 0.5,
-        })
-      },
-      onError: (err) => {
-        error.value = err
-        options.onError?.(err)
-        volcanoFailed = true
-      },
-    })
-
-    if (!ok) {
-      volcanoASR = null
-      volcanoFailed = true
-      error.value = '火山引擎ASR连接失败，回退到浏览器语音识别'
-      options.onError?.(error.value)
-      // 回退到 Web Speech API
-      return startWebSpeech(options)
-    }
-
-    useVolcano = true
-    isListening.value = true
-    return true
-  }
-
-  /** Web Speech API 降级方案 */
-  function startWebSpeech(options: {
-    onResult?: (result: SpeechResult) => void
-    onError?: (error: string) => void
-  } = {}): boolean {
-    if (!(window.SpeechRecognition || window.webkitSpeechRecognition)) {
+    if (!isSupported()) {
       error.value = '当前浏览器不支持语音识别，请使用 Chrome 或 Edge 浏览器'
+      state.value = 'error'
       options.onError?.(error.value)
       return false
     }
 
     try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        }
+      })
+
       const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition
       const rec = new SpeechRecognitionAPI()
       recognition = rec
@@ -107,59 +80,102 @@ export function useSpeech() {
 
         if (finalChunk) {
           finalText.value += finalChunk + ' '
+          state.value = 'listening'
         }
-        currentText.value = interimText
 
+        if (interimText) {
+          currentText.value = interimText
+          state.value = 'recognizing'
+        } else if (!finalChunk) {
+          currentText.value = ''
+        }
+
+        const isFinal = !!finalChunk
         options.onResult?.({
           text: finalChunk || interimText,
-          isFinal: !!finalChunk,
+          isFinal,
           confidence: event.results[event.results.length - 1]?.[0]?.confidence || 0
         })
       }
 
       rec.onerror = (event: SpeechRecognitionErrorEvent) => {
-        const errorMsg = `语音识别错误: ${event.error}`
+        const errorMsg = getErrorMessage(event.error)
         error.value = errorMsg
+        state.value = 'error'
         options.onError?.(errorMsg)
+
         if (event.error === 'network' || event.error === 'no-speech') {
-          setTimeout(() => {
-            if (isListening.value && recognition) {
-              try { recognition.start() } catch {}
-            }
-          }, 1000)
+          scheduleRestart(options)
         }
       }
 
       rec.onend = () => {
         if (isListening.value && recognition) {
-          try { recognition.start() } catch {}
+          scheduleRestart(options)
         }
       }
 
       rec.start()
       isListening.value = true
-      error.value = null
+      state.value = 'listening'
       return true
     } catch (e: any) {
       const errMsg = typeof e.message === 'string' ? e.message : '语音识别启动失败'
       error.value = errMsg
+      state.value = 'error'
       options.onError?.(errMsg)
       return false
     }
   }
 
+  function scheduleRestart(options: {
+    onResult?: (result: SpeechResult) => void
+    onError?: (error: string) => void
+  }) {
+    if (!isListening.value) return
+    if (restartTimer) clearTimeout(restartTimer)
+    restartTimer = setTimeout(() => {
+      if (isListening.value && recognition) {
+        try {
+          recognition.start()
+          state.value = 'listening'
+          error.value = null
+        } catch (e: any) {
+          options.onError?.(e.message || '重启识别失败')
+        }
+      }
+    }, 1000)
+  }
+
+  function getErrorMessage(errorCode: string): string {
+    const errors: Record<string, string> = {
+      'not-allowed': '麦克风权限被拒绝，请在浏览器设置中允许访问麦克风',
+      'no-speech': '未检测到语音输入',
+      'network': '网络连接异常，正在重试',
+      'not-available': '语音识别服务不可用',
+      'service-not-allowed': '语音识别服务被禁止',
+      'bad-grammar': '语音识别语法错误',
+      'language-not-supported': '不支持当前语言',
+    }
+    return errors[errorCode] || `语音识别错误: ${errorCode}`
+  }
+
   function stopListening() {
-    if (volcanoASR) {
-      volcanoASR.stopListening()
-      volcanoASR = null
+    isListening.value = false
+    if (restartTimer) {
+      clearTimeout(restartTimer)
+      restartTimer = null
     }
     if (recognition) {
-      recognition.stop()
+      try {
+        recognition.stop()
+      } catch {
+        // ignore
+      }
       recognition = null
     }
-    isListening.value = false
+    state.value = 'idle'
     currentText.value = ''
-    useVolcano = false
   }
 
   function resetText() {
@@ -176,6 +192,7 @@ export function useSpeech() {
     currentText,
     finalText,
     error,
+    state,
     isSupported,
     startListening,
     stopListening,
