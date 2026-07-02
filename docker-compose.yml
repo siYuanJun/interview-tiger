@@ -8,7 +8,7 @@ networks:
     driver: bridge
     ipam:
       config:
-        - subnet: 172.20.90.0/24
+        - subnet: 172.30.90.0/24
 
 services:
   backend:
@@ -18,10 +18,10 @@ services:
     container_name: interview-tiger-backend
     networks:
       app_network:
-        ipv4_address: 172.20.90.10
+        ipv4_address: 172.30.90.10
     # 本地开发端口映射：Mac 宿主机通过 localhost:8000 访问
     ports:
-      - "8000:8000"
+      - "8001:8000"
     env_file:
       - ./backend/.env
     environment:
