@@ -40,6 +40,10 @@
 | TASK-019 | 实现响应式布局+移动端适配 | 前端 | UI层 | P1 | ✅已完成 | TASK-014 | logs/TASK-019.md | Tailwind响应式 |
 | TASK-020 | 实现对话记录导出 | 前端+后端 | 功能特性 | P2 | ✅已完成 | TASK-016 | logs/TASK-020.md | 导出功能 |
 | TASK-021 | 实现浏览器兼容检测 | 前端 | 工具层 | P1 | ✅已完成 | TASK-001 | logs/TASK-021.md | 兼容性检测 |
+| TASK-022 | 实现实时语音显示模块 | 前端 | Composables | P0 | ⏳待执行 | TASK-005 | logs/TASK-022.md | 实时显示+2秒停顿检测 |
+| TASK-023 | 实现PostgreSQL数据库存储 | 后端 | 数据层 | P0 | ⏳待执行 | TASK-002 | logs/TASK-023.md | 数据库模型+CRUD接口 |
+| TASK-024 | 实现Session会话管理 | 前端 | Composables | P0 | ⏳待执行 | TASK-001 | logs/TASK-024.md | session_id管理 |
+| TASK-025 | 实现对话自动调用LLM | 前端 | 业务逻辑 | P0 | ⏳待执行 | TASK-012,TASK-022,TASK-023 | logs/TASK-025.md | 自动调用+流式显示 |
 
 ## 依赖关系说明
 

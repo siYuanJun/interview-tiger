@@ -224,9 +224,9 @@ function getPhaseIcon() {
       <div class="flex items-center gap-3 max-w-4xl mx-auto">
         <div class="flex-1 px-4 py-3 bg-white/5 backdrop-blur-sm rounded-xl text-sm min-h-[48px] flex items-center border border-white/10">
           <span v-if="currentText" class="text-white/70 italic">{{ currentText }}...</span>
-          <span v-else-if="state.value === 'listening'" class="text-white/30">等待识别中...</span>
-          <span v-else-if="state.value === 'recognizing'" class="text-white/40">正在识别...</span>
-          <span v-else-if="state.value === 'error'" class="text-error">{{ speechError }}</span>
+          <span v-else-if="state === 'listening'" class="text-white/30">等待识别中...</span>
+          <span v-else-if="state === 'recognizing'" class="text-white/40">正在识别...</span>
+          <span v-else-if="state === 'error'" class="text-error">{{ speechError }}</span>
           <span v-else class="text-white/30">准备中...</span>
         </div>
 
