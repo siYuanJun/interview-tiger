@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import { useSpeech } from '@/composables/useSpeech'
 import { useApi } from '@/composables/useApi'
 import DialogueItem from '@/components/DialogueItem.vue'
+import { useInterviewStore } from '@/stores/interview'
 
 interface Dialogue {
   id: string
@@ -16,7 +17,8 @@ interface Dialogue {
 
 const router = useRouter()
 const { isListening, currentText, state, isSupported, startListening, stopListening, error: speechError } = useSpeech()
-const { submitTranscript, getDialogues, error: apiError } = useApi()
+const { submitTranscript, getDialogues, processQuestionStream, error: apiError } = useApi()
+const store = useInterviewStore()
 
 const statusMessage = ref('准备中...')
 const showEndConfirm = ref(false)
@@ -61,9 +63,52 @@ async function handleSpeechResult(result: { text: string; isFinal: boolean; conf
   const response = await submitTranscript(text)
 
   if (response?.data?.is_valid) {
-    dialogues.value.push(response.data)
+    const dialogue = response.data
+    dialogues.value.push(dialogue)
     autoScroll()
-    statusMessage.value = '✅ 问题已识别，等待大模型接入...'
+    statusMessage.value = '✅ 问题已识别，正在生成回答...'
+
+    if (!store.isConfigured) {
+      const idx = dialogues.value.findIndex(d => d.id === dialogue.id)
+      if (idx !== -1) {
+        dialogues.value[idx].answer = '请先在首页配置火山引擎API Key'
+      }
+      statusMessage.value = '⚠️ 未配置API Key，无法调用大模型'
+      return
+    }
+
+    await processQuestionStream(
+      {
+        question: text,
+        ark_api_key: store.apiKey,
+        model_id: store.modelId,
+        kb_id: store.kbId,
+        kb_api_key: store.kbApiKey
+      },
+      (chunk) => {
+        const idx = dialogues.value.findIndex(d => d.id === dialogue.id)
+        if (idx !== -1) {
+          dialogues.value[idx].answer += chunk
+          autoScroll()
+        }
+      },
+      (knowledgeUsed) => {
+        const idx = dialogues.value.findIndex(d => d.id === dialogue.id)
+        if (idx !== -1) {
+          if (!dialogues.value[idx].answer) {
+            dialogues.value[idx].answer = '生成失败'
+          }
+        }
+        statusMessage.value = '🎤 正在监听面试官提问...'
+      },
+      (error) => {
+        const idx = dialogues.value.findIndex(d => d.id === dialogue.id)
+        if (idx !== -1) {
+          dialogues.value[idx].answer = '生成失败: ' + error
+        }
+        statusMessage.value = '⚠️ 生成失败，请重试'
+      }
+    )
   } else {
     console.log('问题判断跳过:', response?.data?.reason)
   }
