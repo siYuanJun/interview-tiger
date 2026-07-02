@@ -43,3 +43,4 @@ logs/
 # AI Workflow内部文件
 .ai-workflow/logs/
 .ai-workflow/reports/
+data
