@@ -1,0 +1,45 @@
+# ==========================================
+# 隐私安全：以下文件绝对不能被Git追踪
+# ==========================================
+
+# 包含真实API密钥的文档
+docs/字节跳动接口调用指南.md
+
+# 环境变量文件（含密钥）
+.env
+.env.*.local
+backend/.env
+backend/.env.dev
+
+# 构建产物
+dist/
+frontend/dist/
+
+# Python缓存
+__pycache__/
+*.py[cod]
+*.egg-info/
+backend/venv/
+backend/.venv/
+
+# Dependencies
+node_modules/
+frontend/node_modules/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# Docker
+.docker/
+
+# AI Workflow内部文件
+.ai-workflow/logs/
+.ai-workflow/reports/

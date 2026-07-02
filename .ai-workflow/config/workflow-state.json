@@ -1,0 +1,46 @@
+{
+  "project": {
+    "name": "面试虎 - AI智能面试助手",
+    "slug": "interview-tiger",
+    "description": "面向个人求职者的本地化面试辅助工具，实时录音→语音识别→知识库检索→大模型生成个性化回答",
+    "created_at": "2026-07-02",
+    "status": "init"
+  },
+  "tech_stack": {
+    "frontend": {
+      "framework": "Vue 3",
+      "build_tool": "Vite",
+      "ui_library": "Tailwind CSS",
+      "state_management": "Pinia",
+      "language": "TypeScript"
+    },
+    "backend": {
+      "framework": "Python FastAPI",
+      "language": "Python 3.11+",
+      "package_manager": "pip"
+    },
+    "database": {
+      "type": "none",
+      "note": "纯本地运行，配置存储在浏览器localStorage，不使用服务端数据库"
+    },
+    "external_services": {
+      "llm": "火山引擎方舟平台 (Ark Chat Completions API)",
+      "knowledge_base": "火山引擎知识库 (SignerV4认证)"
+    },
+    "deployment": {
+      "type": "local",
+      "docker": false,
+      "startup": "npm run dev + python app/main.py"
+    }
+  },
+  "safety": {
+    "max_retries_per_task": 3,
+    "max_time_per_task_minutes": 30,
+    "max_tokens_per_task": 5000,
+    "on_circuit_break": "escalate_to_human"
+  },
+  "git": {
+    "initialized": true,
+    "branch": "master"
+  }
+}
