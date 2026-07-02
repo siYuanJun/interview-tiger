@@ -5,7 +5,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 import json
 
-from config import ARK_MODEL
+from config import ARK_MODEL, ARK_API_KEY, KB_ID, KB_API_KEY
 from app.services.knowledge import get_relevant_knowledge
 from app.services.llm import call_llm, call_llm_stream
 from app.services.prompt import build_messages
@@ -17,11 +17,21 @@ router = APIRouter()
 class QuestionRequest(BaseModel):
     """问题处理请求"""
     question: str = Field(..., min_length=1, max_length=2000, description="面试官问题文本")
-    ark_api_key: str = Field(..., description="火山引擎API Key")
+    ark_api_key: str = Field(default="", description="火山引擎API Key（留空则使用.env配置）")
     model_id: str = Field(default=ARK_MODEL, description="模型ID")
-    kb_id: str = Field(default="", description="知识库ID（可选）")
-    kb_api_key: str = Field(default="", description="知识库API Key（可选，AK:SK格式）")
+    kb_id: str = Field(default="", description="知识库ID（留空则使用.env配置）")
+    kb_api_key: str = Field(default="", description="知识库API Key（留空则使用.env配置，AK:SK格式）")
     stream: bool = Field(default=True, description="是否流式输出")
+
+
+def resolve_config(req: QuestionRequest):
+    """解析配置：前端传入优先，否则使用.env默认值"""
+    return {
+        "ark_api_key": req.ark_api_key or ARK_API_KEY,
+        "model_id": req.model_id or ARK_MODEL,
+        "kb_id": req.kb_id or KB_ID,
+        "kb_api_key": req.kb_api_key or KB_API_KEY,
+    }
 
 
 class QuestionResponse(BaseModel):
@@ -40,15 +50,22 @@ async def process_question(req: QuestionRequest):
     """
     logger.info(f"处理面试问题: {req.question[:50]}...")
 
+    # 解析配置：前端传入优先，否则使用.env默认值
+    cfg = resolve_config(req)
+
+    # 验证API Key
+    if not cfg["ark_api_key"]:
+        raise HTTPException(status_code=400, detail="ARK_API_KEY未配置，请在.env或请求中提供")
+
     # 第1步：知识库检索（如已配置）
     knowledge_context = ""
     use_web_search = False
-    if req.kb_id and req.kb_api_key:
-        logger.info(f"检索知识库: {req.kb_id}")
+    if cfg["kb_id"] and cfg["kb_api_key"]:
+        logger.info(f"检索知识库: {cfg['kb_id']}")
         knowledge_context = get_relevant_knowledge(
             query=req.question,
-            kb_id=req.kb_id,
-            kb_api_key=req.kb_api_key
+            kb_id=cfg["kb_id"],
+            kb_api_key=cfg["kb_api_key"]
         )
         if knowledge_context:
             logger.info(f"知识库命中: {len(knowledge_context)}字")
@@ -62,8 +79,8 @@ async def process_question(req: QuestionRequest):
     # 第3步：调用大模型
     answer = call_llm(
         messages=messages,
-        api_key=req.ark_api_key,
-        model=req.model_id,
+        api_key=cfg["ark_api_key"],
+        model=cfg["model_id"],
         temperature=0.7,
         max_tokens=1000,
         enable_search=use_web_search
@@ -93,14 +110,21 @@ async def process_question_stream(req: QuestionRequest):
     """
     logger.info(f"流式处理面试问题: {req.question[:50]}...")
 
+    # 解析配置：前端传入优先，否则使用.env默认值
+    cfg = resolve_config(req)
+
+    # 验证API Key
+    if not cfg["ark_api_key"]:
+        raise HTTPException(status_code=400, detail="ARK_API_KEY未配置，请在.env或请求中提供")
+
     # 第1步：知识库检索
     knowledge_context = ""
     use_web_search = False
-    if req.kb_id and req.kb_api_key:
+    if cfg["kb_id"] and cfg["kb_api_key"]:
         knowledge_context = get_relevant_knowledge(
             query=req.question,
-            kb_id=req.kb_id,
-            kb_api_key=req.kb_api_key
+            kb_id=cfg["kb_id"],
+            kb_api_key=cfg["kb_api_key"]
         )
         if not knowledge_context:
             logger.info("知识库无匹配结果，开启联网搜索降级模式")
@@ -120,8 +144,8 @@ async def process_question_stream(req: QuestionRequest):
             # 流式调用大模型
             for chunk in call_llm_stream(
                 messages=messages,
-                api_key=req.ark_api_key,
-                model=req.model_id,
+                api_key=cfg["ark_api_key"],
+                model=cfg["model_id"],
                 temperature=0.7,
                 max_tokens=1000,
                 enable_search=use_web_search
