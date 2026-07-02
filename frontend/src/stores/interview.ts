@@ -1,6 +1,7 @@
 // 面试状态管理 Pinia Store - TASK-016
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { DEFAULT_MODEL_ID, DEFAULT_KB_ID } from '@/constants'
 
 export interface DialogueItem {
   id: string
@@ -27,9 +28,9 @@ export const useInterviewStore = defineStore('interview', () => {
 
   // --- 配置 ---
   const apiKey = ref(localStorage.getItem('ark_api_key') || '')
-  const kbId = ref(localStorage.getItem('kb_id') || '')
+  const kbId = ref(localStorage.getItem('kb_id') || DEFAULT_KB_ID)
   const kbApiKey = ref(localStorage.getItem('kb_api_key') || '')
-  const modelId = ref(localStorage.getItem('model_id') || 'doubao-seed-2-1-pro-260628')
+  const modelId = ref(localStorage.getItem('model_id') || DEFAULT_MODEL_ID)
 
   // --- 计算属性 ---
   const dialogueCount = computed(() => dialogues.value.length)

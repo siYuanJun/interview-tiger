@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useInterviewStore } from '@/stores/interview'
+import { DEFAULT_MODEL_ID } from '@/constants'
 
 const emit = defineEmits<{
   close: []
@@ -11,7 +12,7 @@ const store = useInterviewStore()
 const apiKey = ref('')
 const kbId = ref('')
 const kbApiKey = ref('')
-const modelId = ref('doubao-seed-2-1-pro-260628')
+const modelId = ref(DEFAULT_MODEL_ID)
 const saved = ref(false)
 
 onMounted(() => {
@@ -76,7 +77,7 @@ function saveConfig() {
           <input
             v-model="kbId"
             type="text"
-            placeholder="输入知识库ID（如 kb-xxx）"
+            placeholder="输入知识库ID（如 siyuan_jianli）"
             class="input-field"
           />
         </div>
@@ -105,11 +106,11 @@ function saveConfig() {
           <input
             v-model="modelId"
             type="text"
-            placeholder="doubao-seed-2-1-pro-260628"
+            placeholder="deepseek-v4-flash-260425"
             class="input-field"
           />
           <p class="text-xs text-gray-400 mt-1">
-            推荐 doubao-seed-2-1-pro-260628 或 doubao-seed-2-0-mini-260215
+            推荐 deepseek-v4-flash-260425（高性价比）或 deepseek-v4-pro
           </p>
         </div>
       </div>

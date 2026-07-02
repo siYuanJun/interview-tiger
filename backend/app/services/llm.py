@@ -4,6 +4,8 @@ import logging
 from typing import Generator
 import requests
 
+from config import ARK_MODEL
+
 logger = logging.getLogger("interview-tiger")
 
 # 大模型API配置
@@ -13,12 +15,12 @@ LLM_API_URL = "https://ark.cn-beijing.volces.com/api/v3/chat/completions"
 def call_llm(
     messages: list[dict],
     api_key: str,
-    model: str = "doubao-seed-2-1-pro-260628",
+    model: str = ARK_MODEL,
     temperature: float = 0.7,
     max_tokens: int = 1000,
     stream: bool = False
 ) -> str | None:
-    """调用豆包大模型（非流式）
+    """调用大模型（非流式）
 
     Args:
         messages: 消息列表 [{"role": "user", "content": "..."}]
@@ -67,11 +69,11 @@ def call_llm(
 def call_llm_stream(
     messages: list[dict],
     api_key: str,
-    model: str = "doubao-seed-2-1-pro-260628",
+    model: str = ARK_MODEL,
     temperature: float = 0.7,
     max_tokens: int = 1000
 ) -> Generator[str, None, None]:
-    """调用豆包大模型（流式SSE）
+    """调用大模型（流式SSE）
 
     Args:
         messages: 消息列表

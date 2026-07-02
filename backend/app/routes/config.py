@@ -3,6 +3,8 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 import logging
 
+from config import ARK_MODEL
+
 logger = logging.getLogger("interview-tiger")
 router = APIRouter()
 
@@ -11,7 +13,7 @@ class SaveConfigRequest(BaseModel):
     """保存配置请求"""
     ark_api_key: str = Field(default="", description="火山引擎API Key")
     kb_id: str = Field(default="", description="知识库ID")
-    model_id: str = Field(default="doubao-seed-2-1-pro-260628", description="模型ID")
+    model_id: str = Field(default=ARK_MODEL, description="模型ID")
 
 
 class ConfigInfo(BaseModel):

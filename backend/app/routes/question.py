@@ -5,6 +5,7 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 import json
 
+from config import ARK_MODEL
 from app.services.knowledge import get_relevant_knowledge
 from app.services.llm import call_llm, call_llm_stream
 from app.services.prompt import build_messages
@@ -17,7 +18,7 @@ class QuestionRequest(BaseModel):
     """问题处理请求"""
     question: str = Field(..., min_length=1, max_length=2000, description="面试官问题文本")
     ark_api_key: str = Field(..., description="火山引擎API Key")
-    model_id: str = Field(default="doubao-seed-2-1-pro-260628", description="模型ID")
+    model_id: str = Field(default=ARK_MODEL, description="模型ID")
     kb_id: str = Field(default="", description="知识库ID（可选）")
     kb_api_key: str = Field(default="", description="知识库API Key（可选，AK:SK格式）")
     stream: bool = Field(default=True, description="是否流式输出")

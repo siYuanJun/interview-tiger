@@ -8,7 +8,7 @@
 
 - 🎤 **实时语音识别**：基于浏览器 Web Speech API，面试官提问即时转文字
 - 📚 **知识库增强**：接入火山引擎知识库 RAG 检索，结合你的个人简历/项目经历
-- 🧠 **大模型生成**：火山引擎豆包大模型生成个性化 STAR 法则回答建议
+- 🧠 **大模型生成**：DeepSeek V4 Flash 大模型生成个性化 STAR 法则回答建议
 - 📱 **响应式适配**：PC端左右两栏，移动端上下布局
 - 🔒 **数据安全**：API Key 仅存储在浏览器本地，纯本地运行
 
@@ -18,7 +18,7 @@
 |------|------|
 | 前端 | Vue 3 + Vite + Tailwind CSS + Pinia + TypeScript |
 | 后端 | Python FastAPI |
-| 大模型 | 火山引擎方舟平台 (Ark Chat Completions) |
+| 大模型 | 火山引擎方舟平台 (DeepSeek V4 Flash) |
 | 知识库 | 火山引擎知识库 (SignerV4 + RAG) |
 | 语音识别 | Web Speech API (浏览器原生) |
 | 音频采集 | MediaRecorder API (浏览器原生) |
@@ -38,7 +38,7 @@ cd backend
 pip install -r requirements.txt
 
 # 配置环境变量（可选，也可在前端页面配置）
-cp .env.dev .env
+cp .env.example .env
 # 编辑 .env 填入 ARK_API_KEY 和 KB_ID
 
 python app/main.py
@@ -58,9 +58,9 @@ npm run dev
 
 在首页右上角⚙️设置中填入：
 - **大模型 API Key**：火山引擎方舟平台 Bearer Token
-- **知识库 ID**：kb-xxx 格式
+- **知识库 ID**：siyuan_jianli 或自定义
 - **知识库 API Key**：AK:SK 格式的知识库密钥
-- **模型 ID**：推荐 `doubao-seed-2-1-pro-260628`
+- **模型 ID**：推荐 `deepseek-v4-flash-260425`
 
 ## 📂 项目结构
 
