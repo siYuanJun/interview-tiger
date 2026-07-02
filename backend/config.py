@@ -19,6 +19,12 @@ KB_BASE_URL = os.getenv("KB_BASE_URL", "https://api-knowledgebase.mlp.cn-beijing
 # WEB_SEARCH_BOT_ID: Bot应用ID，用于联网搜索（在方舟控制台创建Bot并开通联网插件后获取）
 WEB_SEARCH_BOT_ID = os.getenv("WEB_SEARCH_BOT_ID", "")
 
+# 火山引擎语音识别（ASR）— 豆包同款引擎
+ASR_APP_ID = os.getenv("ASR_APP_ID", "")
+ASR_TOKEN = os.getenv("ASR_TOKEN", "")
+ASR_CLUSTER = os.getenv("ASR_CLUSTER", "volcengine_streaming_common")
+ASR_WS_URL = os.getenv("ASR_WS_URL", "wss://openspeech.bytedance.com/api/v2/asr")
+
 # 服务配置
 BACKEND_HOST = os.getenv("BACKEND_HOST", "0.0.0.0")
 BACKEND_PORT = int(os.getenv("BACKEND_PORT", "8000"))

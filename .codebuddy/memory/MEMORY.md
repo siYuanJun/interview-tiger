@@ -14,21 +14,38 @@
 ## Docker 化
 - 后端 Docker 启动（`docker compose up -d backend`），前端 Mac 宿主机直接启动
 - 桥接网络 `172.30.90.0/24`，静态 IP `172.30.90.10`
-- 端口映射 `8001:8000`（8000 被 online-code-runner 占用）
+- 端口映射 `8001:8000`（8000 被其他容器占用）
 - 国产镜像源：`docker.m.daocloud.io/library/python:3.12-slim`
+
+## 双引擎语音识别（ASR）
+- **引擎1（优先）**：火山引擎豆包大模型流式语音识别，WebSocket 双向流式
+- **引擎2（降级）**：浏览器 Web Speech API，连接失败时自动回退
+- 接入地址：`wss://openspeech.bytedance.com/api/v2/asr`
+- 音频格式：PCM 16-bit / 16kHz / 单声道
+- 后端代理：`backend/app/services/asr.py` + `routes/asr.py`
+
+## 联网搜索降级
+- 知识库无结果 → 自动开启联网搜索
+- 两种方式：① Bot 应用端点（WEB_SEARCH_BOT_ID）② `enable_search` 参数
+- 当前使用方式②（`enable_search=True`）
 
 ## 关键文件
 - `backend/.env` — 真实密钥（Git 忽略）
-- `backend/Dockerfile` — 后端镜像
+- `backend/Dockerfile` / `.dockerignore` — 后端镜像
 - `docker-compose.yml` — 后端服务编排
-- `scripts/check_mirrors.sh` — 国产镜像校验
-- `scripts/export_images.sh` — 镜像导出
+- `scripts/check_mirrors.sh` / `export_images.sh` — 校验与导出
+- `frontend/src/composables/useVolcanoASR.ts` — 火山ASR对接
+- `docs/模块1-语音识别引擎升级需求文档.md` — ASR需求分析文档
 
 ## 启动命令
 ```bash
-# 后端
+# 后端（Docker）
 docker compose up -d backend
-
-# 前端（在 Mac 宿主机）
+# 前端（Mac 宿主机）
 cd frontend && npm run dev
 ```
+
+## 用户偏好
+- 用户喜欢看到完整的需求分析文档（meta-agent-collaboration 风格）
+- 用户喜欢用指令驱动工作流（ai-dev-workflow, meta-feature-dev 等）
+- 密钥必须放在配置文件里，不提交Git但本地可用

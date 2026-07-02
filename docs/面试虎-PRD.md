@@ -43,7 +43,7 @@ AI智能面试助手是一款面向个人求职者的本地化面试辅助工具
 |------|------|------|
 | 面试控制 | 开始/结束面试 | 点击后请求麦克风权限，开始录音 |
 | 语音采集 | 实时录音 | 基于浏览器MediaRecorder API采集麦克风音频 |
-| 语音识别 | 语音转文字 | 基于浏览器Web Speech API实现实时语音识别 |
+| 语音识别 | 语音转文字 | **双引擎**：火山引擎豆包 ASR（优先）→ 浏览器 Web Speech API（降级回退） |
 | 问题判断 | 识别是否为疑问句 | 判断识别出的文本是否为面试官提问 |
 | 知识库检索 | RAG检索 | 调用火山引擎知识库接口，检索与问题相关的个人资料 |
 | 答案生成 | 大模型推理 | 调用火山引擎大模型接口，生成个性化回答 |
@@ -60,45 +60,47 @@ AI智能面试助手是一款面向个人求职者的本地化面试辅助工具
 | 前端 | Vue 3 + Vite | 响应式UI框架，支持PC/移动端 |
 | 前端UI | Tailwind CSS / Element Plus | 快速构建简洁界面 |
 | 前端录音 | MediaRecorder API + Web Audio API | 浏览器原生录音能力 |
-| 前端语音识别 | Web Speech API (SpeechRecognition) | 浏览器原生语音转文字 |
-| 后端 | Python + Flask/FastAPI | 轻量级后端服务 |
-| 大模型 | 火山引擎方舟平台 (Responses API) | 文本生成 |
+| 前端语音识别 | 火山引擎豆包 ASR + Web Speech API（降级） | **双引擎**：AudioContext PCM → 后端 WebSocket → 火山引擎实时识别；失败时自动回退浏览器原生识别 |
+| 后端 | Python + FastAPI | 轻量级后端服务 |
+| 后端语音代理 | WebSocket 代理 | 前端 ↔ 后端 ↔ 火山引擎 ASR 三层 WebSocket 转接 |
+| 大模型 | 火山引擎方舟平台 (DeepSeek V4 Flash) | 文本生成 + 联网搜索降级 |
 | 知识库 | 火山引擎企业知识引擎 (RAG API) | 知识库检索增强生成 |
-| 部署方式 | 本地启动 | npm run dev + python app.py |
+| 部署方式 | Docker (后端) + Mac宿主机 (前端) | docker compose up + npm run dev |
 
 ### 3.2 系统架构图
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                         前端 (Vue 3)                        │
-│  ┌──────────┐  ┌──────────────┐  ┌──────────────────────┐  │
-│  │ 录音模块  │→│ 语音识别模块  │→│  对话展示 (左/右)    │  │
-│  │(Media-   │  │(Web Speech   │  │  问题 | 答案         │  │
-│  │ Recorder)│  │   API)       │  └──────────────────────┘  │
-│  └──────────┘  └──────────────┘           ↑               │
-│                                            │               │
-└────────────────────────────────────────────┼───────────────┘
-                                             │ HTTP/WebSocket
-                                             ↓
+│  ┌──────────┐  ┌───────────────────┐  ┌──────────────┐    │
+│  │ 录音模块  │→│ 语音识别模块       │→│ 对话展示     │    │
+│  │(Audio-   │  │(豆包ASR优先       │  │ (左/右)      │    │
+│  │ Context) │  │ WebSpeech降级)    │  │ 问题 | 答案  │    │
+│  └──────────┘  └───────────────────┘  └──────────────┘    │
+│                       │ PCM→WebSocket                     │
+└───────────────────────┼───────────────────────────────────┘
+                        │ WebSocket /api/asr/stream
+                        ↓
 ┌─────────────────────────────────────────────────────────────┐
-│                      后端 (Python)                          │
+│                      后端 (Python FastAPI)                   │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────────┐  │
-│  │ 文本处理模块  │→│ 问题判断模块  │→│ Prompt拼接模块   │  │
-│  │(接收识别结果)│  │(疑问句识别)  │  │(知识库上下文注入)│  │
-│  └──────────────┘  └──────────────┘  └──────────────────┘  │
-│         ↑                                    ↓              │
-│         │                          ┌──────────────────┐     │
-│         │                          │   API调用模块    │     │
-│         │                          └──────────────────┘     │
-│         │                                    ↓              │
-└─────────┼────────────────────────────────────┼──────────────┘
-          │                                    │
-          ↓                                    ↓
-┌─────────────────┐                  ┌─────────────────────────┐
-│  火山引擎知识库  │                  │   火山引擎大模型        │
-│  (RAG API)      │                  │   (Responses API)       │
-│  检索个人资料    │                  │   生成个性化回答        │
-└─────────────────┘                  └─────────────────────────┘
+│  │ ASR代理模块  │  │ 问题判断模块  │→│ Prompt拼接模块   │  │
+│  │(WebSocket    │  │(疑问句识别)  │  │(知识库上下文注入)│  │
+│  │ 转接火山ASR) │  └──────────────┘  └──────────────────┘  │
+│  └──────────────┘                        ↓                 │
+│       ↓ WebSocket               ┌──────────────────┐       │
+└──────┼──────────────────────────│   API调用模块    │───────┘
+       ↓                          └──────────────────┘       │
+┌──────────────────┐                        ↓                 │
+│  火山引擎ASR     │              ┌───────────────────────┐   │
+│  (豆包语音同款)  │              │  火山引擎大模型       │   │
+│  实时语音→文字   │              │  DeepSeek V4 Flash    │   │
+│  WebSocket流式  │              │  + 联网搜索降级       │   │
+└──────────────────┘              └───────────────────────┘   │
+                                     ┌─────────────────┐     │
+                                     │ 火山引擎知识库  │     │
+                                     │ RAG检索个人资料 │     │
+                                     └─────────────────┘     │
 ```
 
 
@@ -127,13 +129,33 @@ AI智能面试助手是一款面向个人求职者的本地化面试辅助工具
 
 #### 4.2.1 技术方案
 
-采用浏览器原生API方案，无需第三方服务：
+采用**双引擎方案**，火山引擎豆包 ASR 优先，浏览器 Web Speech API 降级回退：
 
-1. **麦克风权限获取**：`navigator.mediaDevices.getUserMedia({ audio: true })`
-2. **音频录制**：`MediaRecorder` API 录制音频流
-3. **语音识别**：`SpeechRecognition` (或 `webkitSpeechRecognition`) 实现实时语音转文字
+**引擎1（优先）：火山引擎豆包大模型流式语音识别**
+
+- 豆包输入法同款引擎，中文识别精度高
+- 通过 WebSocket 双向流式实时识别（边说话边出文字）
+- 音频格式：PCM 16-bit / 16kHz / 单声道
+- 连接链路：浏览器 AudioContext → PCM base64 → 后端 WebSocket 代理 → 火山引擎 ASR
+- Token 安全：密钥存储在后端 `.env`，不暴露给前端
+
+**引擎2（降级回退）：浏览器 Web Speech API**
+
+- 当火山引擎 ASR 连接失败（未配置密钥、服务不可用）时自动回退
+- 仅支持 Chrome 80+ / Edge 80+，其他浏览器不可用
+- 无额外成本，识别精度一般
 
 #### 4.2.2 关键配置
+
+**火山引擎 ASR 配置**：
+
+```bash
+# backend/.env
+ASR_APP_ID=your_asr_app_id       # 火山引擎语音识别应用ID
+ASR_TOKEN=your_asr_token          # 火山引擎语音识别Token
+```
+
+**浏览器 Web Speech API 配置**（降级时自动生效）：
 
 ```javascript
 const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
@@ -142,11 +164,23 @@ recognition.interimResults = true;  // 返回临时结果
 recognition.lang = 'zh-CN';         // 中文识别
 ```
 
-#### 4.2.3 识别结果处理
+#### 4.2.3 ASR WebSocket 接口
 
-- 实时获取识别文本（`onresult`事件）
+- **前端 → 后端**：WebSocket `/api/asr/stream`
+  - 发送：`{"type": "audio", "data": "<base64 PCM>"}` 或 `{"type": "finish"}`
+- **后端 → 火山引擎**：WebSocket `wss://openspeech.bytedance.com/api/v2/asr`
+  - 自定义二进制帧协议：4字节头 + 4字节载荷大小 + gzip压缩数据
+  - 认证：`Authorization: Bearer;{Token}`
+- **后端 → 前端**：
+  - 返回：`{"type": "result", "text": "识别文本", "is_final": false/true}`
+  - 错误：`{"type": "error", "message": "错误信息"}`
+
+#### 4.2.4 识别结果处理
+
+- 实时获取识别文本（增量返回，非全量）
 - 通过防抖/节流控制发送频率，避免频繁请求
-- 区分临时结果（`interim`）和最终结果（`final`），仅在最终结果稳定后触发后续流程
+- 区分临时结果（`is_final: false`）和最终结果（`is_final: true`），仅在最终结果稳定后触发后续流程
+- 火山引擎 ASR 连接失败时，自动回退到浏览器 Web Speech API
 
 ### 4.3 问题判断模块
 
@@ -338,8 +372,9 @@ interface DialogueItem {
 |------|------|------|------|
 | 配置保存 | POST | /api/config | 保存API Key、知识库ID等 |
 | 配置获取 | GET | /api/config | 获取当前配置 |
-| 语音转文字 | POST | /api/transcribe | 接收前端识别的文本（备选，若前端不做识别） |
+| 语音识别 | WebSocket | /api/asr/stream | PCM音频流式识别（前端→后端→火山引擎ASR代理） |
 | 问题处理 | POST | /api/question | 接收问题文本，返回AI回答 |
+| 问题处理(流式) | POST | /api/question/stream | SSE流式返回AI回答 |
 | 知识库检索 | POST | /api/search | 检索知识库（后端代理调用火山引擎） |
 | 大模型调用 | POST | /api/generate | 生成回答（后端代理调用火山引擎） |
 | 健康检查 | GET | /api/health | 服务状态检查 |
@@ -426,10 +461,11 @@ data: [DONE]
 **难点**：面试环境可能存在噪音、口音、语速差异，浏览器原生Web Speech API的识别准确率有限。
 
 **对策**：
+- **已实现**：接入火山引擎豆包大模型流式语音识别（与豆包输入法同引擎），中文识别精度显著提升
+- **降级机制**：火山引擎 ASR 连接失败时自动回退到浏览器 Web Speech API
 - 提示用户在安静环境使用
 - 启用`interimResults`显示实时识别过程，让用户感知识别状态
 - 在设置中提供麦克风音量检测和调试功能
-- 后续可扩展接入火山引擎语音识别服务作为增强方案
 
 ### 6.2 问题判断的准确性
 
@@ -465,9 +501,10 @@ data: [DONE]
 **难点**：Web Speech API在部分浏览器（如Safari部分版本）支持有限。
 
 **对策**：
+- **已实现**：火山引擎 ASR 通过后端 WebSocket 代理，前端仅需 AudioContext（全浏览器兼容）
+- 火山引擎 ASR 失败时自动回退到浏览器 Web Speech API（仅 Chrome/Edge）
 - 在页面启动时检测浏览器兼容性
-- 不支持的浏览器提示用户切换Chrome/Edge
-- 提供备选方案：用户可手动输入问题文本（替代语音识别）
+- 两种方式都失败时，提供手动输入问题文本的备选方案
 
 ### 6.6 长对话的上下文管理
 
@@ -502,10 +539,12 @@ ai-interview-assistant/
 │   │   │   └── DialogueItem.vue # 单条对话组件
 │   │   ├── composables/
 │   │   │   ├── useRecorder.ts   # 录音逻辑
-│   │   │   ├── useSpeech.ts     # 语音识别逻辑
+│   │   │   ├── useSpeech.ts     # 语音识别（双引擎：豆包ASR + Web Speech降级）
+│   │   │   ├── useVolcanoASR.ts # 火山引擎ASR WebSocket对接层
 │   │   │   └── useApi.ts        # API调用逻辑
 │   │   ├── stores/
 │   │   │   └── interview.ts     # Pinia状态管理
+│   │   ├── constants.ts         # 前端常量（模型ID/知识库ID）
 │   │   ├── App.vue
 │   │   └── main.ts
 │   ├── index.html
@@ -518,16 +557,28 @@ ai-interview-assistant/
 │   │   ├── routes/
 │   │   │   ├── config.py        # 配置接口
 │   │   │   ├── question.py      # 问题处理接口
+│   │   │   ├── generate.py      # 大模型生成接口
+│   │   │   ├── search.py        # 知识库检索接口
+│   │   │   ├── asr.py           # 语音识别WebSocket代理
 │   │   │   └── health.py        # 健康检查
 │   │   ├── services/
 │   │   │   ├── knowledge.py     # 知识库检索服务
-│   │   │   ├── llm.py           # 大模型调用服务
+│   │   │   ├── llm.py           # 大模型调用服务（含联网搜索降级）
+│   │   │   ├── asr.py           # 火山引擎ASR WebSocket客户端
 │   │   │   └── prompt.py        # Prompt拼接服务
-│   │   └── utils/
-│   │       └── validator.py     # 参数校验
 │   ├── requirements.txt
-│   └── config.py                # 配置文件（本地）
-├── docker-compose.yml           # （可选）容器化部署
+│   ├── Dockerfile               # Docker镜像（国产源）
+│   ├── .env                     # 真实密钥（Git忽略）
+│   ├── .env.example             # 密钥模板
+│   └── config.py                # 集中配置文件
+├── scripts/
+│   │   ├── export_images.sh     # Docker镜像导出
+│   │   └── check_mirrors.sh     # 国产镜像源校验
+├── docker-compose.yml           # 后端容器编排（桥接网络+静态IP）
+├── docs/
+│   │   ├── 面试虎-PRD.md         # 本文档
+│   │   ├── 模块1-语音识别引擎升级需求文档.md  # ASR功能需求分析
+│   │   └── 字节跳动接口调用指南.md  # API密钥指南（Git忽略）
 ├── README.md
 └── PRD.md                       # 本文档
 ```
@@ -538,19 +589,18 @@ ai-interview-assistant/
 ### 8.1 前置条件
 
 1. 火山引擎账号（已实名认证）
-2. 已开通火山方舟大模型服务
+2. 已开通火山方舟大模型服务 + DeepSeek V4 Flash 模型
 3. 已创建API Key
-4. 已创建知识库并上传文档
+4. 已创建知识库并上传文档（知识库ID：siyuan_jianli）
+5. 已开通火山引擎语音识别服务（豆包大模型流式语音识别），获取 ASR_APP_ID 和 ASR_TOKEN
 
 ### 8.2 本地启动
 
 ```bash
-# 后端启动
-cd backend
-pip install -r requirements.txt
-python app/main.py
+# 后端启动（Docker）
+docker compose up -d backend
 
-# 前端启动（新终端）
+# 前端启动（Mac 宿主机）
 cd frontend
 npm install
 npm run dev
@@ -559,10 +609,22 @@ npm run dev
 ### 8.3 环境变量
 
 ```bash
-# backend/.env
+# backend/.env（不提交Git）
+
+# 大模型
 ARK_API_KEY=your_api_key_here
-KB_ID=your_knowledge_base_id
-MODEL_ID=doubao-seed-2-1-pro-260628
+ARK_MODEL=deepseek-v4-flash-260425
+
+# 知识库
+KB_ID=siyuan_jianli
+KB_API_KEY=your_ak_sk_here
+
+# 语音识别（豆包同款引擎）
+ASR_APP_ID=your_asr_app_id
+ASR_TOKEN=your_asr_token
+
+# 联网搜索（可选，知识库无结果时降级）
+# WEB_SEARCH_BOT_ID=bot-xxx
 ```
 
 
@@ -590,6 +652,8 @@ MODEL_ID=doubao-seed-2-1-pro-260628
 | **面试记录如何保存** | 提供“导出对话记录”功能（JSON/TXT/Markdown格式），方便用户复盘 |
 | **知识库更新滞后** | 在配置页面显示知识库状态（就绪/解析中/不可用），并提示用户等待 |
 | **多轮对话的上下文** | 在Prompt中自动携带最近2轮对话历史，保持回答的连贯性 |
+| **ASR密钥如何配置** | ASR_TOKEN和ASR_APP_ID在后端`.env`中配置，不提交Git；未配置时自动降级到浏览器Web Speech API |
+| **ASR成本控制** | 火山引擎ASR按音频时长计费（约0.03元/分钟），面试30分钟约0.9元；支持并发版固定计费 |
 
 
 ## 附录
@@ -597,11 +661,13 @@ MODEL_ID=doubao-seed-2-1-pro-260628
 ### A. 火山引擎相关文档
 
 - 火山方舟大模型平台：[https://www.volcengine.com/docs/82379](https://www.volcengine.com/docs/82379)
-- Responses API文档：[https://www.volcengine.com/docs/82379/1585128](https://www.volcengine.com/docs/82379/1585128)
-- 文本生成API文档：[https://www.volcengine.com/docs/82379/1399009](https://www.volcengine.com/docs/82379/1399009)
+- 文本生成 Chat API：[https://www.volcengine.com/docs/82379/1399009](https://www.volcengine.com/docs/82379/1399009)
 - 企业知识引擎API：[https://www.volcengine.com/docs/86760/1869536](https://www.volcengine.com/docs/86760/1869536)
+- **豆包语音 · 大模型流式语音识别**：[https://www.volcengine.com/docs/6561/1354869](https://www.volcengine.com/docs/6561/1354869)
+- **语音识别计费说明**：[https://www.volcengine.com/docs/6561/1359370](https://www.volcengine.com/docs/6561/1359370)
 
 ### B. 浏览器API参考
 
 - MediaStream Recording API：[https://developer.mozilla.org/zh-CN/docs/Web/API/MediaStream_Recording_API](https://developer.mozilla.org/zh-CN/docs/Web/API/MediaStream_Recording_API)
 - Web Speech API：[https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API)
+- Web Audio API (AudioContext)：[https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API)

@@ -2,7 +2,6 @@
 // 面试页面主组件 - TASK-014
 import { ref, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
-import { useRecorder } from '@/composables/useRecorder'
 import { useSpeech } from '@/composables/useSpeech'
 import { useApi } from '@/composables/useApi'
 import { useInterviewStore } from '@/stores/interview'
@@ -11,8 +10,7 @@ import DialogueItem from '@/components/DialogueItem.vue'
 
 const router = useRouter()
 const store = useInterviewStore()
-const { isRecording, startRecording, stopRecording, error: recorderError } = useRecorder()
-const { isListening, currentText, finalText, isSupported, startListening, stopListening } = useSpeech()
+const { isListening, currentText, finalText, isSupported, startListening, stopListening, error: speechError } = useSpeech()
 const { processQuestionStream, error: apiError } = useApi()
 
 const statusMessage = ref('准备中...')
@@ -34,33 +32,26 @@ onMounted(async () => {
     return
   }
 
-  // 开始录音
-  statusMessage.value = '正在请求麦克风权限...'
-  const ok = await startRecording()
-  if (!ok) {
-    statusMessage.value = '麦克风权限获取失败: ' + (recorderError.value || '未知错误')
-    return
-  }
-
-  // 开始语音识别
+  // 开始语音识别（内部已包含录音逻辑）
   statusMessage.value = '正在启动语音识别...'
   store.startInterview()
   store.setPhase('listening')
-  statusMessage.value = '🎤 正在监听面试官提问...'
 
-  startListening({
+  const speechOk = await startListening({
     onResult: handleSpeechResult,
     onError: (err) => {
       statusMessage.value = '识别错误: ' + err
     }
   })
-
-  isRecording.value = true
+  if (!speechOk) {
+    statusMessage.value = '语音识别启动失败: ' + (speechError.value || '未知错误')
+    return
+  }
+  statusMessage.value = '🎤 正在监听面试官提问...'
 })
 
 onUnmounted(() => {
   stopListening()
-  stopRecording()
 })
 
 // 处理语音识别结果
@@ -138,7 +129,6 @@ function confirmEndInterview() {
 
 function endInterview() {
   stopListening()
-  stopRecording()
   store.endInterview()
   router.push('/')
 }

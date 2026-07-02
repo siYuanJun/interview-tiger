@@ -56,12 +56,13 @@ async def http_exception_handler(request: Request, exc: FastAPIHTTPException):
 
 
 # 注册路由
-from app.routes import health, config, search, generate, question
+from app.routes import health, config, search, generate, question, asr
 app.include_router(health.router, prefix="/api", tags=["健康检查"])
 app.include_router(config.router, prefix="/api", tags=["配置"])
 app.include_router(search.router, prefix="/api", tags=["知识库检索"])
 app.include_router(generate.router, prefix="/api", tags=["大模型生成"])
 app.include_router(question.router, prefix="/api", tags=["问题处理"])
+app.include_router(asr.router, prefix="/api", tags=["语音识别"])
 
 
 @app.get("/")
