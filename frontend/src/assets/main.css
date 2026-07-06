@@ -98,12 +98,12 @@
   
   .dialogue-bubble-user {
     @apply bg-gradient-to-br from-primary to-secondary text-white px-5 py-4 rounded-2xl 
-           max-w-[80%] shadow-lg shadow-primary/20 rounded-tr-sm;
+           w-full shadow-lg shadow-primary/20 rounded-tr-sm;
   }
   
   .dialogue-bubble-ai {
     @apply bg-muted/50 backdrop-blur-md text-foreground px-5 py-4 rounded-2xl 
-           max-w-[80%] shadow-lg border border-border/30 rounded-tl-sm;
+           w-full shadow-lg border border-border/30 rounded-tl-sm;
   }
   
   .status-badge {

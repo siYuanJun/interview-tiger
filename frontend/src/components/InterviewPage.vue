@@ -34,7 +34,7 @@ interface InterimDialogue {
 
 const router = useRouter()
 const { isListening, currentText, state, isSupported, startListening, stopListening, forceStop, error: speechError } = useSpeech()
-const { submitTranscript, getDialogues, processQuestionStream, updateDialogue, error: apiError } = useApi()
+const { submitTranscript, getDialogues, processQuestionStream, updateDialogue, getConfig, error: apiError } = useApi()
 const store = useInterviewStore()
 
 const statusMessage = ref('准备中...')
@@ -42,6 +42,7 @@ const showEndConfirm = ref(false)
 const dialoguesContainer = ref<HTMLElement | null>(null)
 const dialogues = ref<Dialogue[]>([])
 const interimDialogue = ref<InterimDialogue | null>(null)
+const backendConfigured = ref(false)
 
 let sessionId = sessionStorage.getItem('interview_session_id') || `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
 sessionStorage.setItem('interview_session_id', sessionId)
@@ -50,6 +51,19 @@ onMounted(async () => {
   if (!isSupported()) {
     statusMessage.value = '浏览器不支持语音识别，请使用 Chrome 或 Edge 浏览器'
     return
+  }
+
+  const configRes = await getConfig()
+  backendConfigured.value = configRes?.data?.ark_api_key_configured || false
+  if (configRes?.data) {
+    if (!store.apiKey) {
+      store.saveConfig({
+        apiKey: '',
+        kbId: configRes.data.kb_id || '',
+        kbApiKey: '',
+        modelId: configRes.data.model_id || ''
+      })
+    }
   }
 
   const savedDialogues = await getDialogues(sessionId)
@@ -103,7 +117,7 @@ async function handleSpeechResult(result: { text: string; isFinal: boolean; conf
     autoScroll()
     statusMessage.value = '问题已识别，正在生成回答...'
 
-    if (!store.isConfigured) {
+    if (!store.isConfigured && !backendConfigured.value) {
       const idx = dialogues.value.findIndex(d => d.id === dialogue.id)
       if (idx !== -1) {
         dialogues.value[idx].answer = '请先在首页配置火山引擎API Key'
@@ -265,7 +279,7 @@ function getPhaseIcon() {
         <p class="text-xs text-foreground/30 mt-4">识别过程中点击"完成"按钮可手动提交</p>
       </div>
 
-      <div class="max-w-6xl mx-auto">
+      <div class="max-w-[95vw] md:max-w-5xl lg:max-w-7xl mx-auto">
         <template v-for="item in dialogues" :key="item.id">
           <DialogueItem :item="item" />
         </template>
@@ -274,8 +288,8 @@ function getPhaseIcon() {
           v-if="interimDialogue"
           class="flex gap-4 mb-4 animate-fade-in"
         >
-          <div class="flex-1 flex justify-end">
-            <div class="dialogue-bubble-user max-w-[80%] relative">
+          <div class="flex-1">
+            <div class="dialogue-bubble-user relative">
               <div class="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full animate-pulse"></div>
               <p class="text-sm text-foreground/90">{{ interimDialogue.question }}</p>
               <p class="text-xs text-foreground/40 mt-2 flex items-center gap-1">
