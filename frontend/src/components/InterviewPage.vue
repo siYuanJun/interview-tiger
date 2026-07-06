@@ -67,11 +67,12 @@ onMounted(async () => {
   }
 
   const savedDialogues = await getDialogues(sessionId)
-  if (savedDialogues?.data?.dialogues) {
-    dialogues.value = savedDialogues.data.dialogues
-  }
+    if (savedDialogues?.data?.dialogues) {
+      dialogues.value = savedDialogues.data.dialogues
+      autoScroll()
+    }
 
-  statusMessage.value = '正在启动语音识别...'
+    statusMessage.value = '正在启动语音识别...'
 
   const speechOk = await startListening({
     onResult: handleSpeechResult,
@@ -169,9 +170,11 @@ async function handleSpeechResult(result: { text: string; isFinal: boolean; conf
 
 function autoScroll() {
   nextTick(() => {
-    if (dialoguesContainer.value) {
-      dialoguesContainer.value.scrollTop = dialoguesContainer.value.scrollHeight
-    }
+    nextTick(() => {
+      if (dialoguesContainer.value) {
+        dialoguesContainer.value.scrollTop = dialoguesContainer.value.scrollHeight
+      }
+    })
   })
 }
 

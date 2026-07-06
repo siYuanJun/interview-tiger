@@ -85,6 +85,9 @@ onMounted(() => {
           <span class="text-xs font-medium text-primary bg-primary/10 px-3 py-1 rounded-full">
             AI建议
           </span>
+          <span class="text-xs text-white/50">
+            {{ formatTime(item.created_at) }}
+          </span>
         </div>
 
         <div v-if="item.answer" class="space-y-3">
