@@ -8,7 +8,10 @@ import {
   BookOpen, 
   Key, 
   Bot,
-  CheckCircle
+  CheckCircle,
+  HelpCircle,
+  ExternalLink,
+  ChevronRight
 } from 'lucide-vue-next'
 
 const emit = defineEmits<{
@@ -22,6 +25,35 @@ const kbId = ref('')
 const kbApiKey = ref('')
 const modelId = ref(DEFAULT_MODEL_ID)
 const saved = ref(false)
+const showHelp = ref(false)
+
+const helpDocs = [
+  {
+    question: '大模型 API Key 如何获取？',
+    description: '在火山引擎方舟平台创建应用，获取 Bearer Token',
+    link: 'https://my.feishu.cn/docx/AzijduiLDoSnsgxsaQsc7O3pnIb?from=from_copylink'
+  },
+  {
+    question: '模型 ID 在哪里查看？',
+    description: '方舟控制台模型市场，选择模型后查看模型标识符',
+    link: 'https://my.feishu.cn/docx/AzijduiLDoSnsgxsaQsc7O3pnIb?from=from_copylink'
+  },
+  {
+    question: '知识库 ID 如何获取？',
+    description: '知识库管理页面，查看知识库基本信息',
+    link: 'https://my.feishu.cn/docx/AzijduiLDoSnsgxsaQsc7O3pnIb?from=from_copylink'
+  },
+  {
+    question: '知识库 API Key（AK:SK）是什么？',
+    description: '火山引擎访问密钥，在密钥管理页面创建',
+    link: 'https://my.feishu.cn/docx/AzijduiLDoSnsgxsaQsc7O3pnIb?from=from_copylink'
+  },
+  {
+    question: '推荐使用哪些模型？',
+    description: 'deepseek-v4-flash（性价比）或 deepseek-v4-pro（高性能）',
+    link: 'https://my.feishu.cn/docx/AzijduiLDoSnsgxsaQsc7O3pnIb?from=from_copylink'
+  }
+]
 
 onMounted(() => {
   apiKey.value = store.apiKey
@@ -42,6 +74,10 @@ function saveConfig() {
     saved.value = false
   }, 2000)
 }
+
+function openLink(url: string) {
+  window.open(url, '_blank')
+}
 </script>
 
 <template>
@@ -57,12 +93,52 @@ function saveConfig() {
           </div>
           <h2 class="text-lg font-semibold text-foreground font-heading">设置</h2>
         </div>
-        <button
-          @click="emit('close')"
-          class="p-2 rounded-lg hover:bg-muted/50 transition-colors"
-        >
-          <X class="w-5 h-5 text-foreground/50" />
-        </button>
+        <div class="flex items-center gap-2">
+          <button
+            @click="showHelp = !showHelp"
+            class="p-2 rounded-lg hover:bg-muted/50 transition-colors"
+            :class="{ 'bg-primary/10 text-primary': showHelp }"
+            title="帮助"
+          >
+            <HelpCircle class="w-5 h-5" :class="showHelp ? 'text-primary' : 'text-foreground/50'" />
+          </button>
+          <button
+            @click="emit('close')"
+            class="p-2 rounded-lg hover:bg-muted/50 transition-colors"
+          >
+            <X class="w-5 h-5 text-foreground/50" />
+          </button>
+        </div>
+      </div>
+
+      <div v-if="showHelp" class="mb-6 p-4 bg-primary/5 border border-primary/20 rounded-xl">
+        <div class="flex items-center gap-2 mb-3">
+          <HelpCircle class="w-4 h-4 text-primary" />
+          <span class="text-sm font-medium text-foreground">常见问题</span>
+        </div>
+        <div class="space-y-2">
+          <div
+            v-for="(doc, index) in helpDocs"
+            :key="index"
+            class="group p-3 bg-muted/20 rounded-lg hover:bg-muted/40 transition-colors cursor-pointer"
+            @click="openLink(doc.link)"
+          >
+            <div class="flex items-center justify-between">
+              <span class="text-sm font-medium text-foreground/80">{{ doc.question }}</span>
+              <ChevronRight class="w-4 h-4 text-foreground/30 group-hover:text-primary transition-colors" />
+            </div>
+            <p class="text-xs text-foreground/40 mt-1">{{ doc.description }}</p>
+          </div>
+        </div>
+        <div class="mt-3 pt-3 border-t border-border/30">
+          <button
+            @click="openLink('https://my.feishu.cn/docx/AzijduiLDoSnsgxsaQsc7O3pnIb?from=from_copylink')"
+            class="w-full flex items-center justify-center gap-2 text-xs text-primary/70 hover:text-primary transition-colors"
+          >
+            <ExternalLink class="w-3 h-3" />
+            <span>查看完整配置文档</span>
+          </button>
+        </div>
       </div>
 
       <div class="space-y-4">
