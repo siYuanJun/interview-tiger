@@ -11,14 +11,6 @@ export interface SpeechResult {
   confidence: number
 }
 
-export interface SpeechState {
-  idle: 'idle'
-  starting: 'starting'
-  listening: 'listening'
-  recognizing: 'recognizing'
-  error: 'error'
-}
-
 export function useSpeech() {
   const isListening = ref(false)
   const currentText = ref('')
@@ -34,6 +26,9 @@ export function useSpeech() {
     onResult?: (result: SpeechResult) => void
     onError?: (error: string) => void
   } = {}
+  let isStopping = false
+  let isStarting = false
+  let generation = 0
 
   function isSupported(): boolean {
     return !!(window.SpeechRecognition || window.webkitSpeechRecognition)
@@ -43,14 +38,20 @@ export function useSpeech() {
     onResult?: (result: SpeechResult) => void
     onError?: (error: string) => void
   } = {}): Promise<boolean> {
+    if (isStarting) {
+      return false
+    }
+    
     error.value = null
     state.value = 'starting'
+    isStarting = true
     currentOptions = options
 
     if (!isSupported()) {
       error.value = '当前浏览器不支持语音识别，请使用 Chrome 或 Edge 浏览器'
       state.value = 'error'
       options.onError?.(error.value)
+      isStarting = false
       return false
     }
 
@@ -67,6 +68,8 @@ export function useSpeech() {
 
       const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition
       const rec = new SpeechRecognitionAPI()
+      generation++
+      const currentGeneration = generation
       recognition = rec
 
       rec.continuous = true
@@ -75,6 +78,8 @@ export function useSpeech() {
       rec.maxAlternatives = 1
 
       rec.onresult = (event: SpeechRecognitionEvent) => {
+        if (generation !== currentGeneration) return
+
         let interimText = ''
         let finalChunk = ''
 
@@ -98,6 +103,7 @@ export function useSpeech() {
           
           if (pauseTimer) clearTimeout(pauseTimer)
           pauseTimer = setTimeout(() => {
+            if (generation !== currentGeneration) return
             if (isListening.value && currentText.value.trim()) {
               const pausedResult = pauseRecognition()
               if (pausedResult) {
@@ -118,31 +124,58 @@ export function useSpeech() {
       }
 
       rec.onerror = (event: SpeechRecognitionErrorEvent) => {
+        if (generation !== currentGeneration) return
+
         const errorMsg = getErrorMessage(event.error)
         error.value = errorMsg
         state.value = 'error'
         options.onError?.(errorMsg)
 
         if (event.error === 'network' || event.error === 'no-speech') {
-          scheduleRestart(options)
+          scheduleRestart(options, currentGeneration)
         }
       }
 
       rec.onend = () => {
+        if (generation !== currentGeneration) return
+
+        if (isStopping) {
+          isStopping = false
+          state.value = 'idle'
+          return
+        }
+
         if (isListening.value && recognition) {
-          scheduleRestart(options)
+          scheduleRestart(options, currentGeneration)
         }
       }
 
-      rec.start()
+      try {
+        rec.start()
+      } catch (startErr: any) {
+        if (startErr.name === 'InvalidStateError' || startErr.message?.includes('already started')) {
+          try {
+            rec.stop()
+          } catch {
+            // ignore
+          }
+          await new Promise(resolve => setTimeout(resolve, 100))
+          rec.start()
+        } else {
+          throw startErr
+        }
+      }
+
       isListening.value = true
       state.value = 'listening'
+      isStarting = false
       return true
     } catch (e: any) {
       const errMsg = typeof e.message === 'string' ? e.message : '语音识别启动失败'
       error.value = errMsg
       state.value = 'error'
       options.onError?.(errMsg)
+      isStarting = false
       return false
     }
   }
@@ -150,18 +183,19 @@ export function useSpeech() {
   function scheduleRestart(options: {
     onResult?: (result: SpeechResult) => void
     onError?: (error: string) => void
-  }) {
+  }, expectedGeneration: number) {
     if (!isListening.value) return
     if (restartTimer) clearTimeout(restartTimer)
     restartTimer = setTimeout(() => {
-      if (isListening.value && recognition) {
-        try {
-          recognition.start()
-          state.value = 'listening'
-          error.value = null
-        } catch (e: any) {
-          options.onError?.(e.message || '重启识别失败')
-        }
+      if (generation !== expectedGeneration) return
+      if (!isListening.value || !recognition) return
+
+      try {
+        recognition.start()
+        state.value = 'listening'
+        error.value = null
+      } catch (e: any) {
+        options.onError?.(e.message || '重启识别失败')
       }
     }, 1000)
   }
@@ -181,6 +215,7 @@ export function useSpeech() {
 
   function stopListening() {
     isListening.value = false
+    isStopping = true
     if (restartTimer) {
       clearTimeout(restartTimer)
       restartTimer = null
@@ -203,6 +238,7 @@ export function useSpeech() {
     }
     state.value = 'idle'
     currentText.value = ''
+    isStopping = false
   }
 
   function resetText() {
@@ -216,6 +252,7 @@ export function useSpeech() {
     const allText = (finalText.value + ' ' + currentText.value).trim()
     
     isListening.value = false
+    isStopping = true
     if (restartTimer) {
       clearTimeout(restartTimer)
       restartTimer = null
@@ -228,6 +265,7 @@ export function useSpeech() {
     }
     recognition = null
     state.value = 'idle'
+    isStopping = false
 
     if (allText) {
       return {
@@ -245,6 +283,7 @@ export function useSpeech() {
     const allText = (finalText.value + ' ' + currentText.value).trim()
     
     isListening.value = false
+    isStopping = true
     if (restartTimer) {
       clearTimeout(restartTimer)
       restartTimer = null
@@ -257,6 +296,7 @@ export function useSpeech() {
     }
     recognition = null
     state.value = 'idle'
+    isStopping = false
 
     if (allText) {
       return {
