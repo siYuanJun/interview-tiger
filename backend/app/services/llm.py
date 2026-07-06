@@ -1,12 +1,10 @@
 # 火山引擎方舟大模型调用服务
 import json
-import logging
 from typing import Generator
 import requests
 
 from config import ARK_MODEL, WEB_SEARCH_BOT_ID
-
-logger = logging.getLogger("interview-tiger")
+from app.utils.logger import logger, log_api_error
 
 # 大模型API配置
 ARK_BASE_URL = "https://ark.cn-beijing.volces.com/api/v3"
@@ -74,13 +72,13 @@ def call_llm(
                 logger.warning(f"LLM返回格式异常: {result}")
                 return None
         else:
-            logger.error(f"LLM调用失败: HTTP {response.status_code} - {response.text[:200]}")
+            log_api_error("call_llm", Exception(f"HTTP {response.status_code}"), {"model": model, "status": response.status_code})
             return None
     except requests.Timeout:
-        logger.error("LLM调用超时")
+        log_api_error("call_llm", Exception("超时"), {"model": model})
         return None
     except Exception as e:
-        logger.error(f"LLM调用异常: {e}")
+        log_api_error("call_llm", e, {"model": model})
         return None
 
 
@@ -139,7 +137,7 @@ def call_llm_stream(
         )
 
         if response.status_code != 200:
-            logger.error(f"LLM流式调用失败: HTTP {response.status_code}")
+            log_api_error("call_llm_stream", Exception(f"HTTP {response.status_code}"), {"model": model})
             yield "[错误] 大模型调用失败，请检查API Key配置"
             return
 
@@ -162,8 +160,8 @@ def call_llm_stream(
                 pass
 
     except requests.Timeout:
-        logger.error("LLM流式调用超时")
+        log_api_error("call_llm_stream", Exception("超时"), {"model": model})
         yield "[错误] 请求超时，请稍后重试"
     except Exception as e:
-        logger.error(f"LLM流式调用异常: {e}")
+        log_api_error("call_llm_stream", e, {"model": model})
         yield "[错误] 服务异常，请稍后重试"

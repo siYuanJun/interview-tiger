@@ -1,12 +1,11 @@
 # 火山引擎知识库检索服务
 import json
-import logging
 import requests
 from volcengine.auth.SignerV4 import SignerV4
 from volcengine.base.Request import Request
 from volcengine.Credentials import Credentials
 
-logger = logging.getLogger("interview-tiger")
+from app.utils.logger import logger, log_api_error
 
 # 知识库API配置
 KB_API_URL = "https://api-knowledgebase.mlp.cn-beijing.volces.com/api/knowledge/collection/search_knowledge"
@@ -101,10 +100,10 @@ def search_knowledge(
         if response.status_code == 200:
             return response.json()
         else:
-            logger.error(f"知识库检索失败: HTTP {response.status_code} - {response.text[:200]}")
+            log_api_error("search_knowledge", Exception(f"HTTP {response.status_code}"), {"kb_id": kb_id, "query": query[:30]})
             return {}
     except Exception as e:
-        logger.error(f"知识库检索异常: {e}")
+        log_api_error("search_knowledge", e, {"kb_id": kb_id, "query": query[:30]})
         return {}
 
 

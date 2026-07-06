@@ -1,14 +1,19 @@
 # FastAPI 应用入口
 import uvicorn
-import logging
+import time
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from config import BACKEND_HOST, BACKEND_PORT, FRONTEND_URL, DEBUG
 
-# 日志配置
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger("interview-tiger")
+# 数据库初始化
+from app.database import engine, Base
+from app.models import dialogue
+
+Base.metadata.create_all(bind=engine)
+
+# 日志配置 - 使用统一日志模块
+from app.utils.logger import logger, log_api_request, log_api_error
 
 app = FastAPI(
     title="面试虎 API",
@@ -26,10 +31,28 @@ app.add_middleware(
 )
 
 
+# 请求日志中间件
+@app.middleware("http")
+async def log_request_middleware(request: Request, call_next):
+    start_time = time.time()
+    path = request.url.path
+    method = request.method
+    
+    try:
+        response = await call_next(request)
+        duration_ms = (time.time() - start_time) * 1000
+        log_api_request(path, method, response.status_code, duration_ms)
+        return response
+    except Exception as exc:
+        duration_ms = (time.time() - start_time) * 1000
+        log_api_error(f"{method} {path}", exc)
+        raise
+
+
 # 全局异常处理器
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
-    logger.error(f"未处理异常: {exc}", exc_info=True)
+    log_api_error(f"全局异常 [{request.method} {request.url.path}]", exc)
     return JSONResponse(
         status_code=500,
         content={

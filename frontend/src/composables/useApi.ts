@@ -167,9 +167,9 @@ export function useApi() {
   }
 
   // 提交识别文本
-  async function submitTranscript(text: string): Promise<ApiResponse | null> {
+  async function submitTranscript(text: string, sessionId?: string): Promise<ApiResponse | null> {
     try {
-      const res = await client.post<ApiResponse>('/transcript', { text })
+      const res = await client.post<ApiResponse>('/transcript', { text, session_id: sessionId })
       return res.data
     } catch {
       return null
@@ -177,9 +177,10 @@ export function useApi() {
   }
 
   // 获取对话列表
-  async function getDialogues(): Promise<ApiResponse<{ dialogues: any[] }> | null> {
+  async function getDialogues(sessionId?: string): Promise<ApiResponse<{ dialogues: any[] }> | null> {
     try {
-      const res = await client.get<ApiResponse<{ dialogues: any[] }>>('/dialogues')
+      const params = sessionId ? { session_id: sessionId } : {}
+      const res = await client.get<ApiResponse<{ dialogues: any[] }>>('/dialogues', { params })
       return res.data
     } catch {
       return null
@@ -187,12 +188,25 @@ export function useApi() {
   }
 
   // 清空对话列表
-  async function clearDialogues(): Promise<boolean> {
+  async function clearDialogues(sessionId?: string): Promise<boolean> {
     try {
-      const res = await client.delete<ApiResponse>('/dialogues')
+      const params = sessionId ? { session_id: sessionId } : {}
+      const res = await client.delete<ApiResponse>('/dialogues', { params })
       return res.data.code === 0
     } catch {
       return false
+    }
+  }
+
+  // 更新对话回答
+  async function updateDialogue(dialogueId: string, answer: string): Promise<ApiResponse | null> {
+    try {
+      const res = await client.put<ApiResponse>(`/dialogues/${dialogueId}`, {}, {
+        params: { answer }
+      })
+      return res.data
+    } catch {
+      return null
     }
   }
 
@@ -207,6 +221,7 @@ export function useApi() {
     processQuestionStream,
     submitTranscript,
     getDialogues,
-    clearDialogues
+    clearDialogues,
+    updateDialogue
   }
 }

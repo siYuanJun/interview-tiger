@@ -1,5 +1,18 @@
 # 变更日志
 
+## [1.1.2] - 2026-07-06
+
+### Added
+- PostgreSQL 数据库存储 — SQLAlchemy ORM 模型，对话记录持久化到数据库
+- 多会话管理 — session_id 字段支持区分不同浏览器会话
+- 对话更新接口 — PUT /api/dialogues/{id} 更新回答内容
+- 数据库连接配置 — app/database.py 统一管理数据库连接和会话
+
+### Changed
+- transcript.py — 从内存存储改为 PostgreSQL 存储，支持会话隔离
+- useApi.ts — 添加 sessionId 参数支持，新增 updateDialogue 方法
+- InterviewPage.vue — 使用 sessionStorage 保存会话 ID，页面加载时恢复对话
+
 ## [1.1.1] - 2026-07-06
 
 ### Added

@@ -34,7 +34,7 @@ interface InterimDialogue {
 
 const router = useRouter()
 const { isListening, currentText, state, isSupported, startListening, stopListening, forceStop, error: speechError } = useSpeech()
-const { submitTranscript, getDialogues, processQuestionStream, error: apiError } = useApi()
+const { submitTranscript, getDialogues, processQuestionStream, updateDialogue, error: apiError } = useApi()
 const store = useInterviewStore()
 
 const statusMessage = ref('准备中...')
@@ -43,10 +43,18 @@ const dialoguesContainer = ref<HTMLElement | null>(null)
 const dialogues = ref<Dialogue[]>([])
 const interimDialogue = ref<InterimDialogue | null>(null)
 
+let sessionId = sessionStorage.getItem('interview_session_id') || `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+sessionStorage.setItem('interview_session_id', sessionId)
+
 onMounted(async () => {
   if (!isSupported()) {
     statusMessage.value = '浏览器不支持语音识别，请使用 Chrome 或 Edge 浏览器'
     return
+  }
+
+  const savedDialogues = await getDialogues(sessionId)
+  if (savedDialogues?.data?.dialogues) {
+    dialogues.value = savedDialogues.data.dialogues
   }
 
   statusMessage.value = '正在启动语音识别...'
@@ -87,7 +95,7 @@ async function handleSpeechResult(result: { text: string; isFinal: boolean; conf
   interimDialogue.value = null
   console.log('识别完成:', text)
 
-  const response = await submitTranscript(text)
+  const response = await submitTranscript(text, sessionId)
 
   if (response?.data?.is_valid) {
     const dialogue = response.data
@@ -125,6 +133,7 @@ async function handleSpeechResult(result: { text: string; isFinal: boolean; conf
           if (!dialogues.value[idx].answer) {
             dialogues.value[idx].answer = '生成失败'
           }
+          updateDialogue(dialogue.id, dialogues.value[idx].answer)
         }
         statusMessage.value = '正在监听面试官提问...'
       },
@@ -138,7 +147,7 @@ async function handleSpeechResult(result: { text: string; isFinal: boolean; conf
     )
   } else {
     interimDialogue.value = null
-    console.log('问题判断跳过:', response?.data?.reason)
+    console.log('语音输入跳过:', response?.data?.reason)
   }
 }
 

@@ -5,3 +5,5 @@ python-dotenv==1.0.0
 httpx==0.26.0
 volcengine==1.0.0
 websocket-client==1.8.0
+sqlalchemy==2.0.23
+psycopg2-binary==2.9.9

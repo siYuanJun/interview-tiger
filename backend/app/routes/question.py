@@ -1,5 +1,4 @@
 # 问题处理路由 - 面试核心API
-import logging
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
@@ -9,8 +8,7 @@ from config import ARK_MODEL, ARK_API_KEY, KB_ID, KB_API_KEY
 from app.services.knowledge import get_relevant_knowledge
 from app.services.llm import call_llm, call_llm_stream
 from app.services.prompt import build_messages
-
-logger = logging.getLogger("interview-tiger")
+from app.utils.logger import logger, log_api_error
 router = APIRouter()
 
 
@@ -87,6 +85,7 @@ async def process_question(req: QuestionRequest):
     )
 
     if answer is None:
+        log_api_error("process_question", Exception("大模型调用失败"), {"question": req.question[:50]})
         raise HTTPException(status_code=500, detail="大模型调用失败，请检查API Key配置")
 
     return {
@@ -156,7 +155,7 @@ async def process_question_stream(req: QuestionRequest):
             yield f"data: {json.dumps({'type': 'done', 'knowledge_used': bool(knowledge_context), 'web_search_used': use_web_search}, ensure_ascii=False)}\n\n"
 
         except Exception as e:
-            logger.error(f"流式生成异常: {e}")
+            log_api_error("process_question_stream", e, {"question": req.question[:50]})
             yield f"data: {json.dumps({'type': 'error', 'message': '生成失败，请重试'}, ensure_ascii=False)}\n\n"
 
     return StreamingResponse(
