@@ -95,48 +95,17 @@ function openLink(url: string) {
         </div>
         <div class="flex items-center gap-2">
           <button
-            @click="showHelp = !showHelp"
+            @click="showHelp = true"
             class="p-2 rounded-lg hover:bg-muted/50 transition-colors"
-            :class="{ 'bg-primary/10 text-primary': showHelp }"
             title="帮助"
           >
-            <HelpCircle class="w-5 h-5" :class="showHelp ? 'text-primary' : 'text-foreground/50'" />
+            <HelpCircle class="w-5 h-5 text-foreground/50" />
           </button>
           <button
             @click="emit('close')"
             class="p-2 rounded-lg hover:bg-muted/50 transition-colors"
           >
             <X class="w-5 h-5 text-foreground/50" />
-          </button>
-        </div>
-      </div>
-
-      <div v-if="showHelp" class="mb-6 p-4 bg-primary/5 border border-primary/20 rounded-xl">
-        <div class="flex items-center gap-2 mb-3">
-          <HelpCircle class="w-4 h-4 text-primary" />
-          <span class="text-sm font-medium text-foreground">常见问题</span>
-        </div>
-        <div class="space-y-2">
-          <div
-            v-for="(doc, index) in helpDocs"
-            :key="index"
-            class="group p-3 bg-muted/20 rounded-lg hover:bg-muted/40 transition-colors cursor-pointer"
-            @click="openLink(doc.link)"
-          >
-            <div class="flex items-center justify-between">
-              <span class="text-sm font-medium text-foreground/80">{{ doc.question }}</span>
-              <ChevronRight class="w-4 h-4 text-foreground/30 group-hover:text-primary transition-colors" />
-            </div>
-            <p class="text-xs text-foreground/40 mt-1">{{ doc.description }}</p>
-          </div>
-        </div>
-        <div class="mt-3 pt-3 border-t border-border/30">
-          <button
-            @click="openLink('https://my.feishu.cn/docx/AzijduiLDoSnsgxsaQsc7O3pnIb?from=from_copylink')"
-            class="w-full flex items-center justify-center gap-2 text-xs text-primary/70 hover:text-primary transition-colors"
-          >
-            <ExternalLink class="w-3 h-3" />
-            <span>查看完整配置文档</span>
           </button>
         </div>
       </div>
@@ -209,6 +178,54 @@ function openLink(url: string) {
         <button @click="saveConfig" class="flex-1 btn-tech-primary flex items-center justify-center gap-2">
           <CheckCircle v-if="saved" class="w-4 h-4" />
           <span>{{ saved ? '已保存' : '保存配置' }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div
+    v-if="showHelp"
+    class="fixed inset-0 bg-black/80 backdrop-blur-sm z-60 flex items-center justify-center p-4"
+    @click.self="showHelp = false"
+  >
+    <div class="tech-card w-full max-w-md p-6 animate-slide-up">
+      <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 bg-primary/20 rounded-lg flex items-center justify-center">
+            <HelpCircle class="w-4 h-4 text-primary" />
+          </div>
+          <h2 class="text-lg font-semibold text-foreground font-heading">配置帮助</h2>
+        </div>
+        <button
+          @click="showHelp = false"
+          class="p-2 rounded-lg hover:bg-muted/50 transition-colors"
+        >
+          <X class="w-5 h-5 text-foreground/50" />
+        </button>
+      </div>
+
+      <div class="space-y-2">
+        <div
+          v-for="(doc, index) in helpDocs"
+          :key="index"
+          class="group p-4 bg-muted/20 rounded-xl hover:bg-muted/40 transition-colors cursor-pointer"
+          @click="openLink(doc.link)"
+        >
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-medium text-foreground/90">{{ doc.question }}</span>
+            <ChevronRight class="w-4 h-4 text-foreground/30 group-hover:text-primary transition-colors" />
+          </div>
+          <p class="text-xs text-foreground/50 mt-1.5">{{ doc.description }}</p>
+        </div>
+      </div>
+
+      <div class="mt-4 pt-4 border-t border-border/30">
+        <button
+          @click="openLink('https://my.feishu.cn/docx/AzijduiLDoSnsgxsaQsc7O3pnIb?from=from_copylink')"
+          class="w-full flex items-center justify-center gap-2 text-sm text-primary/80 hover:text-primary transition-colors"
+        >
+          <ExternalLink class="w-4 h-4" />
+          <span>查看完整配置文档</span>
         </button>
       </div>
     </div>
