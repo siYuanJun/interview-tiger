@@ -107,7 +107,7 @@ function startInterview() {
 
       <button
         @click="startInterview"
-        class="btn-tech-primary text-lg px-10 py-4 flex items-center justify-center gap-3 animate-glow"
+        class="btn-tech-primary text-lg px-10 py-4 flex items-center justify-center gap-3 animate-glow mx-auto"
       >
         <span>开始面试</span>
         <ArrowRight class="w-5 h-5" />
