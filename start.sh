@@ -5,6 +5,7 @@ set -e
 PROJECT_DIR=$(cd "$(dirname "$0")" && pwd)
 BACKEND_DIR="$PROJECT_DIR/backend"
 FRONTEND_DIR="$PROJECT_DIR/frontend"
+BACKEND_PORT=8001
 
 echo "======================================"
 echo "         面试虎 - 快速启动脚本"
@@ -46,6 +47,24 @@ check_docker() {
     fi
 }
 
+check_port() {
+    local port=$1
+    if lsof -Pi ":$port" -sTCP:LISTEN -t >/dev/null 2>&1; then
+        return 0
+    fi
+    return 1
+}
+
+kill_port() {
+    local port=$1
+    local pids=$(lsof -Pi ":$port" -sTCP:LISTEN -t 2>/dev/null)
+    if [ -n "$pids" ]; then
+        echo "⚠️  端口 $port 被占用，正在清理..."
+        kill -9 $pids 2>/dev/null || true
+        sleep 1
+    fi
+}
+
 start_backend() {
     echo "🚀 启动后端服务..."
     cd "$BACKEND_DIR"
@@ -55,17 +74,19 @@ start_backend() {
         cp .env.example .env
     fi
     
-    if ! lsof -Pi :5432 -sTCP:LISTEN -t >/dev/null 2>&1; then
+    if ! check_port 5432; then
         echo "⚠️  PostgreSQL 数据库未启动，正在启动..."
         start_db
         sleep 5
     fi
     
+    kill_port $BACKEND_PORT
+    
     echo "📦 安装依赖..."
     pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements.txt
     
     echo "🔧 启动 uvicorn..."
-    python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    python -m uvicorn app.main:app --host 0.0.0.0 --port $BACKEND_PORT --reload
 }
 
 start_frontend() {
@@ -99,21 +120,23 @@ start_all() {
         npm install > /dev/null 2>&1 || true
     fi
     
-    if ! lsof -Pi :5432 -sTCP:LISTEN -t >/dev/null 2>&1; then
+    if ! check_port 5432; then
         echo "⚠️  PostgreSQL 数据库未启动，正在启动..."
         start_db
         sleep 5
     fi
     
+    kill_port $BACKEND_PORT
+    
     echo ""
-    echo "✨ 后端服务启动在: http://localhost:8000"
+    echo "✨ 后端服务启动在: http://localhost:$BACKEND_PORT"
     echo "✨ 前端服务启动在: http://localhost:5173"
     echo "✨ PostgreSQL: localhost:5432"
     echo ""
     echo "按 Ctrl+C 停止服务"
     
     cd "$BACKEND_DIR"
-    python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload &
+    python -m uvicorn app.main:app --host 0.0.0.0 --port $BACKEND_PORT --reload &
     BACKEND_PID=$!
     
     cd "$FRONTEND_DIR"
@@ -132,7 +155,10 @@ start_db() {
     echo "📦 检查/创建数据目录..."
     mkdir -p "$PROJECT_DIR/data/postgres"
     
-    echo "🚀 启动 PostgreSQL 容器..."
+    echo "� 清理旧容器..."
+    docker rm -f interview-tiger-db 2>/dev/null || true
+    
+    echo "�🚀 启动 PostgreSQL 容器..."
     docker run -d \
         --name interview-tiger-db \
         --network=bridge \
@@ -248,25 +274,19 @@ show_status() {
     
     echo ""
     echo "=== 本地服务 ==="
-    if lsof -Pi :8000 -sTCP:LISTEN -t >/dev/null 2>&1; then
-        echo "✅ 后端 API: http://localhost:8000"
+    if check_port $BACKEND_PORT; then
+        echo "✅ 后端 API: http://localhost:$BACKEND_PORT"
     else
         echo "❌ 后端 API: 未运行"
     fi
     
-    if lsof -Pi :8001 -sTCP:LISTEN -t >/dev/null 2>&1; then
-        echo "✅ Docker 后端 API: http://localhost:8001"
-    else
-        echo "❌ Docker 后端 API: 未运行"
-    fi
-    
-    if lsof -Pi :5173 -sTCP:LISTEN -t >/dev/null 2>&1; then
+    if check_port 5173; then
         echo "✅ 前端服务: http://localhost:5173"
     else
         echo "❌ 前端服务: 未运行"
     fi
     
-    if lsof -Pi :5432 -sTCP:LISTEN -t >/dev/null 2>&1; then
+    if check_port 5432; then
         echo "✅ PostgreSQL: localhost:5432"
     else
         echo "❌ PostgreSQL: 未运行"
