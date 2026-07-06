@@ -33,7 +33,7 @@ interface InterimDialogue {
 }
 
 const router = useRouter()
-const { isListening, currentText, state, isSupported, startListening, stopListening, forceStop, error: speechError } = useSpeech()
+const { isListening, currentText, state, isSupported, startListening, stopListening, forceStop, resumeListening, error: speechError } = useSpeech()
 const { submitTranscript, getDialogues, processQuestionStream, updateDialogue, getConfig, error: apiError } = useApi()
 const store = useInterviewStore()
 
@@ -109,6 +109,8 @@ async function handleSpeechResult(result: { text: string; isFinal: boolean; conf
   interimDialogue.value = null
   console.log('识别完成:', text)
 
+  resumeListening()
+
   const response = await submitTranscript(text, sessionId)
 
   if (response?.data?.is_valid) {
@@ -126,7 +128,7 @@ async function handleSpeechResult(result: { text: string; isFinal: boolean; conf
       return
     }
 
-    await processQuestionStream(
+    processQuestionStream(
       {
         question: text,
         ark_api_key: store.apiKey,

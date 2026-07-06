@@ -29,6 +29,11 @@ export function useSpeech() {
   let recognition: SpeechRecognition | null = null
   let restartTimer: ReturnType<typeof setTimeout> | null = null
   let pauseTimer: ReturnType<typeof setTimeout> | null = null
+  let stream: MediaStream | null = null
+  let currentOptions: {
+    onResult?: (result: SpeechResult) => void
+    onError?: (error: string) => void
+  } = {}
 
   function isSupported(): boolean {
     return !!(window.SpeechRecognition || window.webkitSpeechRecognition)
@@ -40,6 +45,7 @@ export function useSpeech() {
   } = {}): Promise<boolean> {
     error.value = null
     state.value = 'starting'
+    currentOptions = options
 
     if (!isSupported()) {
       error.value = '当前浏览器不支持语音识别，请使用 Chrome 或 Edge 浏览器'
@@ -49,13 +55,15 @@ export function useSpeech() {
     }
 
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: {
-          echoCancellation: true,
-          noiseSuppression: true,
-          autoGainControl: true,
-        }
-      })
+      if (!stream) {
+        stream = await navigator.mediaDevices.getUserMedia({
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true,
+          }
+        })
+      }
 
       const SpeechRecognitionAPI = window.SpeechRecognition || window.webkitSpeechRecognition
       const rec = new SpeechRecognitionAPI()
@@ -91,7 +99,7 @@ export function useSpeech() {
           if (pauseTimer) clearTimeout(pauseTimer)
           pauseTimer = setTimeout(() => {
             if (isListening.value && currentText.value.trim()) {
-              const pausedResult = forceStop()
+              const pausedResult = pauseRecognition()
               if (pausedResult) {
                 options.onResult?.(pausedResult)
               }
@@ -189,6 +197,10 @@ export function useSpeech() {
       }
       recognition = null
     }
+    if (stream) {
+      stream.getTracks().forEach(track => track.stop())
+      stream = null
+    }
     state.value = 'idle'
     currentText.value = ''
   }
@@ -227,6 +239,39 @@ export function useSpeech() {
     return null
   }
 
+  function pauseRecognition() {
+    if (!recognition || !isListening.value) return
+
+    const allText = (finalText.value + ' ' + currentText.value).trim()
+    
+    isListening.value = false
+    if (restartTimer) {
+      clearTimeout(restartTimer)
+      restartTimer = null
+    }
+    
+    try {
+      recognition.stop()
+    } catch {
+      // ignore
+    }
+    recognition = null
+    state.value = 'idle'
+
+    if (allText) {
+      return {
+        text: allText,
+        isFinal: true,
+        confidence: 1.0
+      }
+    }
+    return null
+  }
+
+  async function resumeListening(): Promise<boolean> {
+    return startListening(currentOptions)
+  }
+
   onUnmounted(() => {
     stopListening()
   })
@@ -242,5 +287,7 @@ export function useSpeech() {
     stopListening,
     resetText,
     forceStop,
+    pauseRecognition,
+    resumeListening,
   }
 }

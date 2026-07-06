@@ -105,6 +105,20 @@
     @apply bg-muted/50 backdrop-blur-md text-foreground px-5 py-4 rounded-2xl 
            w-full shadow-lg border border-border/30 rounded-tl-sm;
   }
+
+  .dialogue-question-title {
+    @apply bg-primary/5 border-l-2 border-primary px-3 py-2 rounded-r-lg;
+  }
+
+  .dialogue-answer-content {
+    @apply bg-secondary/5 border-l-2 border-accent/50 px-3 py-2 rounded-r-lg 
+           max-h-[200px] overflow-y-auto;
+    transition: max-height 0.3s ease;
+  }
+
+  .dialogue-answer-content.expanded {
+    max-height: none;
+  }
   
   .status-badge {
     @apply flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium;

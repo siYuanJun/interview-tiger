@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import { ref } from 'vue'
 import { 
   Mic, 
   Bot, 
+  ChevronDown,
+  ChevronUp,
   MessageSquare 
 } from 'lucide-vue-next'
 
@@ -18,6 +21,10 @@ const props = defineProps<{
   item: Dialogue
 }>()
 
+const isExpanded = ref(false)
+const showExpandButton = ref(false)
+const contentRef = ref<HTMLElement | null>(null)
+
 function formatTime(dateStr: string): string {
   try {
     return new Date(dateStr).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
@@ -25,6 +32,21 @@ function formatTime(dateStr: string): string {
     return ''
   }
 }
+
+function toggleExpand() {
+  isExpanded.value = !isExpanded.value
+}
+
+function checkContentHeight() {
+  if (contentRef.value) {
+    showExpandButton.value = contentRef.value.scrollHeight > 150
+  }
+}
+
+import { onMounted, nextTick } from 'vue'
+onMounted(() => {
+  nextTick(checkContentHeight)
+})
 </script>
 
 <template>
@@ -65,9 +87,30 @@ function formatTime(dateStr: string): string {
           </span>
         </div>
 
-        <div v-if="item.answer" class="text-foreground text-sm leading-relaxed whitespace-pre-wrap">
-          {{ item.answer }}
+        <div v-if="item.answer" class="space-y-3">
+          <div class="dialogue-question-title">
+            <span class="text-xs font-semibold text-primary/70 uppercase tracking-wider">问题</span>
+            <p class="text-foreground/90 font-medium mt-1">{{ item.question }}</p>
+          </div>
+          
+          <div class="dialogue-answer-content" :class="{ expanded: isExpanded }" ref="contentRef">
+            <span class="text-xs font-semibold text-accent/70 uppercase tracking-wider">回答</span>
+            <div class="text-foreground text-sm leading-relaxed mt-1 whitespace-pre-wrap">
+              {{ item.answer }}
+            </div>
+          </div>
+
+          <button 
+            v-if="showExpandButton"
+            @click="toggleExpand"
+            class="w-full flex items-center justify-center gap-2 py-2 text-xs text-primary/60 hover:text-primary transition-colors"
+          >
+            <ChevronUp v-if="isExpanded" class="w-4 h-4" />
+            <ChevronDown v-else class="w-4 h-4" />
+            <span>{{ isExpanded ? '收起' : '展开全部' }}</span>
+          </button>
         </div>
+
         <div v-else class="flex items-center gap-2 text-foreground/50 text-sm">
           <div class="flex gap-1.5">
             <span class="w-2 h-2 bg-primary rounded-full animate-pulse" style="animation-delay: 0ms"></span>
