@@ -114,13 +114,14 @@ onMounted(() => {
           </button>
         </div>
 
-        <div v-else class="flex items-center gap-2 text-foreground/50 text-sm">
-          <div class="flex gap-1.5">
-            <span class="w-2 h-2 bg-primary rounded-full animate-pulse" style="animation-delay: 0ms"></span>
-            <span class="w-2 h-2 bg-secondary rounded-full animate-pulse" style="animation-delay: 150ms"></span>
-            <span class="w-2 h-2 bg-accent rounded-full animate-pulse" style="animation-delay: 300ms"></span>
+        <div v-else class="flex items-center justify-center py-8">
+          <div class="flex items-center gap-3">
+            <div class="flex gap-2">
+              <span class="w-3 h-3 bg-primary rounded-full animate-pulse" style="animation-delay: 0ms"></span>
+              <span class="w-3 h-3 bg-secondary rounded-full animate-pulse" style="animation-delay: 150ms"></span>
+              <span class="w-3 h-3 bg-accent rounded-full animate-pulse" style="animation-delay: 300ms"></span>
+            </div>
           </div>
-          <span>正在生成回答...</span>
         </div>
       </div>
     </div>

@@ -1,180 +1,200 @@
-# 详细设计文档
-
-## 项目信息
-- 项目名称: interview-tiger
-- 需求描述: 修复语音识别延迟（添加手动结束按钮）+ UI整体翻新
-- 创建时间: 2026-07-02
-- 状态: 已完成
+# 模块7 - 知识库验证与性能优化 - 详细设计文档
 
 ---
 
-## R1: 语音识别延迟修复详细设计
+## 文档信息
 
-### 接口定义
+| 项目 | 内容 |
+|---|---|
+| **项目名称** | 面试虎（Interview Tiger） |
+| **模块编号** | 模块7 |
+| **模块名称** | 知识库验证与性能优化 |
+| **文档版本** | v1.0 |
+| **创建时间** | 2026-07-06 |
 
-#### useSpeech.ts
+---
 
-**新增方法: forceStop**
+## 一、需求回顾
 
+### 1.1 需求列表
+
+| 编号 | 需求 | 当前问题 |
+|------|------|---------|
+| F1 | 知识库验证 | 问"你叫什么？"应回答包含"刘朝相"，实际回答"张伟" |
+| F2 | 测试脚本 | 需要独立命令行脚本，避免页面操作 |
+| F3 | 加载状态 | 移除"等待大模型接入..."文字，优化加载动画 |
+| F4 | 延迟优化 | 说话后等2秒才请求，响应慢 |
+| F5 | 验证标准 | 回答包含"刘朝相"才算知识库生效 |
+
+### 1.2 技术关联点
+
+| 模块 | 文件 | 修改类型 |
+|------|------|---------|
+| 测试脚本 | `test_kb.py` | 新建 |
+| 前端加载状态 | `DialogueItem.vue` | 修改 |
+| 语音停顿检测 | `useSpeech.ts` | 修改 |
+
+---
+
+## 二、详细设计
+
+### 2.1 测试脚本设计
+
+**文件**: `test_kb.py`（项目根目录）
+
+**功能**:
+- 测试1：直接调用知识库检索API，验证检索结果
+- 测试2：调用大模型API（含知识库上下文），验证回答是否正确
+- 测试3：调用完整API流程，模拟前端请求
+
+**核心逻辑**:
+
+```
+输入: 测试问题（如"你叫什么？"）
+├─→ 测试1: search_knowledge() → 输出原始响应、过滤后知识内容
+├─→ 测试2: build_messages() + call_llm() → 输出大模型回答
+└─→ 测试3: POST /api/question → 输出API响应
+    └─→ 判断: 回答是否包含"刘朝相"
+```
+
+**使用方式**:
+```bash
+python test_kb.py "你叫什么？"
+```
+
+### 2.2 加载状态优化设计
+
+**文件**: `frontend/src/components/DialogueItem.vue`
+
+**问题分析**: 当前显示"正在生成回答..."文字，不够优雅
+
+**优化方案**:
+- 移除文字描述，仅保留动画
+- 动画改为更流畅的脉冲效果
+- 添加"AI思考中..."的简短提示
+
+**UI设计**:
+```
+┌──────────────────────────────────────┐
+│ AI建议 [14:30]                        │
+├──────────────────────────────────────┤
+│                                      │
+│   ● ● ●                              │
+│    （三个圆点脉冲动画）               │
+│                                      │
+└──────────────────────────────────────┘
+```
+
+### 2.3 延迟优化设计
+
+**文件**: `frontend/src/composables/useSpeech.ts`
+
+**问题分析**: 当前停顿检测时间为 2000ms（第113行），用户感知延迟明显
+
+**优化方案**:
+- 将停顿检测时间从 2000ms 缩短至 1500ms
+- 添加动态调整机制：根据语速自适应停顿时间
+
+**关键修改点**:
 ```typescript
-/**
- * 强制停止语音识别，立即提交当前识别结果
- */
-function forceStop(): void
+// 当前代码 (第105-113行)
+pauseTimer = setTimeout(() => {
+  // ...
+}, 2000)
+
+// 修改为
+pauseTimer = setTimeout(() => {
+  // ...
+}, 1500)
 ```
-
-**调用流程:**
-1. 调用 `recognition.stop()` 停止识别
-2. 将 `finalTranscript` 和 `interimTranscript` 合并
-3. 触发 `onResult` 回调，传入合并后的文本
-4. 重置状态（清空临时文本，设置 `isListening = false`）
-
-**返回值:** void
-
-#### InterviewPage.vue
-
-**新增按钮组件:**
-
-| 属性 | 类型 | 值 |
-|------|------|-----|
-| v-if | boolean | `isListening` |
-| @click | function | `forceStop()` |
-| 文案 | string | "完成" |
-| 样式 | class | "finish-btn" |
-
-### 数据结构
-
-```typescript
-interface SpeechState {
-  isListening: boolean;
-  finalTranscript: string;
-  interimTranscript: string;
-}
-```
-
-### 错误处理
-
-| 错误场景 | 处理方式 |
-|----------|----------|
-| 未开始识别时调用 forceStop | 静默忽略 |
-| 识别停止失败 | 记录日志，不影响流程 |
 
 ---
 
-## R2: UI整体翻新详细设计
+## 三、分步实施计划
 
-### CSS 变量定义
-
-```css
-:root {
-  /* 主色调 */
-  --color-navy: #1E3A5F;
-  --color-navy-dark: #0F2744;
-  --color-navy-light: #2E5A8A;
-  
-  /* 辅助色 */
-  --color-green: #2ECC71;
-  --color-green-light: #58D68D;
-  
-  /* 玻璃效果 */
-  --glass-bg: rgba(255, 255, 255, 0.1);
-  --glass-border: rgba(255, 255, 255, 0.2);
-  --glass-blur: 10px;
-  
-  /* 字体 */
-  --font-family-title: 'Poppins', sans-serif;
-  --font-family-body: 'Open Sans', sans-serif;
-}
-```
-
-### 组件样式规范
-
-#### 玻璃卡片基础样式
-
-```css
-.glass-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(var(--glass-blur));
-  -webkit-backdrop-filter: blur(var(--glass-blur));
-  border: 1px solid var(--glass-border);
-  border-radius: 16px;
-}
-```
-
-#### 按钮样式
-
-```css
-.btn-primary {
-  background: linear-gradient(135deg, var(--color-green), var(--color-green-light));
-  color: white;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 600;
-  transition: all 0.3s ease;
-}
-
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(46, 204, 113, 0.4);
-}
-```
-
-### 布局结构
-
-#### App.vue
-
-```html
-<div class="app-container">
-  <div class="background-gradient"></div>
-  <router-view class="content"></router-view>
-</div>
-```
-
-#### InterviewPage.vue
-
-```html
-<div class="interview-page">
-  <header class="header glass-card">...</header>
-  <main class="main-content">
-    <div class="dialogue-list">
-      <DialogueItem v-for="item in dialogues" :key="item.id" :item="item" />
-    </div>
-  </main>
-  <footer class="footer glass-card">
-    <div class="input-area">...</div>
-    <button v-if="isListening" @click="forceStop" class="finish-btn">完成</button>
-  </footer>
-</div>
-```
-
-#### DialogueItem.vue
-
-```html
-<div class="dialogue-item glass-card" :class="{ 'user': item.isUser, 'ai': !item.isUser }">
-  <div class="avatar">...</div>
-  <div class="content">
-    <p class="text">{{ item.text }}</p>
-    <span class="timestamp">{{ item.timestamp }}</span>
-  </div>
-</div>
-```
-
-### 动画效果
-
-| 元素 | 动画类型 | 触发时机 |
-|------|----------|----------|
-| 卡片 | 淡入 + 上移 | 进入视图 |
-| 按钮 | 悬停上浮 + 发光 | hover |
-| 识别状态 | 脉冲 | 正在识别 |
+| 步骤 | 任务 | 文件 | 预计时间 |
+|------|------|------|---------|
+| 1 | 创建测试脚本 | `test_kb.py` | 30分钟 |
+| 2 | 优化加载状态 | `DialogueItem.vue` | 20分钟 |
+| 3 | 缩短停顿检测时间 | `useSpeech.ts` | 15分钟 |
+| 4 | 测试验证 | - | 20分钟 |
 
 ---
 
-## 文件改动清单
+## 四、影响评估
 
-| 文件 | 改动类型 | 改动内容 |
-|------|----------|----------|
-| useSpeech.ts | 修改 | 新增 forceStop() 方法 |
-| InterviewPage.vue | 修改 | 添加完成按钮，更新样式 |
-| DialogueItem.vue | 修改 | 应用 Glassmorphism 样式 |
-| main.css | 修改 | 添加主题变量和全局样式 |
-| App.vue | 修改 | 更新布局结构 |
+### 4.1 影响范围
+
+| 模块 | 影响程度 | 风险等级 |
+|------|---------|---------|
+| 测试脚本 | 无影响（新增） | 低 |
+| 前端加载状态 | UI变化 | 低 |
+| 语音停顿检测 | 交互逻辑变化 | 中 |
+
+### 4.2 风险评估
+
+| 风险 | 描述 | 缓解措施 |
+|------|------|---------|
+| 停顿时间过短 | 用户未说完就提交 | 设置最低阈值，允许用户手动确认 |
+| 知识库未命中 | 检索结果为空 | 测试脚本会输出明确的失败信息 |
+| 验证标准不明确 | "刘朝相"可能被截断 | 脚本使用包含判断而非精确匹配 |
+
+---
+
+## 五、验证标准
+
+| 需求 | 验证方法 | 通过条件 |
+|------|---------|---------|
+| F1 | 运行测试脚本 | 回答包含"刘朝相" |
+| F2 | 运行测试脚本 | 脚本正常输出三阶段测试结果 |
+| F3 | 页面测试 | 加载状态显示动画，无生硬文字 |
+| F4 | 页面测试 | 说话后1.5秒内触发请求 |
+| F5 | 脚本判断 | 输出"✓ API测试通过！知识库生效" |
+
+---
+
+## 六、代码变更清单
+
+### 6.1 新建文件
+
+| 文件 | 说明 |
+|------|------|
+| `test_kb.py` | 知识库验证测试脚本 |
+
+### 6.2 修改文件
+
+| 文件 | 修改内容 |
+|------|---------|
+| `DialogueItem.vue` | 优化加载动画，移除文字提示 |
+| `useSpeech.ts` | 停顿检测时间从2000ms改为1500ms |
+
+---
+
+## 七、测试用例
+
+### 7.1 测试脚本用例
+
+| 测试用例 | 输入 | 预期结果 |
+|---------|------|---------|
+| TC01 | "你叫什么？" | 回答包含"刘朝相" |
+| TC02 | "你会什么？" | 回答包含个人技能相关内容 |
+| TC03 | "介绍一下你自己" | 回答包含个人背景信息 |
+
+### 7.2 前端测试用例
+
+| 测试用例 | 操作 | 预期结果 |
+|---------|------|---------|
+| TC04 | 说话后等待 | 1.5秒内触发请求 |
+| TC05 | 请求中查看状态 | 显示优雅加载动画 |
+| TC06 | 请求完成 | 显示回答内容 |
+
+---
+
+## 八、完成标准
+
+- [ ] 测试脚本创建完成，可独立运行
+- [ ] 前端加载状态优化完成
+- [ ] 停顿检测时间优化完成
+- [ ] 测试脚本验证知识库生效（回答包含"刘朝相"）
+- [ ] 前端响应速度提升（<1.5秒延迟）
+

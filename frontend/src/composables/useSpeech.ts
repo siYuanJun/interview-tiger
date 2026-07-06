@@ -110,7 +110,7 @@ export function useSpeech() {
                 options.onResult?.(pausedResult)
               }
             }
-          }, 2000)
+          }, 1500)
         } else if (!finalChunk) {
           currentText.value = ''
         }

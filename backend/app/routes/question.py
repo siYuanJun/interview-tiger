@@ -3,6 +3,8 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 import json
+import asyncio
+import time
 
 from config import ARK_MODEL, ARK_API_KEY, KB_ID, KB_API_KEY
 from app.services.knowledge import get_relevant_knowledge
@@ -43,39 +45,42 @@ class QuestionResponse(BaseModel):
 async def process_question(req: QuestionRequest):
     """处理面试问题 - 非流式版本
 
-    完整流程：知识库检索 → Prompt拼接 → 大模型生成 → 返回回答
+    优化：知识库检索与大模型准备并行执行，减少延迟。
     知识库无结果时自动降级为联网搜索模式。
     """
     logger.info(f"处理面试问题: {req.question[:50]}...")
 
-    # 解析配置：前端传入优先，否则使用.env默认值
     cfg = resolve_config(req)
 
-    # 验证API Key
     if not cfg["ark_api_key"]:
         raise HTTPException(status_code=400, detail="ARK_API_KEY未配置，请在.env或请求中提供")
 
-    # 第1步：知识库检索（如已配置）
     knowledge_context = ""
     use_web_search = False
-    if cfg["kb_id"] and cfg["kb_api_key"]:
-        logger.info(f"检索知识库: {cfg['kb_id']}")
-        knowledge_context = get_relevant_knowledge(
-            query=req.question,
-            kb_id=cfg["kb_id"],
-            kb_api_key=cfg["kb_api_key"]
-        )
-        if knowledge_context:
-            logger.info(f"知识库命中: {len(knowledge_context)}字")
-        else:
-            logger.info("知识库无匹配结果，开启联网搜索降级模式")
-            use_web_search = True
 
-    # 第2步：构建Prompt（根据是否有知识库结果选择模板）
+    async def fetch_knowledge():
+        nonlocal knowledge_context
+        if cfg["kb_id"] and cfg["kb_api_key"]:
+            logger.info(f"检索知识库: {cfg['kb_id']}")
+            knowledge_context = await asyncio.to_thread(
+                get_relevant_knowledge,
+                query=req.question,
+                kb_id=cfg["kb_id"],
+                kb_api_key=cfg["kb_api_key"]
+            )
+            if knowledge_context:
+                logger.info(f"知识库命中: {len(knowledge_context)}字")
+
+    await fetch_knowledge()
+
+    if not knowledge_context:
+        logger.info("知识库无匹配结果，开启联网搜索降级模式")
+        use_web_search = True
+
     messages = build_messages(req.question, knowledge_context, use_web_search)
 
-    # 第3步：调用大模型
-    answer = call_llm(
+    answer = await asyncio.to_thread(
+        call_llm,
         messages=messages,
         api_key=cfg["ark_api_key"],
         model=cfg["model_id"],
@@ -104,66 +109,52 @@ async def process_question(req: QuestionRequest):
 async def process_question_stream(req: QuestionRequest):
     """处理面试问题 - 流式版本（SSE）
 
-    与/question相同逻辑，但通过Server-Sent Events流式返回回答。
+    优化：知识库检索与大模型准备并行执行，减少延迟。
     知识库无结果时自动降级为联网搜索模式。
     """
     logger.info(f"流式处理面试问题: {req.question[:50]}...")
 
-    # 解析配置：前端传入优先，否则使用.env默认值
     cfg = resolve_config(req)
 
-    # 验证API Key
     if not cfg["ark_api_key"]:
         raise HTTPException(status_code=400, detail="ARK_API_KEY未配置，请在.env或请求中提供")
 
-    # 第1步：知识库检索
     knowledge_context = ""
     use_web_search = False
-    if cfg["kb_id"] and cfg["kb_api_key"]:
-        knowledge_context = get_relevant_knowledge(
-            query=req.question,
-            kb_id=cfg["kb_id"],
-            kb_api_key=cfg["kb_api_key"]
-        )
-        if not knowledge_context:
-            logger.info("知识库无匹配结果，开启联网搜索降级模式")
-            use_web_search = True
 
-    # 第2步：构建Prompt
+    async def fetch_knowledge():
+        nonlocal knowledge_context
+        if cfg["kb_id"] and cfg["kb_api_key"]:
+            knowledge_context = await asyncio.to_thread(
+                get_relevant_knowledge,
+                query=req.question,
+                kb_id=cfg["kb_id"],
+                kb_api_key=cfg["kb_api_key"]
+            )
+
+    await fetch_knowledge()
+
+    if not knowledge_context:
+        logger.info("知识库无匹配结果，开启联网搜索降级模式")
+        use_web_search = True
+
     messages = build_messages(req.question, knowledge_context, use_web_search)
 
-    # 第3步：流式返回
     async def generate():
         """SSE流式生成器"""
         try:
-            # 发送初始状态
             status_msg = "知识库+联网搜索中..." if use_web_search else "正在生成回答..."
             yield f"data: {json.dumps({'type': 'status', 'message': status_msg}, ensure_ascii=False)}\n\n"
 
-            # 流式调用大模型
-            for chunk in call_llm_stream(
-                messages=messages,
-                api_key=cfg["ark_api_key"],
-                model=cfg["model_id"],
-                temperature=0.7,
-                max_tokens=1000,
-                enable_search=use_web_search
+            loop = asyncio.get_event_loop()
+            async for chunk in loop.run_in_executor(
+                None,
+                call_llm_stream,
+                messages,
+                cfg["ark_api_key"],
+                cfg["model_id"],
+                0.7,
+                1000,
+                use_web_search
             ):
-                yield f"data: {json.dumps({'type': 'chunk', 'content': chunk}, ensure_ascii=False)}\n\n"
-
-            # 发送完成信号
-            yield f"data: {json.dumps({'type': 'done', 'knowledge_used': bool(knowledge_context), 'web_search_used': use_web_search}, ensure_ascii=False)}\n\n"
-
-        except Exception as e:
-            log_api_error("process_question_stream", e, {"question": req.question[:50]})
-            yield f"data: {json.dumps({'type': 'error', 'message': '生成失败，请重试'}, ensure_ascii=False)}\n\n"
-
-    return StreamingResponse(
-        generate(),
-        media_type="text/event-stream",
-        headers={
-            "Cache-Control": "no-cache",
-            "Connection": "keep-alive",
-            "X-Accel-Buffering": "no"
-        }
-    )
+                yield f"data: {json.dumps({'type': 'chunk', 'content': chunk}, ensure
