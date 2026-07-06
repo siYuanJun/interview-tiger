@@ -1,5 +1,18 @@
 # 变更日志
 
+## [1.1.1] - 2026-07-06
+
+### Added
+- 实时语音显示模块 — 非 final 识别结果实时显示在对话区域，带"正在识别中"状态
+- 2秒停顿自动完成机制 — 语音识别停顿2秒后自动提交并触发大模型回答
+
+### Fixed
+- 语音识别延迟问题 — 移除 `if (!result.isFinal) return`，临时结果也实时更新 UI
+
+### Changed
+- useSpeech.ts — 添加 pauseTimer 变量和2秒停顿检测逻辑
+- InterviewPage.vue — 新增 interimDialogue 临时对话显示，识别完成后自动清除
+
 ## [1.1.0] - 2026-07-06
 
 ### Added

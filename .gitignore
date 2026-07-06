@@ -35,7 +35,6 @@ frontend/node_modules/
 
 # Logs
 *.log
-logs/
 
 # Docker
 .docker/

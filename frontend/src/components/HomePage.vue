@@ -3,7 +3,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import ConfigModal from './ConfigModal.vue'
 import { 
-  Tiger, 
+  Cat, 
   Settings, 
   Mic, 
   Database, 
@@ -53,7 +53,7 @@ function startInterview() {
     <div class="text-center max-w-lg z-10">
       <div class="mb-8 relative">
         <div class="w-28 h-28 bg-gradient-to-br from-primary to-secondary rounded-3xl flex items-center justify-center mx-auto shadow-xl shadow-primary/30 animate-float">
-          <Tiger class="w-16 h-16 text-white" />
+          <Cat class="w-16 h-16 text-white" />
         </div>
         <div class="absolute inset-0 bg-gradient-to-br from-primary/40 to-accent/40 rounded-3xl blur-2xl"></div>
       </div>

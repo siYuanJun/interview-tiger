@@ -28,6 +28,7 @@ export function useSpeech() {
 
   let recognition: SpeechRecognition | null = null
   let restartTimer: ReturnType<typeof setTimeout> | null = null
+  let pauseTimer: ReturnType<typeof setTimeout> | null = null
 
   function isSupported(): boolean {
     return !!(window.SpeechRecognition || window.webkitSpeechRecognition)
@@ -86,6 +87,16 @@ export function useSpeech() {
         if (interimText) {
           currentText.value = interimText
           state.value = 'recognizing'
+          
+          if (pauseTimer) clearTimeout(pauseTimer)
+          pauseTimer = setTimeout(() => {
+            if (isListening.value && currentText.value.trim()) {
+              const pausedResult = forceStop()
+              if (pausedResult) {
+                options.onResult?.(pausedResult)
+              }
+            }
+          }, 2000)
         } else if (!finalChunk) {
           currentText.value = ''
         }
@@ -165,6 +176,10 @@ export function useSpeech() {
     if (restartTimer) {
       clearTimeout(restartTimer)
       restartTimer = null
+    }
+    if (pauseTimer) {
+      clearTimeout(pauseTimer)
+      pauseTimer = null
     }
     if (recognition) {
       try {

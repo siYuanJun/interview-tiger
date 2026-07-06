@@ -20,5 +20,11 @@
 - 用户需求：边说边显示文字，停顿2秒自动完成，支持手动完成
 - 需要修改的文件：useSpeech.ts、InterviewPage.vue
 
-### 后续记录
-- {思路/发现/决策}
+### 2026-07-06 14:30
+- **实现方案**：在 useSpeech.ts 的 onresult 回调中，每次有 interim 结果时重置 pauseTimer，2秒后无更新则触发 forceStop
+- **UI 实现**：InterviewPage.vue 添加 interimDialogue 临时对话对象，非 final 时实时渲染，final 后自动清除
+- **关键修改**：移除 `handleSpeechResult` 中的 `if (!result.isFinal) return` 判断，改为实时更新临时对话
+
+### 2026-07-06 14:45
+- **测试结果**：API 测试全部通过（8/8），前端服务正常运行
+- **完成状态**：TASK-022 实时语音显示模块已完成，进度从84%提升至92%

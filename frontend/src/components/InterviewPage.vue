@@ -6,7 +6,7 @@ import { useApi } from '@/composables/useApi'
 import DialogueItem from '@/components/DialogueItem.vue'
 import { useInterviewStore } from '@/stores/interview'
 import { 
-  Tiger, 
+  Cat, 
   Mic, 
   Search, 
   Clock, 
@@ -27,6 +27,11 @@ interface Dialogue {
   created_at: string
 }
 
+interface InterimDialogue {
+  id: string
+  question: string
+}
+
 const router = useRouter()
 const { isListening, currentText, state, isSupported, startListening, stopListening, forceStop, error: speechError } = useSpeech()
 const { submitTranscript, getDialogues, processQuestionStream, error: apiError } = useApi()
@@ -36,6 +41,7 @@ const statusMessage = ref('准备中...')
 const showEndConfirm = ref(false)
 const dialoguesContainer = ref<HTMLElement | null>(null)
 const dialogues = ref<Dialogue[]>([])
+const interimDialogue = ref<InterimDialogue | null>(null)
 
 onMounted(async () => {
   if (!isSupported()) {
@@ -67,9 +73,18 @@ onUnmounted(() => {
 async function handleSpeechResult(result: { text: string; isFinal: boolean; confidence: number }) {
   if (!result.text || result.text.trim().length === 0) return
 
-  if (!result.isFinal) return
-
   const text = result.text.trim()
+
+  if (!result.isFinal) {
+    interimDialogue.value = {
+      id: 'interim-' + Date.now(),
+      question: text
+    }
+    autoScroll()
+    return
+  }
+
+  interimDialogue.value = null
   console.log('识别完成:', text)
 
   const response = await submitTranscript(text)
@@ -122,6 +137,7 @@ async function handleSpeechResult(result: { text: string; isFinal: boolean; conf
       }
     )
   } else {
+    interimDialogue.value = null
     console.log('问题判断跳过:', response?.data?.reason)
   }
 }
@@ -148,6 +164,7 @@ function cancelEnd() {
 }
 
 async function handleManualComplete() {
+  interimDialogue.value = null
   const result = forceStop()
   if (result) {
     await handleSpeechResult(result)
@@ -198,7 +215,7 @@ function getPhaseIcon() {
     <header class="tech-card mx-4 mt-4 mb-2 px-6 py-4 flex items-center justify-between shrink-0 z-10">
       <div class="flex items-center gap-3">
         <div class="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center shadow-lg shadow-primary/30">
-          <Tiger class="w-6 h-6 text-white" />
+          <Cat class="w-6 h-6 text-white" />
         </div>
         <h1 class="text-xl font-bold text-gradient-tech font-heading">面试虎</h1>
       </div>
@@ -243,6 +260,22 @@ function getPhaseIcon() {
         <template v-for="item in dialogues" :key="item.id">
           <DialogueItem :item="item" />
         </template>
+
+        <div
+          v-if="interimDialogue"
+          class="flex gap-4 mb-4 animate-fade-in"
+        >
+          <div class="flex-1 flex justify-end">
+            <div class="dialogue-bubble-user max-w-[80%] relative">
+              <div class="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full animate-pulse"></div>
+              <p class="text-sm text-foreground/90">{{ interimDialogue.question }}</p>
+              <p class="text-xs text-foreground/40 mt-2 flex items-center gap-1">
+                <Search class="w-3 h-3" />
+                正在识别中...
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </main>
 
