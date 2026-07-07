@@ -1,0 +1,27 @@
+{
+  "skill": "meta-self-iteration",
+  "version": "3.0.0",
+  "created_at": "2026-07-07T12:17:32.369241+00:00",
+  "updated_at": "2026-07-07T12:20:07.839534+00:00",
+  "current_stage": 3,
+  "stage_name": "VERIFY",
+  "completed_stages": [
+    1,
+    2
+  ],
+  "log_dir": "/Users/siyuan/.trae-cn/memory/projects/-Users-siyuan-Documents-www-ai-project-interview-tiger",
+  "checkpoint": {
+    "since": "2026-07-07T12:20:07.839265+00:00",
+    "last_extracted": null
+  },
+  "artifacts": {},
+  "approval": {
+    "merge_approved": true
+  },
+  "meltdown": {
+    "max_retries": 3,
+    "retry_count": 0,
+    "max_duration_minutes": 30,
+    "started_at": "2026-07-07T12:17:32.369241+00:00"
+  }
+}
