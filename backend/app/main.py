@@ -4,7 +4,7 @@ import time
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-from config import BACKEND_HOST, BACKEND_PORT, FRONTEND_URL, DEBUG
+from config import BACKEND_HOST, BACKEND_PORT, FRONTEND_URL, DEBUG, ALLOWED_ORIGINS
 
 # 数据库初始化
 from app.database import engine, Base
@@ -24,7 +24,7 @@ app = FastAPI(
 # CORS 中间件
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[FRONTEND_URL, "http://localhost:5173"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -31,5 +31,8 @@ BACKEND_PORT = int(os.getenv("BACKEND_PORT", "8000"))
 FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
 DEBUG = os.getenv("APP_DEBUG", "true").lower() == "true"
 
+# CORS 配置 - 支持多个前端域名
+ALLOWED_ORIGINS = os.getenv("ALLOWED_ORIGINS", FRONTEND_URL).split(",")
+
 # 数据库配置
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:your_password@localhost:5432/interview_tiger")

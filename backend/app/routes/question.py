@@ -157,4 +157,19 @@ async def process_question_stream(req: QuestionRequest):
                 1000,
                 use_web_search
             ):
-                yield f"data: {json.dumps({'type': 'chunk', 'content': chunk}, ensure
+                yield f"data: {json.dumps({'type': 'chunk', 'content': chunk}, ensure_ascii=False)}\n\n"
+
+            yield "data: [DONE]\n\n"
+        except Exception as e:
+            logger.error(f"流式生成异常: {e}")
+            yield f"data: {json.dumps({'type': 'error', 'message': str(e)}, ensure_ascii=False)}\n\n"
+
+    return StreamingResponse(
+        generate(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no"
+        }
+    )
