@@ -26,6 +26,36 @@ def test_knowledge_base(query: str):
     print(f"测试查询: {query}")
     print(f"{'='*60}")
 
+    # 测试0: 获取知识库列表，验证API Key和KB_ID格式
+    print("\n【测试0: 获取知识库列表】")
+    try:
+        from app.services.knowledge import list_knowledge_bases
+        
+        if KB_API_KEY:
+            kb_list = list_knowledge_bases(KB_API_KEY)
+            print(f"API Key配置: {'有' if KB_API_KEY else '无'}")
+            print(f"当前配置的KB_ID: {KB_ID}")
+            print(f"\n知识库列表响应:")
+            print(f"  {json.dumps(kb_list, indent=2, ensure_ascii=False)[:1000]}...")
+            
+            if 'data' in kb_list:
+                collections = kb_list['data'].get('collection_list', kb_list['data'].get('collections', []))
+                print(f"\n  可用知识库列表 ({len(collections)}个):")
+                for kb in collections:
+                    kb_id = kb.get('resource_id', kb.get('id', ''))
+                    kb_name = kb.get('collection_name', kb.get('name', ''))
+                    kb_status = kb.get('status', '')
+                    is_current = "★" if kb_id == KB_ID else " "
+                    print(f"  {is_current} ID: {kb_id}, 名称: {kb_name}, 状态: {kb_status}")
+            else:
+                print(f"  ⚠️  未获取到知识库列表，请检查API Key或网络")
+        else:
+            print(f"  ⚠️  KB_API_KEY未配置")
+    except Exception as e:
+        print(f"  ✗ 获取知识库列表失败: {e}")
+
+    knowledge = ""
+    
     # 测试1: 直接检索知识库
     print("\n【测试1: 知识库检索】")
     try:
@@ -55,8 +85,8 @@ def test_knowledge_base(query: str):
         from app.services.llm import call_llm
         
         if ARK_API_KEY:
-            knowledge_context = ""
-            if KB_ID and KB_API_KEY:
+            knowledge_context = knowledge if 'knowledge' in locals() else ""
+            if not knowledge_context and KB_ID and KB_API_KEY:
                 knowledge_context = get_relevant_knowledge(query, KB_ID, KB_API_KEY)
             
             messages = build_messages(query, knowledge_context)

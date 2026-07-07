@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 from logging.handlers import TimedRotatingFileHandler
 from datetime import datetime
 from typing import Optional
@@ -39,6 +40,32 @@ class LongFormatter(logging.Formatter):
         return "\n".join(log_parts) + "\n"
 
 
+class CustomTimedRotatingFileHandler(TimedRotatingFileHandler):
+    def __init__(self, filename, when='h', interval=1, backupCount=0, encoding=None, delay=False, utc=False, atTime=None):
+        self.base_filename = filename
+        super().__init__(filename, when=when, interval=interval, backupCount=backupCount, encoding=encoding, delay=delay, utc=utc, atTime=atTime)
+
+    def doRollover(self):
+        super().doRollover()
+        old_files = []
+        for file in os.listdir(os.path.dirname(self.baseFilename)):
+            if file.startswith(os.path.basename(self.baseFilename)) and file != os.path.basename(self.baseFilename):
+                old_files.append(file)
+        
+        for old_file in old_files:
+            if old_file.endswith('.log'):
+                continue
+            date_match = re.search(r'\.(\d{4}-\d{2}-\d{2})$', old_file)
+            if date_match:
+                date_str = date_match.group(1)
+                base_name = old_file[:-(len(date_str) + 1)]
+                new_name = f"{base_name}.{date_str}.log"
+                old_path = os.path.join(os.path.dirname(self.baseFilename), old_file)
+                new_path = os.path.join(os.path.dirname(self.baseFilename), new_name)
+                if os.path.exists(old_path) and not os.path.exists(new_path):
+                    os.rename(old_path, new_path)
+
+
 def setup_logger(name: str = "interview-tiger") -> logging.Logger:
     logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)
@@ -51,7 +78,7 @@ def setup_logger(name: str = "interview-tiger") -> logging.Logger:
     short_handler.setLevel(logging.INFO)
     short_handler.setFormatter(ShortFormatter())
 
-    long_handler = TimedRotatingFileHandler(
+    long_handler = CustomTimedRotatingFileHandler(
         filename=os.path.join(LOG_DIR, "app.log"),
         when="midnight",
         interval=1,
@@ -61,7 +88,7 @@ def setup_logger(name: str = "interview-tiger") -> logging.Logger:
     long_handler.setLevel(logging.DEBUG)
     long_handler.setFormatter(LongFormatter())
 
-    error_handler = TimedRotatingFileHandler(
+    error_handler = CustomTimedRotatingFileHandler(
         filename=os.path.join(LOG_DIR, "error.log"),
         when="midnight",
         interval=1,
