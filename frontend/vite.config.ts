@@ -13,12 +13,12 @@ export default defineConfig(({ mode }) => {
       }
     },
     server: {
-      port: 5173,
+      host: '0.0.0.0',
+      port: 40003,
       proxy: {
         '/api': {
-          target: env.VITE_API_BASE_URL || 'http://localhost:8001',
-          changeOrigin: true,
-          rewrite: (path) => path.replace(/^\/api/, '')
+          target: env.VITE_API_BASE_URL || 'http://interview-tiger-backend:8000',
+          changeOrigin: true
         }
       }
     }

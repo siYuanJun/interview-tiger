@@ -3,8 +3,8 @@
 # ==========================================
 
 # 独立子仓库（已分离为单独的Git仓库）
-frontend/
-backend/
+frontend
+backend
 
 # 环境变量文件（含密钥）
 .env
@@ -38,3 +38,4 @@ node_modules/
 
 # AI Workflow内部文件
 data
+
