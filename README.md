@@ -19,7 +19,7 @@
 | 前端 | Vue 3 + Vite + Tailwind CSS + Pinia + TypeScript |
 | 后端 | Python FastAPI |
 | 大模型 | 火山引擎方舟平台 (DeepSeek V4 Flash) |
-| 知识库 | 火山引擎知识库 (SignerV4 + RAG) |
+| 知识库 | 火山引擎知识库 (Bearer Token + RAG) |
 | 语音识别 | Web Speech API (浏览器原生) |
 | 音频采集 | MediaRecorder API (浏览器原生) |
 
@@ -58,8 +58,8 @@ npm run dev
 
 在首页右上角⚙️设置中填入：
 - **大模型 API Key**：火山引擎方舟平台 Bearer Token
-- **知识库 ID**：siyuan_jianli 或自定义
-- **知识库 API Key**：AK:SK 格式的知识库密钥
+- **知识库 ID**：kb-xxx 格式（从知识库控制台获取）
+- **知识库 API Key**：VIKING_API_KEY（从知识库控制台 → 用户管理获取）
 - **模型 ID**：推荐 `deepseek-v4-flash-260425`
 
 ## 📂 项目结构
@@ -92,7 +92,7 @@ interview-tiger/
 │       │   ├── generate.py        # 大模型生成
 │       │   └── question.py        # 问题处理（核心）
 │       └── services/              # 业务服务
-│           ├── knowledge.py       # 知识库检索(SignerV4)
+│           ├── knowledge.py       # 知识库检索(Bearer Token)
 │           ├── llm.py             # 大模型调用(流式/非流式)
 │           └── prompt.py          # Prompt拼接
 ├── .ai-workflow/                  # AI工程化工作流
@@ -114,7 +114,7 @@ sequenceDiagram
     浏览器->>浏览器: SpeechRecognition 实时转文字
     浏览器->>浏览器: 问题判断（规则引擎）
     浏览器->>后端API: POST /api/question/stream
-    后端API->>知识库: RAG检索（SignerV4）
+    后端API->>知识库: RAG检索（Bearer Token）
     知识库-->>后端API: 个人背景资料
     后端API->>后端API: Prompt拼接（知识+问题）
     后端API->>大模型: SSE流式生成

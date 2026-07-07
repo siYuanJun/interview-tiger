@@ -51,7 +51,7 @@ services:
       - ./backend/.env
     environment:
       - TZ=Asia/Shanghai
-      - DATABASE_URL=postgresql://postgres:password@db:5432/interview_tiger
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD:-your_password}@db:5432/interview_tiger
     depends_on:
       db:
         condition: service_healthy

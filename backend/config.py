@@ -32,4 +32,4 @@ FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
 DEBUG = os.getenv("APP_DEBUG", "true").lower() == "true"
 
 # 数据库配置
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:password@localhost:5432/interview_tiger")
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:your_password@localhost:5432/interview_tiger")
