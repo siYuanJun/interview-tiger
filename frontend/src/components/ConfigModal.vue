@@ -7,7 +7,6 @@ import {
   Brain, 
   BookOpen, 
   Key, 
-  Bot,
   CheckCircle,
   HelpCircle,
   ExternalLink,
@@ -139,34 +138,19 @@ function openLink(url: string) {
         <div>
           <label class="block text-sm font-medium text-foreground/80 mb-1.5 flex items-center gap-2">
             <Key class="w-4 h-4 text-secondary" />
-            知识库 API Key（AK:SK）
+            知识库 API Key
           </label>
           <input
             v-model="kbApiKey"
             type="password"
-            placeholder="AK:SK 格式的知识库密钥"
+            placeholder="输入 VIKING_API_KEY"
             class="input-tech"
           />
           <p class="text-xs text-foreground/40 mt-1">
-            格式：AccessKey:SecretKey（冒号分隔）
+            VikingDB 知识库服务的 API Key（纯字母数字格式）
           </p>
         </div>
 
-        <div>
-          <label class="block text-sm font-medium text-foreground/80 mb-1.5 flex items-center gap-2">
-            <Bot class="w-4 h-4 text-primary" />
-            模型 ID
-          </label>
-          <input
-            type="text"
-            :value="DEFAULT_MODEL_ID"
-            readonly
-            class="input-tech bg-muted/30 cursor-default"
-          />
-          <p class="text-xs text-foreground/40 mt-1">
-            默认使用 DeepSeek v4 Flash 模型，无需修改
-          </p>
-        </div>
       </div>
 
       <div class="mt-6 flex gap-3">
