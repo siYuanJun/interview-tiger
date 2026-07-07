@@ -2,26 +2,26 @@
 # 隐私安全：以下文件绝对不能被Git追踪
 # ==========================================
 
+# 独立子仓库（已分离为单独的Git仓库）
+frontend/
+backend/
+
 # 环境变量文件（含密钥）
 .env
 .env.*.local
-backend/.env
-backend/.env.dev
 
 # 构建产物
 dist/
-frontend/dist/
 
 # Python缓存
 __pycache__/
 *.py[cod]
 *.egg-info/
-backend/venv/
-backend/.venv/
+venv/
+.venv/
 
 # Dependencies
 node_modules/
-frontend/node_modules/
 
 # IDE
 .vscode/
