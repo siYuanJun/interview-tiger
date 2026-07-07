@@ -108,9 +108,9 @@ curl -i -X POST \
    ```bash
    $ curl -i -X POST \
      -H 'Content-Type: application/json' \
-     -H "Authorization: Bearer X7PQPKCVG27PG6632XQ584R3724CF8YB5Z973AF3FNFB0065C84G60R30D9G6RVKE" \
+     -H "Authorization: Bearer YOUR_VIKING_API_KEY" \
      'https://api-knowledgebase.mlp.cn-beijing.volces.com/api/knowledge/collection/search_knowledge' \
-     -d '{"resource_id":"kb-ee95868bec0b4da8","project":"default","query":"你叫什么","limit":2}'
+     -d '{"resource_id":"YOUR_KNOWLEDGEBASE_ID","project":"default","query":"你叫什么","limit":2}'
 
    HTTP/1.1 200 OK
    {"code":0,"message":"success","data":{"collection_name":"siyuan_jianli","count":2,"result_list":[...]}}
@@ -250,8 +250,8 @@ curl -i -X POST \
 ```diff
 - KB_API_KEY=AKLTMDI1NzhhYzU3MGEwNDI0ODg0ODc5NjJiMjI2MTE5Zjg:T1dHT1puR0ZqWmpabU5tWVRZalpqTmpaaFpUQXlOR0ppTURSaE56UmxPR0pqTnpZeVltVQ==
 - KB_ID=siyuan_jianli
-+ KB_API_KEY=X7PQPKCVG27PG6632XQ584R3724CF8YB5Z973AF3FNFB0065C84G60R30D9G6RVKE
-+ KB_ID=kb-ee95868bec0b4da8
++ KB_API_KEY=YOUR_VIKING_API_KEY
++ KB_ID=YOUR_KNOWLEDGEBASE_ID
 ```
 
 ### 5.4 验证修复
