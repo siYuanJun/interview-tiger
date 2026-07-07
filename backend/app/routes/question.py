@@ -146,10 +146,7 @@ async def process_question_stream(req: QuestionRequest):
             status_msg = "知识库+联网搜索中..." if use_web_search else "正在生成回答..."
             yield f"data: {json.dumps({'type': 'status', 'message': status_msg}, ensure_ascii=False)}\n\n"
 
-            loop = asyncio.get_event_loop()
-            async for chunk in loop.run_in_executor(
-                None,
-                call_llm_stream,
+            for chunk in call_llm_stream(
                 messages,
                 cfg["ark_api_key"],
                 cfg["model_id"],

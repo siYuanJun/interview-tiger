@@ -83,10 +83,10 @@ def get_relevant_knowledge(query: str, kb_id: str, kb_api_key: str) -> str:
             score = item.get('score', 1.0)
             rerank_score = item.get('rerank_score', None)
             if rerank_score is not None:
-                if float(rerank_score) < 0.3:
+                if float(rerank_score) < 0.02:
                     continue
             else:
-                if float(score) < 0.05:
+                if float(score) < 0.02:
                     continue
             knowledge.append(item['content'])
             if len(knowledge) >= 3:

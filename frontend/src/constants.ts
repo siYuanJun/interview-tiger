@@ -5,4 +5,4 @@
 export const DEFAULT_MODEL_ID = 'deepseek-v4-flash-260425'
 
 /** 默认知识库 ID */
-export const DEFAULT_KB_ID = 'siyuan_jianli'
+export const DEFAULT_KB_ID = 'kb-ee95868bec0b4da8'
