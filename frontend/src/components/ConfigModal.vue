@@ -23,7 +23,6 @@ const store = useInterviewStore()
 const apiKey = ref('')
 const kbId = ref('')
 const kbApiKey = ref('')
-const modelId = ref(DEFAULT_MODEL_ID)
 const saved = ref(false)
 const showHelp = ref(false)
 
@@ -59,7 +58,6 @@ onMounted(() => {
   apiKey.value = store.apiKey
   kbId.value = store.kbId
   kbApiKey.value = store.kbApiKey
-  modelId.value = store.modelId
 })
 
 function saveConfig() {
@@ -67,7 +65,7 @@ function saveConfig() {
     apiKey: apiKey.value,
     kbId: kbId.value,
     kbApiKey: kbApiKey.value,
-    modelId: modelId.value
+    modelId: DEFAULT_MODEL_ID
   })
   saved.value = true
   setTimeout(() => {
@@ -95,8 +93,8 @@ function openLink(url: string) {
         </div>
         <div class="flex items-center gap-2">
           <button
-            @click="showHelp = true"
-            class="p-2 rounded-lg hover:bg-muted/50 transition-colors"
+            @click.stop="showHelp = true"
+            class="p-2 rounded-lg hover:bg-muted/50 transition-colors cursor-pointer z-10"
             title="帮助"
           >
             <HelpCircle class="w-5 h-5 text-foreground/50" />
@@ -160,13 +158,13 @@ function openLink(url: string) {
             模型 ID
           </label>
           <input
-            v-model="modelId"
             type="text"
-            placeholder="deepseek-v4-flash-260425"
-            class="input-tech"
+            :value="DEFAULT_MODEL_ID"
+            readonly
+            class="input-tech bg-muted/30 cursor-default"
           />
           <p class="text-xs text-foreground/40 mt-1">
-            推荐 deepseek-v4-flash-260425（高性价比）或 deepseek-v4-pro
+            默认使用 DeepSeek v4 Flash 模型，无需修改
           </p>
         </div>
       </div>
@@ -185,7 +183,7 @@ function openLink(url: string) {
 
   <div
     v-if="showHelp"
-    class="fixed inset-0 bg-black/80 backdrop-blur-sm z-60 flex items-center justify-center p-4"
+    class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4"
     @click.self="showHelp = false"
   >
     <div class="tech-card w-full max-w-md p-6 animate-slide-up">
