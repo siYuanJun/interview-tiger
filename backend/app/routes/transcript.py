@@ -58,7 +58,7 @@ async def process_transcript(req: TranscriptRequest, db: Session = Depends(get_d
         id=dialogue_id,
         session_id=session_id,
         question=req.text.strip(),
-        answer='等待大模型接入...',
+        answer='',
         is_valid=True,
         rule=validation['rule']
     )
