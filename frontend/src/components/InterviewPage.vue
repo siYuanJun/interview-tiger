@@ -135,7 +135,8 @@ async function handleSpeechResult(result: { text: string; isFinal: boolean; conf
         ark_api_key: store.apiKey,
         model_id: store.modelId,
         kb_id: store.kbId,
-        kb_api_key: store.kbApiKey
+        kb_api_key: store.kbApiKey,
+        kb_provider: store.kbProvider
       },
       (chunk) => {
         const idx = dialogues.value.findIndex(d => d.id === dialogue.id)

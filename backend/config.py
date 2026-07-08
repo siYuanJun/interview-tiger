@@ -9,11 +9,18 @@ ARK_API_KEY = os.getenv("ARK_API_KEY", "")
 ARK_MODEL = os.getenv("ARK_MODEL", "deepseek-v4-flash-260425")
 ARK_BASE_URL = os.getenv("ARK_BASE_URL", "https://ark.cn-beijing.volces.com/api/v3")
 
-# 火山引擎知识库
+# 知识库配置
+KB_PROVIDER = os.getenv("KB_PROVIDER", "volcengine")
 KB_API_KEY = os.getenv("KB_API_KEY", "")
 KB_ID = os.getenv("KB_ID", "siyuan_jianli")
 KB_PROJECT = os.getenv("KB_PROJECT", "default")
 KB_BASE_URL = os.getenv("KB_BASE_URL", "https://api-knowledgebase.mlp.cn-beijing.volces.com")
+
+# 本地知识库配置
+LOCAL_KB_DATA_DIR = os.getenv("LOCAL_KB_DATA_DIR", "./data/chroma")
+LOCAL_KB_EMBEDDING_MODEL = os.getenv("LOCAL_KB_EMBEDDING_MODEL", "bge-large-zh-v1.5")
+LOCAL_KB_CHUNK_SIZE = int(os.getenv("LOCAL_KB_CHUNK_SIZE", "500"))
+LOCAL_KB_CHUNK_OVERLAP = int(os.getenv("LOCAL_KB_CHUNK_OVERLAP", "50"))
 
 # 联网搜索配置（知识库无结果时的降级方案）
 # WEB_SEARCH_BOT_ID: Bot应用ID，用于联网搜索（在方舟控制台创建Bot并开通联网插件后获取）

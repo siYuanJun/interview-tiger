@@ -31,6 +31,7 @@ export const useInterviewStore = defineStore('interview', () => {
   const kbId = ref(localStorage.getItem('kb_id') || DEFAULT_KB_ID)
   const kbApiKey = ref(localStorage.getItem('kb_api_key') || '')
   const modelId = ref(localStorage.getItem('model_id') || DEFAULT_MODEL_ID)
+  const kbProvider = ref(localStorage.getItem('kb_provider') || DEFAULT_KB_PROVIDER)
 
   // --- 计算属性 ---
   const dialogueCount = computed(() => dialogues.value.length)
@@ -90,16 +91,18 @@ export const useInterviewStore = defineStore('interview', () => {
   }
 
   // --- 配置操作 ---
-  function saveConfig(config: { apiKey: string; kbId: string; kbApiKey: string; modelId: string }) {
+  function saveConfig(config: { apiKey: string; kbId: string; kbApiKey: string; modelId: string; kbProvider?: string }) {
     apiKey.value = config.apiKey
     kbId.value = config.kbId
     kbApiKey.value = config.kbApiKey
     modelId.value = config.modelId
+    kbProvider.value = config.kbProvider || DEFAULT_KB_PROVIDER
 
     localStorage.setItem('ark_api_key', config.apiKey)
     localStorage.setItem('kb_id', config.kbId)
     localStorage.setItem('kb_api_key', config.kbApiKey)
     localStorage.setItem('model_id', config.modelId)
+    localStorage.setItem('kb_provider', kbProvider.value)
   }
 
   // --- 导出对话 ---
@@ -128,6 +131,7 @@ export const useInterviewStore = defineStore('interview', () => {
     kbId,
     kbApiKey,
     modelId,
+    kbProvider,
     dialogueCount,
     isConfigured,
     lastDialogue,

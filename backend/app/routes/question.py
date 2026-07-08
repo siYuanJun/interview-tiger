@@ -1,53 +1,61 @@
-# 问题处理路由 - 面试核心API
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 import json
 import asyncio
-import time
 
-from config import ARK_MODEL, ARK_API_KEY, KB_ID, KB_API_KEY
-from app.services.knowledge import get_relevant_knowledge
+from config import ARK_MODEL, ARK_API_KEY, KB_ID, KB_API_KEY, KB_PROVIDER
 from app.services.llm import call_llm, call_llm_stream
 from app.services.prompt import build_messages
 from app.utils.logger import logger, log_api_error
+from app.utils.kb_provider import get_knowledge_provider, get_kb_provider_type
+
 router = APIRouter()
 
 
 class QuestionRequest(BaseModel):
-    """问题处理请求"""
     question: str = Field(..., min_length=1, max_length=2000, description="面试官问题文本")
     ark_api_key: str = Field(default="", description="火山引擎API Key（留空则使用.env配置）")
     model_id: str = Field(default=ARK_MODEL, description="模型ID")
     kb_id: str = Field(default="", description="知识库ID（留空则使用.env配置）")
-    kb_api_key: str = Field(default="", description="知识库API Key（留空则使用.env配置，AK:SK格式）")
+    kb_api_key: str = Field(default="", description="知识库API Key（留空则使用.env配置）")
+    kb_provider: str = Field(default="", description="知识库提供者（volcengine/local）")
     stream: bool = Field(default=True, description="是否流式输出")
 
 
 def resolve_config(req: QuestionRequest):
-    """解析配置：前端传入优先，否则使用.env默认值"""
     return {
         "ark_api_key": req.ark_api_key or ARK_API_KEY,
         "model_id": req.model_id or ARK_MODEL,
         "kb_id": req.kb_id or KB_ID,
         "kb_api_key": req.kb_api_key or KB_API_KEY,
+        "kb_provider": req.kb_provider or KB_PROVIDER,
     }
 
 
 class QuestionResponse(BaseModel):
-    """问题处理响应"""
     code: int = 0
     message: str = "success"
     data: dict = {}
 
 
+def fetch_knowledge_sync(query: str, cfg: dict) -> str:
+    provider_type = get_kb_provider_type(cfg.get("kb_provider"))
+    
+    if provider_type == "local":
+        provider = get_knowledge_provider("local")
+        return provider.search(query)
+    else:
+        kb_id = cfg.get("kb_id")
+        kb_api_key = cfg.get("kb_api_key")
+        if kb_id and kb_api_key:
+            provider = get_knowledge_provider("volcengine", kb_id, kb_api_key)
+            return provider.search(query)
+    return ""
+
+
 @router.post("/question")
 async def process_question(req: QuestionRequest):
-    """处理面试问题 - 非流式版本
-
-    优化：知识库检索与大模型准备并行执行，减少延迟。
-    知识库无结果时自动降级为联网搜索模式。
-    """
     logger.info(f"处理面试问题: {req.question[:50]}...")
 
     cfg = resolve_config(req)
@@ -60,16 +68,13 @@ async def process_question(req: QuestionRequest):
 
     async def fetch_knowledge():
         nonlocal knowledge_context
-        if cfg["kb_id"] and cfg["kb_api_key"]:
-            logger.info(f"检索知识库: {cfg['kb_id']}")
-            knowledge_context = await asyncio.to_thread(
-                get_relevant_knowledge,
-                query=req.question,
-                kb_id=cfg["kb_id"],
-                kb_api_key=cfg["kb_api_key"]
-            )
-            if knowledge_context:
-                logger.info(f"知识库命中: {len(knowledge_context)}字")
+        knowledge_context = await asyncio.to_thread(
+            fetch_knowledge_sync,
+            query=req.question,
+            cfg=cfg
+        )
+        if knowledge_context:
+            logger.info(f"知识库命中: {len(knowledge_context)}字")
 
     await fetch_knowledge()
 
@@ -107,11 +112,6 @@ async def process_question(req: QuestionRequest):
 
 @router.post("/question/stream")
 async def process_question_stream(req: QuestionRequest):
-    """处理面试问题 - 流式版本（SSE）
-
-    优化：知识库检索与大模型准备并行执行，减少延迟。
-    知识库无结果时自动降级为联网搜索模式。
-    """
     logger.info(f"流式处理面试问题: {req.question[:50]}...")
 
     cfg = resolve_config(req)
@@ -124,13 +124,11 @@ async def process_question_stream(req: QuestionRequest):
 
     async def fetch_knowledge():
         nonlocal knowledge_context
-        if cfg["kb_id"] and cfg["kb_api_key"]:
-            knowledge_context = await asyncio.to_thread(
-                get_relevant_knowledge,
-                query=req.question,
-                kb_id=cfg["kb_id"],
-                kb_api_key=cfg["kb_api_key"]
-            )
+        knowledge_context = await asyncio.to_thread(
+            fetch_knowledge_sync,
+            query=req.question,
+            cfg=cfg
+        )
 
     await fetch_knowledge()
 
@@ -141,7 +139,6 @@ async def process_question_stream(req: QuestionRequest):
     messages = build_messages(req.question, knowledge_context, use_web_search)
 
     async def generate():
-        """SSE流式生成器"""
         try:
             status_msg = "知识库+联网搜索中..." if use_web_search else "正在生成回答..."
             yield f"data: {json.dumps({'type': 'status', 'message': status_msg}, ensure_ascii=False)}\n\n"

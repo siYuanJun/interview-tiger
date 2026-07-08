@@ -89,6 +89,7 @@ export function useApi() {
     model_id: string
     kb_id?: string
     kb_api_key?: string
+    kb_provider?: string
   }): Promise<ApiResponse<{ answer: string; knowledge_used: boolean }> | null> {
     try {
       const res = await client.post<ApiResponse<{ answer: string; knowledge_used: boolean }>>(
@@ -109,6 +110,7 @@ export function useApi() {
       model_id: string
       kb_id?: string
       kb_api_key?: string
+      kb_provider?: string
     },
     onChunk: (chunk: string) => void,
     onDone: (knowledgeUsed: boolean) => void,
