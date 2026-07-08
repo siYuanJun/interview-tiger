@@ -220,6 +220,64 @@ interview-tiger/
 
 ---
 
+## 📸 界面预览
+
+### 首页
+
+面试虎首页采用深色科技风格，清晰展示产品三大核心能力：实时语音识别、双知识库支持、智能分析。
+
+<p align="center">
+  <img src="docs/product-images/e75b8865-1bd7-46ac-a004-f3de1585a2ad.png" width="100%" alt="面试虎首页" />
+</p>
+
+### 面试对话
+
+面试官提问后，系统通过 RAG 检索知识库并基于 STAR 法则生成结构化回答建议。左侧显示面试官语音识别结果，右侧展示 AI 生成的回答建议，底部可实时查看语音输入状态。
+
+<div align="center">
+  <table>
+    <tr>
+      <td width="50%">
+        <p align="center"><strong>面试准备中</strong></p>
+        <img src="docs/product-images/bbfccb1b-aef6-4934-b02a-2ec450f1436f.png" width="100%" alt="面试准备中" />
+      </td>
+      <td width="50%">
+        <p align="center"><strong>实时对话界面</strong></p>
+        <img src="docs/product-images/9c88cc2f-48b7-4f09-8c41-3ac495f8f227.png" width="100%" alt="实时对话界面" />
+      </td>
+    </tr>
+  </table>
+</div>
+
+### 配置中心
+
+支持一键切换火山引擎云端知识库和本地 ChromaDB 知识库。云端模式只需填入 API Key 和知识库 ID；本地模式支持文档上传、自定义切片参数和文档管理。
+
+<div align="center">
+  <table>
+    <tr>
+      <td width="50%">
+        <p align="center"><strong>火山引擎知识库配置</strong></p>
+        <img src="docs/product-images/0dd8e707-7a8f-448f-a880-7cb6aaca1d7a.png" width="100%" alt="火山引擎配置" />
+      </td>
+      <td width="50%">
+        <p align="center"><strong>本地知识库配置</strong></p>
+        <img src="docs/product-images/bd4b6021-b8c6-4d0e-8602-7a1854ad94f7.png" width="100%" alt="本地知识库配置" />
+      </td>
+    </tr>
+  </table>
+</div>
+
+### 配置帮助
+
+内置配置帮助中心，提供大模型 API Key 获取、模型 ID 选择、知识库 ID 获取、推荐模型等常见问题的指引，降低首次使用门槛。
+
+<p align="center">
+  <img src="docs/product-images/c7237a63-6f60-41c2-bf8b-aa2694c5311e.png" width="60%" alt="配置帮助" />
+</p>
+
+---
+
 ## 🚀 部署与运行
 
 详细的 Docker Compose 部署步骤请参考：[DEPLOY.md](file:///Users/siyuan/Documents/www/ai-project/interview-tiger/DEPLOY.md)
