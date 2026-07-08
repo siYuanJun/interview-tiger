@@ -158,7 +158,7 @@ async function handleSpeechResult(result: { text: string; isFinal: boolean; conf
             dialogues.value[idx].answer = '生成失败'
           }
           dialogues.value[idx].generating = false
-          updateDialogue(dialogue.id, dialogues.value[idx].answer)
+          updateDialogue(dialogue.id, dialogues.value[idx].answer).catch(() => {})
         }
         statusMessage.value = '正在监听面试官提问...'
       },

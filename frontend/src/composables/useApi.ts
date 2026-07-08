@@ -203,11 +203,10 @@ export function useApi() {
   // 更新对话回答
   async function updateDialogue(dialogueId: string, answer: string): Promise<ApiResponse | null> {
     try {
-      const res = await client.put<ApiResponse>(`/dialogues/${dialogueId}`, {}, {
-        params: { answer }
-      })
+      const res = await client.put<ApiResponse>(`/dialogues/${dialogueId}`, { answer })
       return res.data
-    } catch {
+    } catch (err) {
+      console.error('保存回答失败:', err)
       return null
     }
   }
