@@ -1,71 +1,82 @@
-import os
+"""主入口：按序执行所有测试场景"""
 import sys
-import importlib
-from datetime import datetime
-from config import ALL_SCENES, P0_SCENES
-from logger import TestLogger
+import time
 
-
-logger = TestLogger()
-
-
-def run_scene(scene_name):
-    try:
-        module = importlib.import_module(scene_name.replace(".py", ""))
-        module.run()
-        return True
-    except Exception as e:
-        logger.error(f"场景执行异常: {scene_name} - {str(e)}")
-        return False
+from config import BASE_URL, REQUEST_TIMEOUT
+from logger import setup_logger
+from utils.http_client import ApiClient
 
 
 def main():
-    start_time = datetime.now()
+    # 初始化日志
+    logger = setup_logger()
+
+    logger.info("")
+    logger.info("╔" + "═" * 58 + "╗")
+    logger.info("║" + "  面试虎 - 本地知识库接口测试".center(52) + "║")
+    logger.info("╠" + "═" * 58 + "╣")
+    logger.info(f"║  BASE_URL: {BASE_URL}".ljust(59) + "║")
+    logger.info(f"║  超时: {REQUEST_TIMEOUT}s".ljust(59) + "║")
+    logger.info("╚" + "═" * 58 + "╝")
+
+    # 创建客户端
+    client = ApiClient(BASE_URL, logger, timeout=REQUEST_TIMEOUT)
+
+    total_start = time.time()
+
+    scenes = [
+        ("S1", "scene_s1_health", "健康检查 + 初始状态基线"),
+        ("S2", "scene_s2_upload", "上传真实面试知识库文件"),
+        ("S3", "scene_s3_verify", "验证上传结果"),
+        ("S4", "scene_s4_cleanup", "清理知识库"),
+    ]
+
+    results = {}
+    for scene_id, module_name, description in scenes:
+        logger.info(f"\n{'#' * 60}")
+        logger.info(f"#  执行场景 [{scene_id}] {description}")
+        logger.info(f"{'#' * 60}")
+
+        try:
+            mod = __import__(module_name)
+            scene_start = time.time()
+            mod.run(client, logger)
+            elapsed = time.time() - scene_start
+            results[scene_id] = ("PASS", elapsed)
+            logger.info(f"\n  ✅ [{scene_id}] 通过 ({elapsed:.1f}s)")
+        except SystemExit as e:
+            if e.code == 0:
+                results[scene_id] = ("PASS", 0)
+            else:
+                results[scene_id] = ("FATAL", 0)
+                logger.error(f"\n  ❌ [{scene_id}] 致命错误，测试终止")
+                break
+        except Exception as e:
+            results[scene_id] = ("ERROR", 0)
+            logger.error(f"\n  ❌ [{scene_id}] 异常: {e}")
+            break
+
+    # 汇总报告
+    total_elapsed = time.time() - total_start
+    logger.info("")
     logger.info("=" * 60)
-    logger.info("面试虎后端接口回归测试")
-    logger.info(f"开始时间: {start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+    logger.info("                     测试结果汇总")
     logger.info("=" * 60)
-    
-    scenes = ALL_SCENES
-    
-    if len(sys.argv) > 1 and sys.argv[1] == "--p0":
-        scenes = P0_SCENES
-        logger.info("运行模式: 仅P0场景")
-    else:
-        logger.info("运行模式: 全量回归测试")
-    
-    logger.info(f"场景数量: {len(scenes)}")
-    logger.info(f"场景列表: {scenes}")
-    logger.info("-" * 60)
-    
-    success_count = 0
-    fail_count = 0
-    
-    for idx, scene_name in enumerate(scenes, 1):
-        logger.info(f"\n[{idx}/{len(scenes)}] 执行场景: {scene_name}")
-        if run_scene(scene_name):
-            success_count += 1
+    passed = sum(1 for r in results.values() if r[0] == "PASS")
+    failed = len(results) - passed
+    for scene_id, module_name, description in scenes:
+        if scene_id in results:
+            status, elapsed = results[scene_id]
+            icon = "✅" if status == "PASS" else "❌"
+            logger.info(f"  {icon} [{scene_id}] {description} ({elapsed:.1f}s)")
         else:
-            fail_count += 1
-    
-    end_time = datetime.now()
-    duration = (end_time - start_time).total_seconds()
-    
-    logger.info("\n" + "=" * 60)
-    logger.info("测试结果汇总")
+            logger.info(f"  ⏭️ [{scene_id}] {description} (未执行)")
+
+    logger.info(f"\n  通过: {passed}/{len(scenes)}  失败: {failed}/{len(scenes)}")
+    logger.info(f"  总耗时: {total_elapsed:.1f}s")
     logger.info("=" * 60)
-    logger.info(f"总场景数: {len(scenes)}")
-    logger.info(f"通过: {success_count}")
-    logger.info(f"失败: {fail_count}")
-    logger.info(f"耗时: {duration:.2f} 秒")
-    logger.info(f"日志文件: {logger.get_log_file()}")
-    
-    if fail_count > 0:
-        logger.error("测试未全部通过")
-        sys.exit(1)
-    else:
-        logger.success("所有测试通过！")
-        sys.exit(0)
+
+    sys.exit(0 if failed == 0 else 1)
 
 
 if __name__ == "__main__":

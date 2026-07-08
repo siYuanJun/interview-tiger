@@ -1,24 +1,22 @@
 #!/bin/bash
-
+# 一键运行所有测试（自动创建 venv）
 set -e
 
-TEST_DIR=$(cd "$(dirname "$0")" && pwd)
-cd "$TEST_DIR"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+cd "$SCRIPT_DIR"
 
-echo "初始化测试环境..."
-
+# 创建 venv
 if [ ! -d "venv" ]; then
-    echo "创建虚拟环境..."
+    echo ">>> 创建 Python venv ..."
     python3 -m venv venv
 fi
 
-echo "激活虚拟环境..."
+# 安装依赖
+echo ">>> 安装依赖 ..."
 source venv/bin/activate
-
-echo "安装依赖..."
 pip install -q -r requirements.txt
 
-echo "运行全量回归测试..."
+# 运行测试
+echo ">>> 开始测试 ..."
+echo ""
 python main.py
-
-deactivate

@@ -253,17 +253,11 @@
     实时语音识别 · 双知识库支持 · RAG检索增强 · 个性化面试建议
   </text>
   
-  <g transform="translate(400, 335)">
+  <g transform="translate(525, 335)">
     <rect x="0" y="0" width="150" height="42" rx="11" fill="url(#accentGradient)" filter="url(#glow)"/>
     <text x="75" y="28" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#ffffff" text-anchor="middle">
       开始面试
     </text>
   </g>
   
-  <g transform="translate(570, 335)">
-    <rect x="0" y="0" width="150" height="42" rx="11" fill="rgba(30,27,75,0.8)" stroke="url(#accentGradient)" stroke-width="1.5"/>
-    <text x="75" y="28" font-family="system-ui, -apple-system, sans-serif" font-size="14" font-weight="600" fill="#a5b4fc" text-anchor="middle">
-      查看文档
-    </text>
-  </g>
 </svg>

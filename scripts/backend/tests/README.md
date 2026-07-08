@@ -1,71 +1,49 @@
-# 面试虎后端接口回归测试
+# 面试虎 - 本地知识库接口测试
 
-## 简介
+## 概述
 
-本测试套件用于对面试虎后端服务进行接口回归测试，包含业务流程测试和参数校验测试。
+对本地知识库（local_kb）全部 7 个接口进行真实业务流程测试，使用真实的面试知识库文件。
 
-## 测试场景
+## 测试流程
 
-| 场景 | 文件 | 测试内容 |
+| 场景 | 内容 | 涉及接口 |
 |------|------|----------|
-| S1 | scene_s1_health_check.py | 健康检查接口 |
-| S2 | scene_s2_config.py | 配置管理接口（GET/POST） |
-| S3 | scene_s3_question.py | 问题处理接口（核心API） |
-| S4 | scene_s4_search.py | 知识库检索接口 |
-| S5 | scene_s5_generate.py | 大模型生成接口 |
-| S6 | scene_s6_transcript.py | 对话转录接口 |
-| S7 | scene_s7_dialogue.py | 对话管理接口（CRUD） |
+| S1 | 健康检查 + 初始状态基线 | /api/health, /api/local_kb/stats, /api/local_kb/list |
+| S2 | 上传真实面试知识库文件 | /api/local_kb/upload |
+| S3 | 验证上传结果（列表/搜索/下载/统计） | /api/local_kb/list, /api/local_kb/search, /api/local_kb/download/{doc_id}, /api/local_kb/stats |
+| S4 | 清理（删除+清空+验证） | /api/local_kb/delete/{doc_id}, /api/local_kb/list, /api/local_kb/download/{doc_id}, /api/local_kb/clear, /api/local_kb/stats |
 
 ## 运行方式
 
-### 全量回归测试
+### 一键运行（推荐）
 
 ```bash
+# 完整测试（含清理）
 ./run_all.sh
-```
 
-### 仅运行 P0 场景
-
-```bash
+# 仅 P0 测试（上传 + 验证，保留数据）
 ./run_p0.sh
 ```
 
 ### 手动运行
 
 ```bash
-cd tests
 python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-
-# 全量测试
 python main.py
-
-# 仅P0场景
-python main.py --p0
 ```
 
-## 配置说明
+## 环境变量
 
-配置文件 `config.py`:
+| 变量 | 说明 | 默认值 |
+|------|------|--------|
+| TEST_BASE_URL | 后端服务地址 | http://localhost:8001 |
+| TEST_FILE_PATH | 测试用文件路径 | ~/Documents/个人信息/.../01-自我介绍与核心必答题.md |
+| TEST_TIMEOUT | 请求超时（秒） | 120 |
 
-| 配置项 | 默认值 | 说明 |
-|--------|--------|------|
-| BASE_URL | http://localhost:8001 | 后端服务地址 |
-| TIMEOUT | 30 | 请求超时时间（秒） |
+## 前置条件
 
-## 测试特点
-
-- **命令行可视化**: 显示时间戳、步骤序号、请求方法/URL、参数、HTTP状态、业务状态、耗时、响应数据
-- **致命错误即停**: 前置失败导致后续无法进行时，立即退出
-- **独立日志文件**: `logs/test_{时间戳}.log`，内容与终端输出一致
-- **venv隔离**: 使用 Python 虚拟环境，不污染系统全局 pip
-
-## 日志文件
-
-测试日志保存在 `logs/` 目录下，命名格式: `test_YYYY-MM-DD_HH-MM-SS.log`
-
-## 依赖
-
-- Python 3.8+
-- requests 2.32.0
+- 后端服务已启动（端口 8001）
+- KB_PROVIDER=local（已在 .env 中配置）
+- ChromaDB 和 Embedding 模型已初始化

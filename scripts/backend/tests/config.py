@@ -1,25 +1,24 @@
-BASE_URL = "http://localhost:8001"
+"""测试配置"""
+import os
+from pathlib import Path
 
-TIMEOUT = 30
+# --- 服务地址 ---
+BASE_URL = os.getenv("TEST_BASE_URL", "http://localhost:8001")
 
-TEST_ACCOUNTS = {}
+# --- 测试用文件 ---
+# 真实的面试知识库文件
+TEST_FILE_PATH = os.getenv(
+    "TEST_FILE_PATH",
+    str(Path.home() / "Documents/个人信息/简历/简历内容/docs/知识库/面试知识库-整理版/01-自我介绍与核心必答题.md")
+)
 
-DEFAULT_HEADERS = {
-    "Content-Type": "application/json",
-}
+# --- 请求超时（秒） ---
+REQUEST_TIMEOUT = int(os.getenv("TEST_TIMEOUT", "120"))
 
-P0_SCENES = [
-    "scene_s1_health_check.py",
-    "scene_s2_config.py",
-    "scene_s3_question.py",
-]
+# --- 上传参数 ---
+CHUNK_SIZE = 500
+CHUNK_OVERLAP = 50
 
-ALL_SCENES = [
-    "scene_s1_health_check.py",
-    "scene_s2_config.py",
-    "scene_s3_question.py",
-    "scene_s4_search.py",
-    "scene_s5_generate.py",
-    "scene_s6_transcript.py",
-    "scene_s7_dialogue.py",
-]
+# --- 检索参数 ---
+SEARCH_QUERY = "自我介绍"
+SEARCH_TOP_K = 5
