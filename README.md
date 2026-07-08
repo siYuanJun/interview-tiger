@@ -344,9 +344,9 @@ docker-compose up --build -d
 ### 贡献流程
 
 ```bash
-# 1. Fork 本仓库
-# 2. 克隆到本地
-git clone https://github.com/YOUR_USERNAME/interview-tiger.git
+# 1. Fork 本仓库 → 打开 https://github.com/siYuanJun/interview-tiger 点击右上角 Fork
+# 2. 克隆到你本地
+git clone https://github.com/你的用户名/interview-tiger.git
 
 # 3. 创建特性分支
 git checkout -b feature/your-awesome-feature
@@ -354,10 +354,10 @@ git checkout -b feature/your-awesome-feature
 # 4. 提交你的改动
 git commit -m "feat: 添加了某某功能"
 
-# 5. 推送到远程
+# 5. 推送到你的 Fork 仓库
 git push origin feature/your-awesome-feature
 
-# 6. 在 GitHub 上发起 Pull Request
+# 6. 回到原仓库 https://github.com/siYuanJun/interview-tiger 发起 Pull Request
 ```
 
 更详细的开发规范请参考 [CONTRIBUTING.md](./CONTRIBUTING.md)。
