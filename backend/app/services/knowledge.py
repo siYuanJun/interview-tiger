@@ -70,7 +70,11 @@ class VolcengineKnowledgeProvider(KnowledgeProvider):
             if response.status_code == 200:
                 return response.json()
             else:
-                log_api_error("search_knowledge", Exception(f"HTTP {response.status_code}: {response.text[:200]}"), {"kb_id": kb_id, "query": query[:30]})
+                # 检测授权错误，给出明确提示
+                resp_text = response.text[:200]
+                if "check sign error" in resp_text or response.status_code == 403:
+                    logger.error(f"火山引擎知识库鉴权失败！请检查 KB_API_KEY 是否为有效的 Bearer Token（非 AK:SK 格式）")
+                log_api_error("search_knowledge", Exception(f"HTTP {response.status_code}: {resp_text}"), {"kb_id": kb_id, "query": query[:30]})
                 return {}
         except Exception as e:
             log_api_error("search_knowledge", e, {"kb_id": kb_id, "query": query[:30]})

@@ -48,10 +48,14 @@ def fetch_knowledge_sync(query: str, cfg: dict) -> str:
     else:
         kb_id = cfg.get("kb_id")
         kb_api_key = cfg.get("kb_api_key")
-        if kb_id or kb_api_key:
-            provider = get_knowledge_provider("volcengine", kb_id, kb_api_key)
-            return provider.search(query)
-    return ""
+        if not kb_id or not kb_api_key:
+            logger.warning(f"火山引擎知识库配置不完整：kb_id={'已设置' if kb_id else '未设置'}, kb_api_key={'已设置' if kb_api_key else '未设置'}")
+            return ""
+        provider = get_knowledge_provider("volcengine", kb_id, kb_api_key)
+        result = provider.search(query)
+        if not result:
+            logger.warning(f"火山引擎知识库检索无结果，可能原因：1)API Key无效 2)知识库无匹配内容 3)网络问题")
+        return result
 
 
 @router.post("/question")

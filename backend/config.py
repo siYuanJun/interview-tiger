@@ -12,7 +12,7 @@ ARK_BASE_URL = os.getenv("ARK_BASE_URL", "https://ark.cn-beijing.volces.com/api/
 # 知识库配置
 KB_PROVIDER = os.getenv("KB_PROVIDER", "volcengine")
 KB_API_KEY = os.getenv("KB_API_KEY", "")
-KB_ID = os.getenv("KB_ID", "siyuan_jianli")
+KB_ID = os.getenv("KB_ID", "kb-ee95868bec0b4da8")
 KB_PROJECT = os.getenv("KB_PROJECT", "default")
 KB_BASE_URL = os.getenv("KB_BASE_URL", "https://api-knowledgebase.mlp.cn-beijing.volces.com")
 

@@ -55,9 +55,9 @@ function startInterview() {
     <div class="text-center max-w-4xl z-10 animate-fade-in-up">
       <div class="mb-10 relative inline-block">
         <TigerLogo :size="180" :radius="85" />
-        <div class="absolute -bottom-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-[rgba(30,27,75,0.8)] backdrop-blur-md rounded-full border border-[rgba(251,191,36,0.3)]">
-          <span class="text-[#fbbf24] text-sm font-medium flex items-center gap-1">
-            <Sparkles class="w-3 h-3" />
+        <div class="absolute -bottom-5 left-1/2 -translate-x-1/2 px-5 py-1.5 bg-[rgba(30,27,75,0.8)] backdrop-blur-md rounded-full border border-[rgba(251,191,36,0.3)]">
+          <span class="text-[#fbbf24] text-base font-semibold flex items-center gap-1.5">
+            <Sparkles class="w-3.5 h-3.5" />
             AI 智能助手
           </span>
         </div>
