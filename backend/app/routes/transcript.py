@@ -32,6 +32,10 @@ class DialogueItem(BaseModel):
     created_at: str
 
 
+class UpdateDialogueRequest(BaseModel):
+    answer: Optional[str] = Field(None, description="AI生成的回答内容")
+
+
 @router.post("/transcript", response_model=TranscriptResponse)
 async def process_transcript(req: TranscriptRequest, db: Session = Depends(get_db)):
     """接收前端识别的文本，进行问题判断"""
@@ -134,7 +138,7 @@ async def clear_dialogues(session_id: Optional[str] = None, db: Session = Depend
 @router.put("/dialogues/{dialogue_id}", response_model=TranscriptResponse)
 async def update_dialogue(
     dialogue_id: str,
-    answer: Optional[str] = None,
+    req: UpdateDialogueRequest,
     db: Session = Depends(get_db)
 ):
     """更新对话记录（主要用于更新回答）"""
@@ -143,8 +147,8 @@ async def update_dialogue(
     if not dialogue:
         raise HTTPException(status_code=404, detail="对话记录不存在")
 
-    if answer is not None:
-        dialogue.answer = answer
+    if req.answer is not None:
+        dialogue.answer = req.answer
     
     db.commit()
     db.refresh(dialogue)

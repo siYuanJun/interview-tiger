@@ -157,7 +157,7 @@ async def process_question_stream(req: QuestionRequest):
             ):
                 yield f"data: {json.dumps({'type': 'chunk', 'content': chunk}, ensure_ascii=False)}\n\n"
 
-            yield "data: [DONE]\n\n"
+            yield f"data: {json.dumps({'type': 'done', 'knowledge_used': bool(knowledge_context)}, ensure_ascii=False)}\n\n"
         except Exception as e:
             logger.error(f"流式生成异常: {e}")
             yield f"data: {json.dumps({'type': 'error', 'message': str(e)}, ensure_ascii=False)}\n\n"

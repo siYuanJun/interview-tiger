@@ -137,6 +137,8 @@ export function useApi() {
       const decoder = new TextDecoder()
       let buffer = ''
 
+      let knowledgeUsed = false
+
       while (true) {
         const { done, value } = await reader.read()
         if (done) break
@@ -148,21 +150,31 @@ export function useApi() {
         for (const line of lines) {
           if (line.startsWith('data: ')) {
             const data = line.slice(6)
+            if (data === '[DONE]') {
+              // 兼容旧版后端 [DONE] 信号
+              onDone(false)
+              return
+            }
             try {
               const parsed = JSON.parse(data)
               if (parsed.type === 'chunk') {
                 onChunk(parsed.content)
               } else if (parsed.type === 'done') {
-                onDone(parsed.knowledge_used || false)
+                knowledgeUsed = parsed.knowledge_used || false
+                onDone(knowledgeUsed)
               } else if (parsed.type === 'error') {
                 onError(parsed.message || '生成失败')
               }
+              // status 类型的消息忽略（仅用于调试）
             } catch {
               // 忽略解析错误
             }
           }
         }
       }
+
+      // 流自然结束但未收到 done 信号时的兜底
+      onDone(knowledgeUsed)
     } catch (e: any) {
       onError(e.message || '网络错误')
     }
