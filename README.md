@@ -1,5 +1,34 @@
 <img src="docs/hero.svg" width="100%" alt="Interview Tiger Hero" />
 
+<p align="center">
+  <a href="https://github.com/siYuanJun/interview-tiger/stargazers">
+    <img src="https://img.shields.io/github/stars/siYuanJun/interview-tiger?style=social" alt="GitHub Stars" />
+  </a>
+  <a href="https://github.com/siYuanJun/interview-tiger/blob/master/LICENSE">
+    <img src="https://img.shields.io/github/license/siYuanJun/interview-tiger?label=license" alt="License" />
+  </a>
+  <a href="https://github.com/siYuanJun/interview-tiger/issues">
+    <img src="https://img.shields.io/github/issues/siYuanJun/interview-tiger" alt="Issues" />
+  </a>
+  <a href="https://github.com/siYuanJun/interview-tiger/pulls">
+    <img src="https://img.shields.io/badge/PRs-welcome-brightgreen" alt="PRs Welcome" />
+  </a>
+</p>
+
+---
+
+## 🌟 项目热度
+
+<a href="https://star-history.com/#siYuanJun/interview-tiger&Date">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=siYuanJun/interview-tiger&type=Date&theme=dark" />
+    <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=siYuanJun/interview-tiger&type=Date" />
+    <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=siYuanJun/interview-tiger&type=Date" width="100%" />
+  </picture>
+</a>
+
+> 如果你觉得这个项目对你有帮助，不妨点个 ⭐ Star 支持一下，让更多人看到这个工具。
+
 ---
 
 ## 🎯 项目愿景
@@ -226,6 +255,89 @@ docker-compose up --build -d
 
 ---
 
+## 🤝 开源社区
+
+面试虎现已正式开源，采用 **GNU AGPL v3.0** 协议。我们欢迎每一位对这个方向感兴趣的开发者加入贡献。
+
+### 为什么会选择开源？
+
+一个人的力量是有限的。面试这件事，每个人都有自己的场景和需求——有人面技术岗、有人面产品岗、有人面管理岗。不同的行业、不同的岗位、不同的面试风格，需要社区的力量来共同完善。
+
+**开源的目标很简单：**
+
+- 🎯 **真实地帮助到正在找工作的每一个人**——不管你是应届生还是资深专家
+- 🔧 **让这个工具适配更多面试场景**——技术面、行为面、案例面、英文面……
+- 🧠 **探索 AI 在面试这个垂直场景的最优解法**——RAG 策略、Prompt 工程、语音交互
+- 🏗️ **将"蒸馏→沉淀→溶解"方法论推广到更多知识工程场景**
+
+### 如何参与贡献
+
+我们非常欢迎各种形式的贡献：
+
+| 贡献类型 | 说明 | 适合人群 |
+|----------|------|----------|
+| 🐛 **提交 Bug** | 遇到问题？在 [Issues](https://github.com/siYuanJun/interview-tiger/issues) 提交反馈 | 所有使用者 |
+| 💡 **功能建议** | 有好的想法？在 Issues 发起讨论 | 产品/设计师 |
+| 🔧 **代码贡献** | 认领 Issue 或直接提交 PR | 开发者 |
+| 📖 **文档完善** | 修正文档、添加教程、翻译 | 技术写作 |
+| 🧪 **场景适配** | 为不同的面试场景优化 Prompt 模板 | 面试官/HR |
+| 🗣️ **经验分享** | 分享你用面试虎通过的面试经历 | 所有使用者 |
+
+### 贡献流程
+
+```bash
+# 1. Fork 本仓库
+# 2. 克隆到本地
+git clone https://github.com/YOUR_USERNAME/interview-tiger.git
+
+# 3. 创建特性分支
+git checkout -b feature/your-awesome-feature
+
+# 4. 提交你的改动
+git commit -m "feat: 添加了某某功能"
+
+# 5. 推送到远程
+git push origin feature/your-awesome-feature
+
+# 6. 在 GitHub 上发起 Pull Request
+```
+
+更详细的开发规范请参考 [CONTRIBUTING.md](./CONTRIBUTING.md)。
+
+### 社区行为准则
+
+我们希望构建一个开放、友好、互相尊重的社区。请遵循以下原则：
+
+- 🤗 **友善包容**——欢迎任何经验水平的贡献者
+- 📢 **开放讨论**——技术问题、产品方向都可以公开讨论
+- 🙏 **互相尊重**——不同的观点值得倾听，对事不对人
+- 🌱 **鼓励新手**——Good First Issue 标注的 issue 专门留给新贡献者
+
+---
+
+## 🎬 真实使用场景
+
+面试虎不仅是一个 Demo——它已经帮助真实的求职者在面试中获得了更好的表现：
+
+> "把简历、项目文档上传到知识库后，面试时问到项目细节，AI 能即时从文档中提取关键信息，让我不再因为紧张而遗漏要点。" —— 前端开发工程师
+
+> "作为产品经理，我需要展示的是逻辑思维和问题定义能力。面试虎帮我基于 STAR 法则组织回答，让表达更有条理。" —— AI 产品经理
+
+如果你也使用面试虎通过了面试，欢迎在 [Discussions](https://github.com/siYuanJun/interview-tiger/discussions) 分享你的故事！
+
+---
+
 ## 📄 License
 
-MIT License
+本项目采用 **GNU Affero General Public License v3.0 (AGPL-3.0)** 协议。
+
+| 允许 | 禁止 |
+|------|------|
+| ✅ 个人使用 | ❌ 未经授权的商业使用 |
+| ✅ 学习和研究 | ❌ 闭源商用分发 |
+| ✅ 修改和分发（需开源） | ❌ 作为 SaaS 服务收费而不开源修改 |
+| ✅ 贡献代码回馈社区 | ❌ 移除版权声明 |
+
+简单来说：**你可以自由使用、修改、分享，但如果用于商业目的或将修改后的版本作为网络服务提供，必须同样以 AGPL-3.0 开源你的修改**。
+
+详细条款请阅读 [LICENSE](./LICENSE) 文件。

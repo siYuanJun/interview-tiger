@@ -7,7 +7,7 @@
     python test_kb.py "你会什么？"
 
 期望结果:
-    回答中应包含 "刘朝相" 才表示知识库生效
+    回答中应包含 "xxx" 才表示知识库生效
 """
 
 import sys
@@ -97,10 +97,10 @@ def test_knowledge_base(query: str):
             print(f"\n大模型回答:")
             print(f"  {answer}")
             
-            if answer and "刘朝相" in answer:
-                print(f"  ✓ 回答包含'刘朝相'，知识库生效！")
+            if answer and "xxx" in answer:
+                print(f"  ✓ 回答包含'xxx'，知识库生效！")
             else:
-                print(f"  ✗ 回答未包含'刘朝相'，知识库可能未生效")
+                print(f"  ✗ 回答未包含'xxx'，知识库可能未生效")
         else:
             print(f"  ⚠️  ARK_API_KEY未配置")
     except Exception as e:
@@ -131,7 +131,7 @@ def test_knowledge_base(query: str):
             print(f"  {answer}")
             print(f"\n知识库使用: {'是' if knowledge_used else '否'}")
             
-            if answer and "刘朝相" in answer:
+            if answer and "xxx" in answer:
                 print(f"  ✓ API测试通过！知识库生效")
             else:
                 print(f"  ✗ API测试失败！知识库未生效")

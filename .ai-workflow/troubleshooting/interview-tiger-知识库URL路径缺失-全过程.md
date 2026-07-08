@@ -105,7 +105,7 @@ $ curl -s -X POST http://localhost:8001/api/question \
 
 # ✅ 结果：
 {
-  "answer": "我叫刘朝相。",
+  "answer": "我叫xxx。",
   "knowledge_used": true,
   "web_search_used": false
 }
