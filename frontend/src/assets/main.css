@@ -1,4 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Orbitron:wght@700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Orbitron:wght@700;900&display=swap');
+
+@import '../styles/variables.css';
+@import '../styles/components.css';
+@import '../styles/utilities.css';
+@import '../styles/animations.css';
 
 @tailwind base;
 @tailwind components;
@@ -17,200 +22,126 @@
   
   body {
     min-height: 100vh;
-    font-family: 'JetBrains Mono', monospace;
-    background: linear-gradient(135deg, #0F0F23 0%, #1A1A3E 50%, #0F0F23 100%);
+    font-family: var(--font-body);
+    font-size: var(--font-size-body);
+    line-height: var(--line-height-body);
+    font-weight: var(--font-weight-normal);
+    background: linear-gradient(135deg, var(--color-background) 0%, var(--color-background-secondary) 30%, var(--color-background) 60%, var(--color-background-secondary) 100%);
     background-attachment: fixed;
-    color: #E2E8F0;
+    background-size: 400% 400%;
+    color: var(--color-foreground);
+    overflow-x: hidden;
+    animation: backgroundGradientShift 10s ease infinite;
+  }
+  
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+      radial-gradient(circle at 20% 20%, rgba(123, 58, 237, 0.15) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(192, 132, 252, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 50% 50%, rgba(96, 165, 250, 0.05) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: -1;
   }
   
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Orbitron', sans-serif;
-    font-weight: 700;
+    font-family: var(--font-heading);
+    font-weight: var(--font-weight-bold);
+    line-height: var(--line-height-heading);
+    color: var(--color-foreground);
+  }
+  
+  h1 {
+    font-size: var(--font-size-h1);
+  }
+  
+  h2 {
+    font-size: var(--font-size-h2);
+  }
+  
+  h3 {
+    font-size: var(--font-size-h3);
+  }
+  
+  p {
+    font-size: var(--font-size-body);
+    line-height: var(--line-height-body);
+    color: var(--color-foreground);
+  }
+  
+  a {
+    color: var(--color-secondary);
+    text-decoration: none;
+    transition: color var(--transition-normal);
+  }
+  
+  a:hover {
+    color: var(--color-tech-purple-400);
+  }
+  
+  code {
+    font-family: var(--font-mono);
+    font-size: var(--font-size-body-sm);
+    background: rgba(123, 58, 237, 0.1);
+    padding: 0.2em 0.4em;
+    border-radius: var(--radius-sm);
+    color: var(--color-tech-purple-300);
   }
   
   ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
   }
   
   ::-webkit-scrollbar-track {
     background: rgba(39, 39, 59, 0.5);
-    border-radius: 3px;
+    border-radius: 4px;
   }
   
   ::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, #7C3AED, #A78BFA);
-    border-radius: 3px;
+    background: linear-gradient(180deg, var(--color-primary), var(--color-secondary));
+    border-radius: 4px;
   }
   
   ::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(180deg, #8B5CF6, #C4B5FD);
-  }
-}
-
-@layer components {
-  .tech-card {
-    @apply bg-muted/50 backdrop-blur-xl border border-border/50 rounded-2xl;
-    box-shadow: 0 4px 30px rgba(124, 58, 237, 0.1);
+    background: linear-gradient(180deg, var(--color-tech-purple-600), var(--color-tech-purple-400));
   }
   
-  .tech-card-hover {
-    @apply tech-card transition-all duration-300 hover:border-primary/50 hover:shadow-[0_0_30px_rgba(124,58,237,0.3)];
+  ::selection {
+    background: rgba(123, 58, 237, 0.4);
+    color: #FFFFFF;
   }
   
-  .btn-tech-primary {
-    @apply bg-gradient-to-r from-primary to-secondary text-white px-6 py-3 rounded-xl font-medium 
-           hover:from-secondary hover:to-primary 
-           disabled:opacity-50 disabled:cursor-not-allowed
-           transition-all duration-300 shadow-lg hover:shadow-[0_0_20px_rgba(124,58,237,0.5)]
-           hover:-translate-y-0.5 active:translate-y-0 cursor-pointer;
+  button {
+    font-family: var(--font-body);
+    font-weight: var(--font-weight-medium);
   }
   
-  .btn-tech-accent {
-    @apply bg-gradient-to-r from-accent to-pink-400 text-white px-6 py-3 rounded-xl font-medium 
-           hover:from-pink-400 hover:to-accent 
-           disabled:opacity-50 disabled:cursor-not-allowed
-           transition-all duration-300 shadow-lg hover:shadow-[0_0_20px_rgba(244,63,94,0.5)]
-           hover:-translate-y-0.5 active:translate-y-0 cursor-pointer;
+  input, textarea, select {
+    font-family: var(--font-body);
+    font-size: var(--font-size-body-sm);
   }
   
-  .btn-tech-danger {
-    @apply bg-gradient-to-r from-destructive to-red-400 text-white px-6 py-3 rounded-xl font-medium 
-           hover:from-red-400 hover:to-destructive 
-           disabled:opacity-50 disabled:cursor-not-allowed
-           transition-all duration-300 shadow-lg hover:shadow-[0_0_20px_rgba(239,68,68,0.5)]
-           hover:-translate-y-0.5 active:translate-y-0 cursor-pointer;
+  label {
+    font-weight: var(--font-weight-medium);
+    font-size: var(--font-size-body-sm);
+    color: var(--color-foreground-muted);
   }
   
-  .btn-tech-secondary {
-    @apply bg-muted/50 text-foreground px-6 py-3 rounded-xl font-medium 
-           hover:bg-muted border border-border/50
-           disabled:opacity-50 disabled:cursor-not-allowed
-           transition-all duration-300;
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
   }
-  
-  .input-tech {
-    @apply w-full px-4 py-3 rounded-xl border border-border/50 
-           bg-muted/30 backdrop-blur-sm text-foreground
-           focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent
-           transition-all duration-300 text-sm placeholder-muted;
-  }
-  
-  .dialogue-bubble-user {
-    @apply bg-gradient-to-br from-primary to-secondary text-white px-5 py-4 rounded-2xl 
-           w-full shadow-lg shadow-primary/20 rounded-tr-sm;
-  }
-  
-  .dialogue-bubble-ai {
-    @apply bg-muted/50 backdrop-blur-md text-foreground px-5 py-4 rounded-2xl 
-           w-full shadow-lg border border-border/30 rounded-tl-sm;
-  }
-
-  .dialogue-question-title {
-    @apply bg-primary/5 border-l-2 border-primary px-3 py-2 rounded-r-lg;
-  }
-
-  .dialogue-answer-content {
-    @apply bg-secondary/5 border-l-2 border-accent/50 px-3 py-2 rounded-r-lg 
-           max-h-[200px] overflow-y-auto;
-    transition: max-height 0.3s ease;
-  }
-
-  .dialogue-answer-content.expanded {
-    max-height: none;
-  }
-  
-  .status-badge {
-    @apply flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium;
-  }
-  
-  .status-listening {
-    @apply bg-accent/20 text-accent border border-accent/30;
-  }
-  
-  .status-recognizing {
-    @apply bg-primary/20 text-secondary border border-primary/30;
-  }
-  
-  .status-starting {
-    @apply bg-yellow-500/20 text-yellow-400 border border-yellow-500/30;
-  }
-  
-  .status-error {
-    @apply bg-destructive/20 text-destructive border border-destructive/30;
-  }
-  
-  .glow-text {
-    text-shadow: 0 0 10px rgba(124, 58, 237, 0.5), 0 0 20px rgba(167, 139, 250, 0.3);
-  }
-  
-  .glow-border {
-    box-shadow: 0 0 10px rgba(124, 58, 237, 0.3), inset 0 0 10px rgba(124, 58, 237, 0.1);
-  }
-}
-
-@layer utilities {
-  .text-gradient-tech {
-    @apply bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent;
-  }
-  
-  .animate-pulse-neon {
-    animation: pulseNeon 2s ease-in-out infinite;
-  }
-  
-  .animate-glow {
-    animation: glow 3s ease-in-out infinite alternate;
-  }
-  
-  .animate-float {
-    animation: float 6s ease-in-out infinite;
-  }
-  
-  .animate-fade-in {
-    animation: fadeIn 0.3s ease-out;
-  }
-  
-  .animate-slide-up {
-    animation: slideUp 0.3s ease-out;
-  }
-  
-  .animate-typing {
-    animation: typing 1s steps(20) infinite;
-  }
-}
-
-@keyframes pulseNeon {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-
-@keyframes glow {
-  from { box-shadow: 0 0 5px #7C3AED, 0 0 10px #7C3AED; }
-  to { box-shadow: 0 0 20px #7C3AED, 0 0 30px #A78BFA; }
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes slideUp {
-  from { 
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to { 
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes typing {
-  from { width: 0; }
-  to { width: 100%; }
 }

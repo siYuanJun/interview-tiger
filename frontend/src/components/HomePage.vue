@@ -2,13 +2,14 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import ConfigModal from './ConfigModal.vue'
+import TigerLogo from './TigerLogo.vue'
 import { 
-  Cat, 
   Settings, 
   Mic, 
   Database, 
   Zap,
-  ArrowRight
+  ArrowRight,
+  Sparkles
 } from 'lucide-vue-next'
 
 const router = useRouter()
@@ -33,53 +34,71 @@ function startInterview() {
 </script>
 
 <template>
-  <div class="flex flex-col items-center justify-center min-h-screen p-6 bg-background relative overflow-hidden">
+  <div class="flex flex-col items-center justify-center min-h-screen p-6 relative overflow-hidden">
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
       <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-primary/5 via-transparent to-accent/5"></div>
-      <div class="absolute top-1/3 left-1/4 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[150px] animate-pulse-neon"></div>
-      <div class="absolute bottom-1/3 right-1/4 w-[500px] h-[500px] bg-accent/10 rounded-full blur-[150px] animate-pulse-neon" style="animation-delay: 1.5s"></div>
+      <div class="absolute top-1/3 left-1/4 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[180px] animate-pulse-neon"></div>
+      <div class="absolute bottom-1/3 right-1/4 w-[600px] h-[600px] bg-accent/10 rounded-full blur-[180px] animate-pulse-neon" style="animation-delay: 1.5s"></div>
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-secondary/5 rounded-full blur-[200px]"></div>
     </div>
 
-    <div class="absolute top-4 right-4 z-10">
+    <div class="absolute top-6 right-6 z-10">
       <button
         @click="showConfig = true"
-        class="p-3 rounded-xl bg-muted/50 backdrop-blur-sm border border-border/30 hover:border-primary/50 hover:bg-muted/70 transition-all"
+        class="p-3 rounded-xl bg-[rgba(30,27,75,0.6)] backdrop-blur-xl border border-[rgba(123,58,237,0.3)] hover:border-[rgba(192,132,252,0.5)] hover:bg-[rgba(30,27,75,0.8)] transition-all duration-300 group"
         aria-label="设置"
       >
-        <Settings class="w-5 h-5 text-foreground/70" />
+        <Settings class="w-5 h-5 text-foreground/70 group-hover:text-foreground transition-colors" />
       </button>
     </div>
 
-    <div class="text-center max-w-lg z-10">
-      <div class="mb-8 relative">
-        <div class="w-28 h-28 bg-gradient-to-br from-primary to-secondary rounded-3xl flex items-center justify-center mx-auto shadow-xl shadow-primary/30 animate-float">
-          <Cat class="w-16 h-16 text-white" />
+    <div class="text-center max-w-4xl z-10 animate-fade-in-up">
+      <div class="mb-10 relative inline-block">
+        <TigerLogo :size="180" :radius="85" />
+        <div class="absolute -bottom-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-[rgba(30,27,75,0.8)] backdrop-blur-md rounded-full border border-[rgba(251,191,36,0.3)]">
+          <span class="text-[#fbbf24] text-sm font-medium flex items-center gap-1">
+            <Sparkles class="w-3 h-3" />
+            AI 智能助手
+          </span>
         </div>
-        <div class="absolute inset-0 bg-gradient-to-br from-primary/40 to-accent/40 rounded-3xl blur-2xl"></div>
       </div>
 
-      <h1 class="text-5xl font-bold text-gradient-tech font-heading mb-4">面试虎</h1>
-      <p class="text-lg text-foreground/70 mb-2">AI 智能面试助手</p>
-      <p class="text-sm text-foreground/50 mb-10">实时语音识别 · 知识库增强 · 个性化回答建议</p>
+      <h1 class="text-6xl font-bold font-heading mb-4 tracking-tight">
+        <span class="text-white glow-text-primary">面试虎</span>
+        <span class="gradient-text-main"> Interview Tiger</span>
+      </h1>
+      
+      <p class="text-xl text-foreground/70 mb-3 font-medium">
+        AI 智能面试助手
+      </p>
+      
+      <p class="text-sm text-foreground/50 mb-12 max-w-xl mx-auto leading-relaxed">
+        实时语音识别 · 双知识库支持 · RAG 检索增强 · 个性化面试建议
+      </p>
 
-      <div class="grid grid-cols-3 gap-4 mb-10">
-        <div class="tech-card-hover p-4 text-center">
-          <div class="w-10 h-10 bg-primary/20 rounded-xl flex items-center justify-center mx-auto mb-3">
-            <Mic class="w-5 h-5 text-primary" />
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 max-w-3xl mx-auto">
+        <div class="glass-card p-6 text-center group">
+          <div class="card-icon-wrapper mb-4 group-hover:scale-110 transition-transform duration-300">
+            <Mic class="w-7 h-7 text-[#60a5fa]" />
           </div>
-          <p class="text-xs text-foreground/60">实时语音</p>
+          <h3 class="text-lg font-semibold text-white mb-2">实时语音识别</h3>
+          <p class="text-sm text-foreground/50">浏览器原生能力，即时转文字</p>
         </div>
-        <div class="tech-card-hover p-4 text-center">
-          <div class="w-10 h-10 bg-accent/20 rounded-xl flex items-center justify-center mx-auto mb-3">
-            <Database class="w-5 h-5 text-accent" />
+        
+        <div class="glass-card p-6 text-center group">
+          <div class="card-icon-wrapper mb-4 group-hover:scale-110 transition-transform duration-300">
+            <Database class="w-7 h-7 text-[#c084fc]" />
           </div>
-          <p class="text-xs text-foreground/60">知识库</p>
+          <h3 class="text-lg font-semibold text-white mb-2">双知识库支持</h3>
+          <p class="text-sm text-foreground/50">火山引擎 / 本地 ChromaDB 自由切换</p>
         </div>
-        <div class="tech-card-hover p-4 text-center">
-          <div class="w-10 h-10 bg-secondary/20 rounded-xl flex items-center justify-center mx-auto mb-3">
-            <Zap class="w-5 h-5 text-secondary" />
+        
+        <div class="glass-card p-6 text-center group">
+          <div class="card-icon-wrapper mb-4 group-hover:scale-110 transition-transform duration-300">
+            <Zap class="w-7 h-7 text-[#f472b6]" />
           </div>
-          <p class="text-xs text-foreground/60">智能分析</p>
+          <h3 class="text-lg font-semibold text-white mb-2">智能分析</h3>
+          <p class="text-sm text-foreground/50">基于 STAR 法则生成个性化回答</p>
         </div>
       </div>
 
@@ -94,7 +113,7 @@ function startInterview() {
 
       <div
         v-else-if="!browserSupported"
-        class="mb-8 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-xl text-left"
+        class="mb-8 p-5 bg-yellow-500/10 border border-yellow-500/30 rounded-2xl text-left max-w-md mx-auto backdrop-blur-sm"
       >
         <p class="text-yellow-400 font-medium text-sm mb-1">
           浏览器兼容性提示
@@ -107,11 +126,15 @@ function startInterview() {
 
       <button
         @click="startInterview"
-        class="btn-tech-primary text-lg px-10 py-4 flex items-center justify-center gap-3 animate-glow mx-auto"
+        class="btn-primary-gradient text-lg px-12 py-5 flex items-center justify-center gap-3 mx-auto group"
       >
         <span>开始面试</span>
-        <ArrowRight class="w-5 h-5" />
+        <ArrowRight class="w-5 h-5 group-hover:translate-x-1 transition-transform" />
       </button>
+
+      <p class="mt-6 text-xs text-foreground/30">
+        API Key 仅存储在浏览器本地，数据安全有保障
+      </p>
     </div>
 
     <ConfigModal v-if="showConfig" @close="showConfig = false" />

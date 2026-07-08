@@ -1,7 +1,7 @@
 // 面试状态管理 Pinia Store - TASK-016
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import { DEFAULT_MODEL_ID, DEFAULT_KB_ID } from '@/constants'
+import { DEFAULT_MODEL_ID, DEFAULT_KB_ID, DEFAULT_KB_PROVIDER } from '@/constants'
 
 export interface DialogueItem {
   id: string

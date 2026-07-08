@@ -4,9 +4,9 @@ import { useRouter } from 'vue-router'
 import { useSpeech } from '@/composables/useSpeech'
 import { useApi } from '@/composables/useApi'
 import DialogueItem from '@/components/DialogueItem.vue'
+import TigerLogo from '@/components/TigerLogo.vue'
 import { useInterviewStore } from '@/stores/interview'
 import { 
-  Cat, 
   Mic, 
   Search, 
   Clock, 
@@ -15,7 +15,8 @@ import {
   CheckCircle, 
   Trash2, 
   PhoneOff,
-  Send
+  Pause,
+  Play
 } from 'lucide-vue-next'
 
 interface Dialogue {
@@ -33,16 +34,18 @@ interface InterimDialogue {
 }
 
 const router = useRouter()
-const { isListening, currentText, state, isSupported, startListening, stopListening, forceStop, resumeListening, error: speechError } = useSpeech()
-const { submitTranscript, getDialogues, processQuestionStream, updateDialogue, getConfig, error: apiError } = useApi()
+const { isListening, currentText, state, isSupported, startListening, stopListening, forceStop, resumeListening, pauseRecognition, error: speechError } = useSpeech()
+const { submitTranscript, getDialogues, processQuestionStream, updateDialogue, getConfig, clearDialogues, error: apiError } = useApi()
 const store = useInterviewStore()
 
 const statusMessage = ref('准备中...')
 const showEndConfirm = ref(false)
+const showClearConfirm = ref(false)
 const dialoguesContainer = ref<HTMLElement | null>(null)
 const dialogues = ref<Dialogue[]>([])
 const interimDialogue = ref<InterimDialogue | null>(null)
 const backendConfigured = ref(false)
+const isPaused = ref(false)
 
 let sessionId = sessionStorage.getItem('interview_session_id') || `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
 sessionStorage.setItem('interview_session_id', sessionId)
@@ -192,6 +195,36 @@ function cancelEnd() {
   showEndConfirm.value = false
 }
 
+function confirmClear() {
+  showClearConfirm.value = true
+}
+
+function cancelClear() {
+  showClearConfirm.value = false
+}
+
+async function handleClearDialogues() {
+  const success = await clearDialogues(sessionId)
+  if (success) {
+    dialogues.value = []
+    showClearConfirm.value = false
+  }
+}
+
+async function togglePause() {
+  if (isPaused.value) {
+    const speechOk = await resumeListening()
+    if (speechOk) {
+      isPaused.value = false
+      statusMessage.value = '正在监听面试官提问...'
+    }
+  } else {
+    pauseRecognition()
+    isPaused.value = true
+    statusMessage.value = '已暂停，点击恢复继续面试'
+  }
+}
+
 async function handleManualComplete() {
   interimDialogue.value = null
   const result = forceStop()
@@ -237,16 +270,16 @@ function getPhaseIcon() {
   <div class="flex flex-col h-screen bg-background relative overflow-hidden">
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
       <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-primary/5 via-transparent to-accent/5"></div>
-      <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-[120px] animate-pulse-neon"></div>
-      <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent/10 rounded-full blur-[120px] animate-pulse-neon" style="animation-delay: 1s"></div>
+      <div class="absolute top-1/4 left-1/4 w-[400px] h-[400px] bg-primary/10 rounded-full blur-[150px] animate-pulse-neon"></div>
+      <div class="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-accent/10 rounded-full blur-[150px] animate-pulse-neon" style="animation-delay: 1s"></div>
     </div>
 
-    <header class="tech-card mx-4 mt-4 mb-2 px-6 py-4 flex items-center justify-between shrink-0 z-10">
+    <header class="glass-card-strong mx-4 mt-4 mb-2 px-6 py-4 flex items-center justify-between shrink-0 z-10">
       <div class="flex items-center gap-3">
-        <div class="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center shadow-lg shadow-primary/30">
-          <Cat class="w-6 h-6 text-white" />
-        </div>
-        <h1 class="text-xl font-bold text-gradient-tech font-heading">面试虎</h1>
+        <TigerLogo :size="50" :radius="22" :glow="false" />
+        <h1 class="text-xl font-bold font-heading">
+          <span class="text-white glow-text-primary">面试虎</span>
+        </h1>
       </div>
 
       <div
@@ -259,7 +292,7 @@ function getPhaseIcon() {
 
       <button
         @click="confirmEndInterview"
-        class="btn-tech-danger px-4 py-2 text-sm flex items-center gap-2"
+        class="bg-gradient-to-r from-red-500 to-red-600 text-white px-5 py-2.5 rounded-xl font-medium text-sm hover:shadow-lg hover:shadow-red-500/30 transition-all duration-300 flex items-center gap-2"
       >
         <PhoneOff class="w-4 h-4" />
         结束面试
@@ -274,13 +307,13 @@ function getPhaseIcon() {
         v-if="dialogues.length === 0"
         class="flex flex-col items-center justify-center h-full"
       >
-        <div class="relative mb-6">
-          <div class="w-32 h-32 bg-gradient-to-br from-primary/20 to-accent/20 rounded-3xl flex items-center justify-center animate-float">
-            <Mic class="w-16 h-16 text-primary animate-pulse-neon" />
+        <div class="relative mb-8">
+          <div class="w-36 h-36 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-3xl flex items-center justify-center animate-float-slow border border-primary/20">
+            <Mic class="w-18 h-18 text-primary animate-pulse-neon" />
           </div>
-          <div class="absolute inset-0 bg-gradient-to-br from-primary/30 to-accent/30 rounded-3xl blur-xl"></div>
+          <div class="absolute inset-0 bg-gradient-to-br from-primary/30 to-secondary/30 rounded-3xl blur-2xl"></div>
         </div>
-        <p class="text-2xl font-bold text-foreground font-heading mb-3">面试已就绪</p>
+        <p class="text-2xl font-bold text-white font-heading mb-3">面试已就绪</p>
         <p class="text-sm text-foreground/50 text-center max-w-md">请确保设备麦克风已开启，系统将自动识别面试官提问</p>
         <p class="text-xs text-foreground/30 mt-4">识别过程中点击"完成"按钮可手动提交</p>
       </div>
@@ -297,8 +330,8 @@ function getPhaseIcon() {
           <div class="flex-1">
             <div class="dialogue-bubble-user relative">
               <div class="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full animate-pulse"></div>
-              <p class="text-sm text-foreground/90">{{ interimDialogue.question }}</p>
-              <p class="text-xs text-foreground/40 mt-2 flex items-center gap-1">
+              <p class="text-sm text-white">{{ interimDialogue.question }}</p>
+              <p class="text-xs text-white/50 mt-2 flex items-center gap-1">
                 <Search class="w-3 h-3" />
                 正在识别中...
               </p>
@@ -308,20 +341,20 @@ function getPhaseIcon() {
       </div>
     </main>
 
-    <footer class="tech-card mx-4 mb-4 px-6 py-4 shrink-0 z-10">
-      <div class="flex items-center gap-3 max-w-4xl mx-auto">
-        <div class="flex-1 px-4 py-3 bg-muted/30 backdrop-blur-sm rounded-xl text-sm min-h-[48px] flex items-center border border-border/30">
+    <footer class="glass-card-strong mx-4 mb-4 px-6 py-4 shrink-0 z-10">
+      <div class="flex items-center gap-4 max-w-4xl mx-auto">
+        <div class="flex-1 px-5 py-3 bg-[rgba(30,27,75,0.6)] backdrop-blur-sm rounded-xl text-sm min-h-[52px] flex items-center border border-[rgba(123,58,237,0.2)]">
           <span v-if="currentText" class="text-foreground/70 italic">{{ currentText }}...</span>
           <span v-else-if="state === 'listening'" class="text-foreground/30">等待识别中...</span>
           <span v-else-if="state === 'recognizing'" class="text-foreground/40">正在识别...</span>
-          <span v-else-if="state === 'error'" class="text-destructive">{{ speechError }}</span>
+          <span v-else-if="state === 'error'" class="text-red-400">{{ speechError }}</span>
           <span v-else class="text-foreground/30">准备中...</span>
         </div>
 
         <button
           v-if="isListening && currentText"
           @click="handleManualComplete"
-          class="btn-tech-accent px-5 py-3 text-sm font-medium flex items-center gap-2"
+          class="bg-gradient-to-r from-[#60a5fa] to-[#c084fc] text-white px-5 py-3 text-sm font-semibold rounded-xl hover:shadow-lg hover:shadow-[rgba(123,58,237,0.3)] transition-all duration-300 flex items-center gap-2"
           title="手动完成识别"
         >
           <CheckCircle class="w-4 h-4" />
@@ -330,36 +363,76 @@ function getPhaseIcon() {
 
         <button
           v-if="dialogues.length > 0"
-          @click="dialogues = []"
-          class="btn-tech-secondary px-4 py-3 text-sm flex items-center gap-2"
+          @click="confirmClear"
+          class="btn-secondary-glass px-5 py-3 text-sm flex items-center gap-2"
           title="清空对话"
         >
           <Trash2 class="w-4 h-4" />
           清空
+        </button>
+
+        <button
+          @click="togglePause"
+          :class="[
+            'px-5 py-3 text-sm font-medium rounded-xl flex items-center gap-2 transition-all duration-300',
+            isPaused 
+              ? 'bg-gradient-to-r from-[#60a5fa] to-[#c084fc] text-white hover:shadow-lg hover:shadow-[rgba(123,58,237,0.3)]' 
+              : 'btn-secondary-glass'
+          ]"
+          :title="isPaused ? '恢复面试' : '暂停面试'"
+        >
+          <Play v-if="isPaused" class="w-4 h-4" />
+          <Pause v-else class="w-4 h-4" />
+          {{ isPaused ? '恢复' : '暂停' }}
         </button>
       </div>
     </footer>
 
     <div
       v-if="showEndConfirm"
-      class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+      class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4"
       @click.self="cancelEnd"
     >
-      <div class="tech-card w-full max-w-sm p-6 animate-slide-up">
-        <h3 class="text-lg font-semibold text-foreground font-heading mb-2">结束面试？</h3>
-        <p class="text-sm text-foreground/60 mb-6">面试对话记录将被保留，你可以在首页查看历史记录。</p>
-        <div class="flex gap-3">
+      <div class="glass-card-strong w-full max-w-sm p-7 animate-slide-in-right">
+        <h3 class="text-lg font-semibold text-white font-heading mb-3">结束面试？</h3>
+        <p class="text-sm text-foreground/60 mb-7">面试对话记录将被保留，你可以在首页查看历史记录。</p>
+        <div class="flex gap-4">
           <button
             @click="cancelEnd"
-            class="flex-1 btn-tech-secondary py-3"
+            class="flex-1 btn-secondary-glass py-3"
           >
             继续面试
           </button>
           <button
             @click="endInterview"
-            class="flex-1 btn-tech-danger py-3"
+            class="flex-1 bg-gradient-to-r from-red-500 to-red-600 text-white py-3 rounded-xl font-medium hover:shadow-lg hover:shadow-red-500/30 transition-all duration-300"
           >
             确认结束
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div
+      v-if="showClearConfirm"
+      class="fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4"
+      @click.self="cancelClear"
+    >
+      <div class="glass-card-strong w-full max-w-sm p-7 animate-slide-in-right">
+        <h3 class="text-lg font-semibold text-white font-heading mb-3">清空对话？</h3>
+        <p class="text-sm text-foreground/60 mb-7">此操作将删除当前会话的所有对话记录，且无法恢复。</p>
+        <div class="flex gap-4">
+          <button
+            @click="cancelClear"
+            class="flex-1 btn-secondary-glass py-3"
+          >
+            取消
+          </button>
+          <button
+            @click="handleClearDialogues"
+            class="flex-1 bg-gradient-to-r from-red-500 to-red-600 text-white py-3 rounded-xl font-medium hover:shadow-lg hover:shadow-red-500/30 transition-all duration-300"
+          >
+            确认清空
           </button>
         </div>
       </div>
