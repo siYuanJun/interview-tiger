@@ -61,8 +61,8 @@ const helpDocs = [
     link: 'https://my.feishu.cn/docx/AzijduiLDoSnsgxsaQsc7O3pnIb?from=from_copylink'
   },
   {
-    question: '知识库 API Key（AK:SK）是什么？',
-    description: '火山引擎访问密钥，在密钥管理页面创建',
+    question: '知识库 API Key 如何获取？',
+    description: '在火山引擎方舟控制台左侧菜单「知识库」开通服务后，会生成一个纯字母数字格式的 Bearer Token，形如 X7PQPKCV...',
     link: 'https://my.feishu.cn/docx/AzijduiLDoSnsgxsaQsc7O3pnIb?from=from_copylink'
   },
   {
