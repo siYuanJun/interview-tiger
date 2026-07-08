@@ -55,6 +55,7 @@ services:
     environment:
       - TZ=Asia/Shanghai
       - DATABASE_URL=postgresql://postgres:password@db:5432/interview_tiger
+      - HF_HUB_OFFLINE=1
     depends_on:
       db:
         condition: service_healthy

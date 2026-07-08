@@ -274,10 +274,12 @@ class LocalKnowledgeProvider:
                 return {"code": -1, "message": "集合不存在", "data": {}}
 
             results = collection.get()
-            total_chunks = len(results.get('ids', []))
+            ids = results.get('ids', [])
+            total_chunks = len(ids)
             
-            collection.delete(ids=results.get('ids', []))
-            self._vector_store.persist()
+            if ids:
+                collection.delete(ids=ids)
+                self._vector_store.persist()
             # 清空原始文件目录
             originals_dir = Path(LOCAL_KB_ORIGINALS_DIR)
             if originals_dir.exists():

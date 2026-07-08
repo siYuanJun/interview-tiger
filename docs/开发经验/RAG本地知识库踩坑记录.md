@@ -28,12 +28,13 @@ POST /api/local_kb/upload
             → ForwardRef._evaluate(globalns, localns, set())  ← 少了 recursive_guard
 ```
 
-**修复**：`requirements.txt` 中 `pydantic` 至少升级到 `>=2.7.0`（最终用的 `2.13.4`）。
+**修复**：`requirements.txt` 中 `pydantic` 至少升级到 `>=2.7.0`（最终用的 `2.13.4`）。⚠️ `2.6.1` 也不行，这个 bug 在 v1 兼容层修复较晚。
 
 **教训**：
 - ⚠️ Dockerfile 用了 `python:3.12-slim`，但 `requirements.txt` 里的 `pydantic==2.5.0` 不支持 Python 3.12
 - ⚠️ 选基础镜像时要把 Python 版本和依赖包的兼容性一起考虑
-- ⚠️ `--no-cache` 重建镜像极其缓慢，实际上 `pip install` 进容器再 `restart` 就能验证修复
+- ⚠️ **`docker exec pip install` 的修复在 `docker-compose down && up` 后会丢失**——新容器从镜像重建，不会保留运行时安装的包。必须同步更新 `requirements.txt` 并 rebuild 镜像
+- ⚠️ `--no-cache` 重建镜像极其缓慢，实际上 `pip install` 进容器再 `restart` 就能验证修复，确认有效后再统一更新 `requirements.txt`
 
 ---
 
@@ -105,6 +106,70 @@ langchain / langchain-community / langchain-text-splitters
 - ⚠️ `--no-cache` 是核武器，不到万不得已不要用
 - ⚠️ Dockerfile 里 `COPY requirements.txt .` 在 `COPY . .` 之前，改 `requirements.txt` 后用普通 `build` 就只会重建依赖安装层
 - ⚠️ 实在只想更新一个 pip 包时，`docker exec pip install` + `docker restart` 比 rebuild 快 100 倍
+
+---
+
+### 坑 6：`docker exec pip install` 修复在 `down && up` 后丢失 ⭐⭐⭐⭐
+
+**现象**：用 `docker exec pip install "pydantic>=2.7.0"` 修好了，但下次 `docker-compose down && up` 后又 500 了。
+
+**根因**：`docker exec` 只改运行中的容器文件系统，不影响镜像。`down` 删除容器，`up` 从**旧镜像**重建新容器，`pip install` 的修改全部丢失。
+
+**正确流程**：
+1. `docker exec pip install xxx` → 先验证
+2. `docker-compose restart` → 让修改生效（**不要 down！**）
+3. 确认修复有效 → 同步更新 `requirements.txt`
+4. 下次 rebuild 镜像时版本就固化了
+
+**教训**：
+- ⚠️ `restart` 保修改，`down && up` 丢修改——记住这条界线
+- ⚠️ 任何 `docker exec` 的临时修复，最终都要回归到 `requirements.txt` / Dockerfile
+
+---
+
+### 坑 7：huggingface_hub 强制联网检查，缓存形同虚设 ⭐⭐⭐⭐
+
+**现象**：模型文件已通过 volume 挂载到 `/root/.cache/huggingface/hub/`，但首次调用仍卡住，日志显示在重试连接 `huggingface.co`。
+
+**根因**：`huggingface_hub` 每次加载模型前都会发 HEAD 请求到 `huggingface.co` 确认版本，即使本地缓存完备也会等超时。
+
+**修复**：`docker-compose.yml` 的 backend environment 加：
+```yaml
+- HF_HUB_OFFLINE=1
+```
+或在 `.env` 里设：
+```bash
+HF_HUB_OFFLINE=1
+```
+
+**教训**：
+- ⚠️ 缓存挂载 ≠ 离线模式。`huggingface_hub` 的"联网先确认"行为是默认开启的
+- ⚠️ 所有需要在容器内加载模型的场景，必须同时设置离线标志
+
+---
+## 正确的一次性全流程操作
+
+经过所有踩坑后，正确的本地知识库搭建步骤：
+
+```bash
+# 1. 宿主机下载模型（走国内镜像）
+pip install huggingface_hub
+export HF_ENDPOINT=https://hf-mirror.com
+huggingface-cli download BAAI/bge-small-zh-v1.5
+
+# 2. docker-compose.yml 三个关键配置：
+#    - volumes 挂载 ~/.cache/huggingface:/root/.cache/huggingface
+#    - environment 加 HF_HUB_OFFLINE=1
+#    - .env 设 LOCAL_KB_EMBEDDING_MODEL=BAAI/bge-small-zh-v1.5
+
+# 3. requirements.txt 确保 pydantic>=2.7.0
+
+# 4. 构建并启动
+docker-compose build backend && docker-compose up -d backend
+
+# 5. 验证
+curl -s http://localhost:8001/api/local_kb/stats
+```
 
 ---
 
