@@ -3,6 +3,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import ConfigModal from './ConfigModal.vue'
 import TigerLogo from './TigerLogo.vue'
+import { DEFAULT_KB_PROVIDER } from '@/constants'
 import { 
   Settings, 
   Mic, 
@@ -16,6 +17,8 @@ const router = useRouter()
 const showConfig = ref(false)
 const checking = ref(true)
 const browserSupported = ref(true)
+const checkingLocalKb = ref(false)
+const localKbEmpty = ref(false)
 
 function checkBrowserSupport() {
   const hasMediaDevices = !!(navigator.mediaDevices?.getUserMedia)
@@ -28,7 +31,39 @@ function checkBrowserSupport() {
 
 checkBrowserSupport()
 
-function startInterview() {
+async function startInterview() {
+  const kbProvider = localStorage.getItem('kb_provider') || DEFAULT_KB_PROVIDER
+  
+  if (kbProvider === 'local') {
+    checkingLocalKb.value = true
+    try {
+      const response = await fetch('/api/local_kb/stats')
+      const data = await response.json()
+      if (data.code === 0 && data.data && data.data.total_chunks > 0) {
+        router.push('/interview')
+      } else {
+        localKbEmpty.value = true
+        showConfig.value = true
+      }
+    } catch {
+      localKbEmpty.value = true
+      showConfig.value = true
+    } finally {
+      checkingLocalKb.value = false
+    }
+  } else {
+    router.push('/interview')
+  }
+}
+
+function onConfigClose() {
+  showConfig.value = false
+  localKbEmpty.value = false
+}
+
+function onDocsUploaded() {
+  showConfig.value = false
+  localKbEmpty.value = false
   router.push('/interview')
 }
 </script>
@@ -138,10 +173,17 @@ function startInterview() {
 
       <button
         @click="startInterview"
-        class="btn-primary-gradient text-lg px-12 py-5 flex items-center justify-center gap-3 mx-auto group"
+        :disabled="checkingLocalKb"
+        class="btn-primary-gradient text-lg px-12 py-5 flex items-center justify-center gap-3 mx-auto group disabled:opacity-60 disabled:cursor-not-allowed"
       >
-        <span>开始面试</span>
-        <ArrowRight class="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+        <span v-if="checkingLocalKb" class="flex items-center gap-2">
+          <span class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+          检查本地知识库...
+        </span>
+        <template v-else>
+          <span>开始面试</span>
+          <ArrowRight class="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+        </template>
       </button>
 
       <p class="mt-6 text-xs text-foreground/30">
@@ -149,6 +191,11 @@ function startInterview() {
       </p>
     </div>
 
-    <ConfigModal v-if="showConfig" @close="showConfig = false" />
+    <ConfigModal
+      v-if="showConfig"
+      :initial-provider="localKbEmpty ? 'local' : undefined"
+      @close="onConfigClose"
+      @uploaded="onDocsUploaded"
+    />
   </div>
 </template>

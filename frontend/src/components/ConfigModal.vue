@@ -18,11 +18,17 @@ import {
   Cloud,
   Trash2,
   FolderOpen,
-  RefreshCw
+  RefreshCw,
+  Download
 } from 'lucide-vue-next'
+
+const props = defineProps<{
+  initialProvider?: 'volcengine' | 'local'
+}>()
 
 const emit = defineEmits<{
   close: []
+  uploaded: []
 }>()
 
 const store = useInterviewStore()
@@ -76,7 +82,7 @@ onMounted(() => {
   apiKey.value = store.apiKey
   kbId.value = store.kbId
   kbApiKey.value = store.kbApiKey
-  kbProvider.value = (store.kbProvider as 'volcengine' | 'local') || 'volcengine'
+  kbProvider.value = props.initialProvider || (store.kbProvider as 'volcengine' | 'local') || 'volcengine'
   if (isLocalMode.value) {
     loadDocs()
   }
@@ -126,6 +132,7 @@ async function uploadFiles() {
       setTimeout(() => { saved.value = false }, 2000)
       files.value = []
       await loadDocs()
+      emit('uploaded')
     } else {
       alert(data.message || '上传失败')
     }
@@ -174,6 +181,10 @@ async function clearDocs() {
   }
 }
 
+function downloadDoc(docId: string) {
+  window.open(`/api/local_kb/download/${docId}`, '_blank')
+}
+
 function handleUploadClick() {
   fileInput.value?.click()
 }
@@ -212,8 +223,12 @@ function openLink(url: string) {
             <Key class="w-5 h-5 text-primary" />
           </div>
           <div>
-            <h2 class="text-lg font-semibold text-white font-heading">设置</h2>
-            <p class="text-xs text-foreground/50">配置 AI 面试助手</p>
+            <h2 class="text-lg font-semibold text-white font-heading">
+              {{ props.initialProvider === 'local' ? '上传知识库文档' : '设置' }}
+            </h2>
+            <p class="text-xs text-foreground/50">
+              {{ props.initialProvider === 'local' ? '请先上传文档到本地知识库' : '配置 AI 面试助手' }}
+            </p>
           </div>
         </div>
         <div class="flex items-center gap-2">
@@ -412,14 +427,26 @@ function openLink(url: string) {
               >
                 <div>
                   <p class="text-sm text-white">{{ doc.doc_name }}</p>
-                  <p class="text-xs text-foreground/40">{{ doc.chunks }} 个切片</p>
+                  <p class="text-xs text-foreground/40">
+                    {{ doc.chunks }} 个切片
+                    <span v-if="doc.file_size_bytes"> · {{ (doc.file_size_bytes / 1024).toFixed(1) }} KB</span>
+                  </p>
                 </div>
-                <button
-                  @click="deleteDoc(doc.doc_id)"
-                  class="p-2 rounded-lg hover:bg-red-500/10 text-foreground/40 hover:text-red-400 transition-all"
-                >
-                  <Trash2 class="w-4 h-4" />
-                </button>
+                <div class="flex items-center gap-1">
+                  <button
+                    @click="downloadDoc(doc.doc_id)"
+                    class="p-2 rounded-lg hover:bg-blue-500/10 text-foreground/40 hover:text-blue-400 transition-all"
+                    title="下载原始文件"
+                  >
+                    <Download class="w-4 h-4" />
+                  </button>
+                  <button
+                    @click="deleteDoc(doc.doc_id)"
+                    class="p-2 rounded-lg hover:bg-red-500/10 text-foreground/40 hover:text-red-400 transition-all"
+                  >
+                    <Trash2 class="w-4 h-4" />
+                  </button>
+                </div>
               </div>
             </div>
           </div>

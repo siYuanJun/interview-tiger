@@ -39,4 +39,7 @@ node_modules/
 # AI Workflow内部文件
 data
 
+# 本地知识库原始文件（自动生成，不入库）
+backend/data/chroma/originals/
+
 docs/产品原型/

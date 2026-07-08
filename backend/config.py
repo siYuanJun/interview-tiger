@@ -19,6 +19,8 @@ KB_ACCOUNT_ID = os.getenv("KB_ACCOUNT_ID", "")  # SignerV4 签名必需
 
 # 本地知识库配置
 LOCAL_KB_DATA_DIR = os.getenv("LOCAL_KB_DATA_DIR", "./data/chroma")
+LOCAL_KB_ORIGINALS_DIR = os.getenv("LOCAL_KB_ORIGINALS_DIR",
+    os.path.join(LOCAL_KB_DATA_DIR, "originals"))
 LOCAL_KB_EMBEDDING_MODEL = os.getenv("LOCAL_KB_EMBEDDING_MODEL", "bge-large-zh-v1.5")
 LOCAL_KB_CHUNK_SIZE = int(os.getenv("LOCAL_KB_CHUNK_SIZE", "500"))
 LOCAL_KB_CHUNK_OVERLAP = int(os.getenv("LOCAL_KB_CHUNK_OVERLAP", "50"))

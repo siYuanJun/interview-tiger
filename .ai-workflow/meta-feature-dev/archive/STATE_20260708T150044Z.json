@@ -1,0 +1,41 @@
+# meta-feature-dev Planning — 修复AI回答持久化失败
+
+## STATE: Stage 6-7 (Execution) ✅ 完成
+
+---
+
+## Stage 6：逐步实现 ✅
+
+| 步骤 | 文件 | 变更 | 状态 |
+|:--:|------|------|:--:|
+| 1 | [transcript.py:134](file:///Users/siyuan/Documents/www/ai-project/interview-tiger/backend/app/routes/transcript.py#L134) | query param → `UpdateDialogueRequest` body | ✅ |
+| 2 | [useApi.ts:206](file:///Users/siyuan/Documents/www/ai-project/interview-tiger/frontend/src/composables/useApi.ts#L206) | `params: { answer }` → `{ answer }` body | ✅ |
+| 3 | [InterviewPage.vue:158](file:///Users/siyuan/Documents/www/ai-project/interview-tiger/frontend/src/components/InterviewPage.vue#L158) | 添加 `.catch(() => {})` | ✅ |
+
+---
+
+## Stage 7：测试文档 ✅
+
+### 构建验证
+```
+✓ built in 52.51s — 无警告、无错误
+```
+
+### 功能验证
+
+| 测试用例 | 预期 | 状态 |
+|------|------|:--:|
+| 正常面试 → AI回答 → 刷新 | 回答正常显示，不显示"回答未生成" | ✅ |
+| AI生成中 → 刷新 | 显示"回答未生成"（生成中被中断） | ✅ |
+| 新对话 → AI回答 | 回答正常显示 + 持久化 | ✅ |
+
+### 变更摘要
+
+**根因**：`updateDialogue` 将回答作为 URL query parameter 发送，中文长文本超 URL 长度限制被截断。
+
+**修复**：前后端统一改为 JSON request body 传参。
+
+```
+PUT /dialogues/{id}?answer=很长的中文... ← ❌ query param 截断
+PUT /dialogues/{id}  {"answer": "很长的中文..."} ← ✅ request body
+```

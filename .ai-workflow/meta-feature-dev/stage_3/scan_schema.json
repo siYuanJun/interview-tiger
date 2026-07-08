@@ -1,0 +1,13 @@
+{
+  "total_entities": 0,
+  "detected_frameworks": [],
+  "tables": {
+    "laravel": [],
+    "jpa": [],
+    "gorm": [],
+    "floor": [],
+    "prisma": [],
+    "django": [],
+    "sql": []
+  }
+}

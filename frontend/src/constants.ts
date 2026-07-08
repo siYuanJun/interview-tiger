@@ -8,7 +8,7 @@ export const DEFAULT_MODEL_ID = 'deepseek-v4-flash-260425'
 export const DEFAULT_KB_ID = 'kb-ee95868bec0b4da8'
 
 /** 默认知识库提供者 */
-export const DEFAULT_KB_PROVIDER = 'volcengine'
+export const DEFAULT_KB_PROVIDER = 'local'
 
 /** 默认切片大小 */
 export const DEFAULT_CHUNK_SIZE = 500
