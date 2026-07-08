@@ -4,7 +4,7 @@ import json
 import requests
 
 from app.utils.logger import logger, log_api_error
-from config import KB_API_URL, KB_PROJECT
+from config import KB_BASE_URL, KB_PROJECT
 
 
 class KnowledgeProvider(ABC):
@@ -65,7 +65,7 @@ class VolcengineKnowledgeProvider(KnowledgeProvider):
         }
 
         try:
-            response = requests.post(KB_API_URL, headers=headers, json=payload, timeout=30)
+            response = requests.post(KB_BASE_URL, headers=headers, json=payload, timeout=30)
             logger.info(f"search_knowledge - 状态码: {response.status_code}, KB_ID: {kb_id}, 响应体: {response.text[:500]}")
             if response.status_code == 200:
                 return response.json()

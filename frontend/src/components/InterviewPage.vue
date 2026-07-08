@@ -5,6 +5,7 @@ import { useSpeech } from '@/composables/useSpeech'
 import { useApi } from '@/composables/useApi'
 import DialogueItem from '@/components/DialogueItem.vue'
 import TigerLogo from '@/components/TigerLogo.vue'
+import VoiceWave from '@/components/VoiceWave.vue'
 import { useInterviewStore } from '@/stores/interview'
 import { 
   Mic, 
@@ -307,11 +308,8 @@ function getPhaseIcon() {
         v-if="dialogues.length === 0"
         class="flex flex-col items-center justify-center h-full"
       >
-        <div class="relative mb-8">
-          <div class="w-36 h-36 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-3xl flex items-center justify-center animate-float-slow border border-primary/20">
-            <Mic class="w-18 h-18 text-primary animate-pulse-neon" />
-          </div>
-          <div class="absolute inset-0 bg-gradient-to-br from-primary/30 to-secondary/30 rounded-3xl blur-2xl"></div>
+        <div class="mb-8">
+          <VoiceWave :size="144" :status="state" />
         </div>
         <p class="text-2xl font-bold text-white font-heading mb-3">面试已就绪</p>
         <p class="text-sm text-foreground/50 text-center max-w-md">请确保设备麦克风已开启，系统将自动识别面试官提问</p>

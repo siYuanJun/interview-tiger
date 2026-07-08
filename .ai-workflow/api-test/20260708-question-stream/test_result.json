@@ -1,0 +1,78 @@
+{
+  "status_code": 200,
+  "headers": {
+    "Vary": "Origin",
+    "date": "Wed, 08 Jul 2026 07:38:22 GMT",
+    "server": "uvicorn",
+    "cache-control": "no-cache",
+    "connection": "keep-alive, close",
+    "x-accel-buffering": "no",
+    "content-type": "text/event-stream; charset=utf-8",
+    "transfer-encoding": "chunked"
+  },
+  "events": [
+    {
+      "type": "status",
+      "message": "知识库+联网搜索中..."
+    },
+    {
+      "type": "chunk",
+      "content": "“"
+    },
+    {
+      "type": "chunk",
+      "content": "明白"
+    },
+    {
+      "type": "chunk",
+      "content": "，"
+    },
+    {
+      "type": "chunk",
+      "content": "我会"
+    },
+    {
+      "type": "chunk",
+      "content": "专注于"
+    },
+    {
+      "type": "chunk",
+      "content": "自身"
+    },
+    {
+      "type": "chunk",
+      "content": "表现"
+    },
+    {
+      "type": "chunk",
+      "content": "，"
+    },
+    {
+      "type": "chunk",
+      "content": "确保"
+    },
+    {
+      "type": "chunk",
+      "content": "符合"
+    },
+    {
+      "type": "chunk",
+      "content": "岗位"
+    },
+    {
+      "type": "chunk",
+      "content": "要求"
+    },
+    {
+      "type": "chunk",
+      "content": "。”"
+    },
+    {
+      "type": "done",
+      "content": "[DONE]"
+    }
+  ],
+  "full_content": "“明白，我会专注于自身表现，确保符合岗位要求。”",
+  "error": null,
+  "success": true
+}
