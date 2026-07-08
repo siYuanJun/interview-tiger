@@ -15,6 +15,7 @@ KB_API_KEY = os.getenv("KB_API_KEY", "")
 KB_ID = os.getenv("KB_ID", "kb-ee95868bec0b4da8")
 KB_PROJECT = os.getenv("KB_PROJECT", "default")
 KB_BASE_URL = os.getenv("KB_BASE_URL", "https://api-knowledgebase.mlp.cn-beijing.volces.com")
+KB_ACCOUNT_ID = os.getenv("KB_ACCOUNT_ID", "")  # SignerV4 签名必需
 
 # 本地知识库配置
 LOCAL_KB_DATA_DIR = os.getenv("LOCAL_KB_DATA_DIR", "./data/chroma")

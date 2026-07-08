@@ -5,7 +5,7 @@ import json
 import requests
 from dotenv import load_dotenv
 
-load_dotenv(os.path.join(os.path.dirname(__file__), 'backend', '.env'))
+load_dotenv(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'backend', '.env'))
 
 KB_API_KEY = os.getenv("KB_API_KEY", "")
 KB_ID = os.getenv("KB_ID", "kb-ee95868bec0b4da8")

@@ -4,7 +4,7 @@ import json
 import requests
 
 from app.utils.logger import logger, log_api_error
-from config import KB_BASE_URL, KB_PROJECT
+from config import KB_BASE_URL, KB_PROJECT, KB_ACCOUNT_ID
 
 
 class KnowledgeProvider(ABC):
@@ -64,20 +64,21 @@ class VolcengineKnowledgeProvider(KnowledgeProvider):
             "Authorization": f"Bearer {kb_api_key}"
         }
 
+        kb_url = f"{KB_BASE_URL}/api/knowledge/collection/search_knowledge"
+
         try:
-            response = requests.post(KB_BASE_URL, headers=headers, json=payload, timeout=30)
-            logger.info(f"search_knowledge - 状态码: {response.status_code}, KB_ID: {kb_id}, 响应体: {response.text[:500]}")
+            response = requests.post(kb_url, headers=headers, json=payload, timeout=30)
+            logger.info(f"search_knowledge - 状态码: {response.status_code}, KB_ID: {kb_id}")
             if response.status_code == 200:
                 return response.json()
             else:
-                # 检测授权错误，给出明确提示
                 resp_text = response.text[:200]
-                if "check sign error" in resp_text or response.status_code == 403:
-                    logger.error(f"火山引擎知识库鉴权失败！请检查 KB_API_KEY 是否为有效的 Bearer Token（非 AK:SK 格式）")
-                log_api_error("search_knowledge", Exception(f"HTTP {response.status_code}: {resp_text}"), {"kb_id": kb_id, "query": query[:30]})
+                if response.status_code == 403:
+                    logger.error(f"火山引擎知识库鉴权失败(403)！请检查 KB_API_KEY 和 KB_ACCOUNT_ID")
+                log_api_error("search_knowledge", Exception(f"HTTP {response.status_code}: {resp_text}"), {"kb_id": kb_id})
                 return {}
         except Exception as e:
-            log_api_error("search_knowledge", e, {"kb_id": kb_id, "query": query[:30]})
+            log_api_error("search_knowledge", e, {"kb_id": kb_id})
             return {}
 
     def search(self, query: str, **kwargs) -> str:
