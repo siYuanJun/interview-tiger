@@ -49,6 +49,7 @@ services:
       - "8001:8000"
     volumes:
       - ./backend:/app
+      - ~/.cache/huggingface:/root/.cache/huggingface
     env_file:
       - ./backend/.env
     environment:
