@@ -7,6 +7,7 @@ import {
   ChevronUp,
   MessageSquare 
 } from 'lucide-vue-next'
+import MarkdownRenderer from './MarkdownRenderer.vue'
 
 interface Dialogue {
   id: string
@@ -98,9 +99,7 @@ onMounted(() => {
           
           <div class="dialogue-answer-content" :class="{ expanded: isExpanded }" ref="contentRef">
             <span class="text-xs font-semibold text-accent/70 uppercase tracking-wider">回答</span>
-            <div class="text-foreground text-sm leading-relaxed mt-1 whitespace-pre-wrap">
-              {{ item.answer }}
-            </div>
+            <MarkdownRenderer :content="item.answer" />
           </div>
 
           <button 
