@@ -37,9 +37,9 @@ function startInterview() {
   <div class="flex flex-col items-center justify-center min-h-screen p-6 relative overflow-hidden">
     <div class="absolute inset-0 overflow-hidden pointer-events-none">
       <div class="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-primary/5 via-transparent to-accent/5"></div>
-      <div class="absolute top-1/3 left-1/4 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[180px] animate-pulse-neon"></div>
-      <div class="absolute bottom-1/3 right-1/4 w-[600px] h-[600px] bg-accent/10 rounded-full blur-[180px] animate-pulse-neon" style="animation-delay: 1.5s"></div>
-      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-secondary/5 rounded-full blur-[200px]"></div>
+      <div class="absolute top-1/3 left-1/4 w-[600px] h-[600px] bg-primary/15 rounded-full blur-[180px]"></div>
+      <div class="absolute bottom-1/3 right-1/4 w-[600px] h-[600px] bg-accent/15 rounded-full blur-[180px]"></div>
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-secondary/10 rounded-full blur-[200px]"></div>
     </div>
 
     <div class="absolute top-6 right-6 z-10">
