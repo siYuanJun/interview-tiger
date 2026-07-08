@@ -48,7 +48,7 @@ def fetch_knowledge_sync(query: str, cfg: dict) -> str:
     else:
         kb_id = cfg.get("kb_id")
         kb_api_key = cfg.get("kb_api_key")
-        if kb_id and kb_api_key:
+        if kb_id or kb_api_key:
             provider = get_knowledge_provider("volcengine", kb_id, kb_api_key)
             return provider.search(query)
     return ""
