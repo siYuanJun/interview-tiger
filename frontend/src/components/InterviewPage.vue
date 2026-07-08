@@ -27,6 +27,7 @@ interface Dialogue {
   is_valid: boolean
   rule: string
   created_at: string
+  generating?: boolean
 }
 
 interface InterimDialogue {
@@ -120,6 +121,7 @@ async function handleSpeechResult(result: { text: string; isFinal: boolean; conf
 
   if (response?.data?.is_valid) {
     const dialogue = response.data
+    dialogue.generating = true
     dialogues.value.push(dialogue)
     autoScroll()
     statusMessage.value = '问题已识别，正在生成回答...'
@@ -155,6 +157,7 @@ async function handleSpeechResult(result: { text: string; isFinal: boolean; conf
           if (!dialogues.value[idx].answer) {
             dialogues.value[idx].answer = '生成失败'
           }
+          dialogues.value[idx].generating = false
           updateDialogue(dialogue.id, dialogues.value[idx].answer)
         }
         statusMessage.value = '正在监听面试官提问...'
@@ -163,6 +166,7 @@ async function handleSpeechResult(result: { text: string; isFinal: boolean; conf
         const idx = dialogues.value.findIndex(d => d.id === dialogue.id)
         if (idx !== -1) {
           dialogues.value[idx].answer = '生成失败: ' + error
+          dialogues.value[idx].generating = false
         }
         statusMessage.value = '生成失败，请重试'
       }
@@ -318,7 +322,7 @@ function getPhaseIcon() {
 
       <div class="max-w-[95vw] md:max-w-5xl lg:max-w-7xl mx-auto">
         <template v-for="item in dialogues" :key="item.id">
-          <DialogueItem :item="item" />
+          <DialogueItem :item="item" :generating="item.generating" />
         </template>
 
         <div

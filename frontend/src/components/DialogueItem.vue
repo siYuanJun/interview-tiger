@@ -20,6 +20,7 @@ interface Dialogue {
 
 const props = defineProps<{
   item: Dialogue
+  generating?: boolean
 }>()
 
 const isExpanded = ref(false)
@@ -113,7 +114,7 @@ onMounted(() => {
           </button>
         </div>
 
-        <div v-else class="flex items-center justify-center py-8">
+        <div v-else-if="generating" class="flex items-center justify-center py-8">
           <div class="flex items-center gap-3">
             <div class="flex gap-2">
               <span class="w-3 h-3 bg-primary rounded-full animate-pulse" style="animation-delay: 0ms"></span>
@@ -121,6 +122,10 @@ onMounted(() => {
               <span class="w-3 h-3 bg-accent rounded-full animate-pulse" style="animation-delay: 300ms"></span>
             </div>
           </div>
+        </div>
+
+        <div v-else class="flex items-center justify-center py-6">
+          <p class="text-xs text-foreground/40">回答未生成</p>
         </div>
       </div>
     </div>
