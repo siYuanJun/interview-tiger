@@ -1,0 +1,221 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <radialGradient id="bgRadial" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" style="stop-color:#1e1b4b"/>
+      <stop offset="100%" style="stop-color:#0f0f23"/>
+    </radialGradient>
+    <linearGradient id="accentGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6"/>
+      <stop offset="33%" style="stop-color:#8b5cf6"/>
+      <stop offset="66%" style="stop-color:#d946ef"/>
+      <stop offset="100%" style="stop-color:#f59e0b"/>
+    </linearGradient>
+    <linearGradient id="tigerGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fbbf24"/>
+      <stop offset="50%" style="stop-color:#f59e0b"/>
+      <stop offset="100%" style="stop-color:#d97706"/>
+    </linearGradient>
+    <linearGradient id="speechGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6"/>
+      <stop offset="100%" style="stop-color:#1d4ed8"/>
+    </linearGradient>
+    <linearGradient id="knowledgeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8b5cf6"/>
+      <stop offset="100%" style="stop-color:#6d28d9"/>
+    </linearGradient>
+    <linearGradient id="dialogueGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#d946ef"/>
+      <stop offset="100%" style="stop-color:#be185d"/>
+    </linearGradient>
+    <linearGradient id="ragGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#06b6d4"/>
+      <stop offset="100%" style="stop-color:#0891b2"/>
+    </linearGradient>
+    <linearGradient id="aiGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fbbf24"/>
+      <stop offset="100%" style="stop-color:#f59e0b"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="6" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="glowSmall" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="textGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="iconGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <rect width="512" height="512" fill="url(#bgRadial)"/>
+  
+  <circle cx="256" cy="256" r="220" fill="none" stroke="url(#accentGradient)" stroke-width="1" opacity="0.1"/>
+  <circle cx="256" cy="256" r="180" fill="none" stroke="url(#accentGradient)" stroke-width="1" opacity="0.1"/>
+  <circle cx="256" cy="256" r="140" fill="none" stroke="url(#accentGradient)" stroke-width="1" opacity="0.1"/>
+  
+  <circle cx="256" cy="256" r="85" fill="rgba(30,27,75,0.8)" stroke="url(#tigerGradient)" stroke-width="3" filter="url(#glow)"/>
+  
+  <g transform="translate(256, 256)">
+    <ellipse cx="-22" cy="-10" rx="12" ry="14" fill="url(#tigerGradient)" opacity="0.9"/>
+    <ellipse cx="22" cy="-10" rx="12" ry="14" fill="url(#tigerGradient)" opacity="0.9"/>
+    
+    <ellipse cx="-22" cy="-10" rx="6" ry="8" fill="#fff" opacity="0.8"/>
+    <ellipse cx="22" cy="-10" rx="6" ry="8" fill="#fff" opacity="0.8"/>
+    <circle cx="-20" cy="-10" r="3" fill="#0f0f23"/>
+    <circle cx="24" cy="-10" r="3" fill="#0f0f23"/>
+    
+    <path d="M -15 8 L 0 22 L 15 8" stroke="#fbbf24" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+    
+    <circle cx="-28" cy="5" r="3" fill="#fbbf24" opacity="0.7"/>
+    <circle cx="-32" cy="12" r="2" fill="#fbbf24" opacity="0.5"/>
+    <circle cx="28" cy="5" r="3" fill="#fbbf24" opacity="0.7"/>
+    <circle cx="32" cy="12" r="2" fill="#fbbf24" opacity="0.5"/>
+    
+    <ellipse cx="0" cy="28" rx="8" ry="6" fill="#fbbf24" opacity="0.6"/>
+  </g>
+  
+  <g transform="translate(256, 150)">
+    <path d="M 0 0 Q 15 -25 30 0 Q 15 25 0 0" stroke="#3b82f6" stroke-width="2" fill="none" opacity="0.6">
+      <animate attributeName="d" values="M 0 0 Q 15 -25 30 0 Q 15 25 0 0;M 0 0 Q 15 -35 30 0 Q 15 35 0 0;M 0 0 Q 15 -25 30 0 Q 15 25 0 0" dur="2s" repeatCount="indefinite"/>
+    </path>
+    <path d="M 0 0 Q 25 -20 50 0 Q 25 20 0 0" stroke="#8b5cf6" stroke-width="2" fill="none" opacity="0.4">
+      <animate attributeName="d" values="M 0 0 Q 25 -20 50 0 Q 25 20 0 0;M 0 0 Q 25 -30 50 0 Q 25 30 0 0;M 0 0 Q 25 -20 50 0 Q 25 20 0 0" dur="2.5s" repeatCount="indefinite"/>
+    </path>
+    <path d="M 0 0 Q 35 -15 70 0 Q 35 15 0 0" stroke="#d946ef" stroke-width="2" fill="none" opacity="0.3">
+      <animate attributeName="d" values="M 0 0 Q 35 -15 70 0 Q 35 15 0 0;M 0 0 Q 35 -25 70 0 Q 35 25 0 0;M 0 0 Q 35 -15 70 0 Q 35 15 0 0" dur="3s" repeatCount="indefinite"/>
+    </path>
+  </g>
+  
+  <g transform="translate(256, 350)">
+    <path d="M 0 0 Q -15 -25 -30 0 Q -15 25 0 0" stroke="#3b82f6" stroke-width="2" fill="none" opacity="0.6">
+      <animate attributeName="d" values="M 0 0 Q -15 -25 -30 0 Q -15 25 0 0;M 0 0 Q -15 -35 -30 0 Q -15 35 0 0;M 0 0 Q -15 -25 -30 0 Q -15 25 0 0" dur="2s" repeatCount="indefinite"/>
+    </path>
+    <path d="M 0 0 Q -25 -20 -50 0 Q -25 20 0 0" stroke="#8b5cf6" stroke-width="2" fill="none" opacity="0.4">
+      <animate attributeName="d" values="M 0 0 Q -25 -20 -50 0 Q -25 20 0 0;M 0 0 Q -25 -30 -50 0 Q -25 30 0 0;M 0 0 Q -25 -20 -50 0 Q -25 20 0 0" dur="2.5s" repeatCount="indefinite"/>
+    </path>
+    <path d="M 0 0 Q -35 -15 -70 0 Q -35 15 0 0" stroke="#d946ef" stroke-width="2" fill="none" opacity="0.3">
+      <animate attributeName="d" values="M 0 0 Q -35 -15 -70 0 Q -35 15 0 0;M 0 0 Q -35 -25 -70 0 Q -35 25 0 0;M 0 0 Q -35 -15 -70 0 Q -35 15 0 0" dur="3s" repeatCount="indefinite"/>
+    </path>
+  </g>
+  
+  <g transform="translate(80, 256)">
+    <circle cx="0" cy="0" r="4" fill="#3b82f6" filter="url(#glowSmall)">
+      <animate attributeName="opacity" values="1;0.5;1" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <line x1="4" y1="0" x2="30" y2="0" stroke="#3b82f6" stroke-width="1" opacity="0.3"/>
+  </g>
+  <g transform="translate(432, 256)">
+    <circle cx="0" cy="0" r="4" fill="#8b5cf6" filter="url(#glowSmall)">
+      <animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <line x1="-4" y1="0" x2="-30" y2="0" stroke="#8b5cf6" stroke-width="1" opacity="0.3"/>
+  </g>
+  <g transform="translate(256, 80)">
+    <circle cx="0" cy="0" r="4" fill="#d946ef" filter="url(#glowSmall)">
+      <animate attributeName="opacity" values="1;0.5;1" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <line x1="0" y1="4" x2="0" y2="30" stroke="#d946ef" stroke-width="1" opacity="0.3"/>
+  </g>
+  <g transform="translate(256, 432)">
+    <circle cx="0" cy="0" r="4" fill="#06b6d4" filter="url(#glowSmall)">
+      <animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <line x1="0" y1="-4" x2="0" y2="-30" stroke="#06b6d4" stroke-width="1" opacity="0.3"/>
+  </g>
+  <g transform="translate(130, 130)">
+    <circle cx="0" cy="0" r="3" fill="#fbbf24" filter="url(#glowSmall)">
+      <animate attributeName="opacity" values="1;0.5;1" dur="2.5s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+  <g transform="translate(382, 130)">
+    <circle cx="0" cy="0" r="3" fill="#fbbf24" filter="url(#glowSmall)">
+      <animate attributeName="opacity" values="0.5;1;0.5" dur="2.5s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+  <g transform="translate(130, 382)">
+    <circle cx="0" cy="0" r="3" fill="#fbbf24" filter="url(#glowSmall)">
+      <animate attributeName="opacity" values="0.5;1;0.5" dur="2.5s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+  <g transform="translate(382, 382)">
+    <circle cx="0" cy="0" r="3" fill="#fbbf24" filter="url(#glowSmall)">
+      <animate attributeName="opacity" values="1;0.5;1" dur="2.5s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+  
+  <g transform="translate(70, 430)">
+    <rect x="0" y="0" width="50" height="50" rx="10" fill="rgba(59,130,246,0.2)" stroke="url(#speechGradient)" stroke-width="1.5" filter="url(#iconGlow)"/>
+    <path d="M 15 25 Q 25 15 35 25 Q 25 35 15 25" stroke="#3b82f6" stroke-width="2" fill="none"/>
+    <circle cx="35" cy="25" r="6" fill="#3b82f6"/>
+    <circle cx="35" cy="25" r="3" fill="#fff"/>
+  </g>
+  
+  <g transform="translate(150, 440)">
+    <rect x="0" y="0" width="45" height="45" rx="9" fill="rgba(139,92,246,0.2)" stroke="url(#knowledgeGradient)" stroke-width="1.5" filter="url(#iconGlow)"/>
+    <path d="M 8 35 L 22 12 L 36 35 Z" fill="#8b5cf6"/>
+    <path d="M 12 32 L 22 18 L 32 32" stroke="#fff" stroke-width="1" fill="none"/>
+    <circle cx="30" cy="20" r="2" fill="#fff"/>
+    <circle cx="25" cy="28" r="2" fill="#fff"/>
+  </g>
+  
+  <g transform="translate(320, 440)">
+    <rect x="0" y="0" width="45" height="45" rx="9" fill="rgba(217,70,239,0.2)" stroke="url(#dialogueGradient)" stroke-width="1.5" filter="url(#iconGlow)"/>
+    <path d="M 6 22 Q 6 12 16 12 L 32 12 Q 42 12 42 22" stroke="#d946ef" stroke-width="2" fill="none"/>
+    <path d="M 6 35 Q 6 25 16 25 L 32 25 Q 42 25 42 35" stroke="#d946ef" stroke-width="2" fill="none"/>
+    <path d="M 22 20 L 22 27" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+  </g>
+  
+  <g transform="translate(400, 430)">
+    <rect x="0" y="0" width="50" height="50" rx="10" fill="rgba(6,182,212,0.2)" stroke="url(#ragGradient)" stroke-width="1.5" filter="url(#iconGlow)"/>
+    <circle cx="25" cy="25" r="15" fill="none" stroke="#06b6d4" stroke-width="1.5"/>
+    <circle cx="25" cy="25" r="10" fill="none" stroke="#06b6d4" stroke-width="1"/>
+    <circle cx="25" cy="25" r="5" fill="#06b6d4"/>
+    <line x1="25" y1="5" x2="25" y2="45" stroke="#06b6d4" stroke-width="1" opacity="0.5"/>
+    <line x1="5" y1="25" x2="45" y2="25" stroke="#06b6d4" stroke-width="1" opacity="0.5"/>
+    <line x1="10" y1="10" x2="40" y2="40" stroke="#06b6d4" stroke-width="1" opacity="0.5"/>
+    <line x1="40" y1="10" x2="10" y2="40" stroke="#06b6d4" stroke-width="1" opacity="0.5"/>
+  </g>
+  
+  <g transform="translate(230, 395)">
+    <rect x="0" y="0" width="52" height="52" rx="10" fill="rgba(251,191,36,0.2)" stroke="url(#aiGradient)" stroke-width="1.5" filter="url(#iconGlow)"/>
+    <circle cx="26" cy="26" r="12" fill="#fbbf24"/>
+    <circle cx="26" cy="26" r="6" fill="#fff"/>
+    <circle cx="16" cy="18" r="3" fill="#fbbf24"/>
+    <circle cx="36" cy="18" r="3" fill="#fbbf24"/>
+    <circle cx="14" cy="34" r="3" fill="#fbbf24"/>
+    <circle cx="38" cy="34" r="3" fill="#fbbf24"/>
+    <line x1="20" y1="22" x2="18" y2="18" stroke="#fbbf24" stroke-width="1"/>
+    <line x1="32" y1="22" x2="34" y2="18" stroke="#fbbf24" stroke-width="1"/>
+    <line x1="20" y1="30" x2="18" y2="34" stroke="#fbbf24" stroke-width="1"/>
+    <line x1="32" y1="30" x2="34" y2="34" stroke="#fbbf24" stroke-width="1"/>
+  </g>
+  
+  <text x="256" y="350" font-family="system-ui, -apple-system, sans-serif" font-size="32" font-weight="bold" fill="#fff" text-anchor="middle" filter="url(#textGlow)">
+    面试虎
+  </text>
+  <text x="256" y="380" font-family="system-ui, -apple-system, sans-serif" font-size="14" fill="#a5b4fc" text-anchor="middle" letter-spacing="2">
+    INTERVIEW TIGER
+  </text>
+  
+  <text x="256" y="400" font-family="system-ui, -apple-system, sans-serif" font-size="10" fill="#60a5fa" text-anchor="middle">
+    AI 智能面试助手
+  </text>
+</svg>

@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#d946ef"/>
+      <stop offset="100%" style="stop-color:#be185d"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <rect width="128" height="128" fill="#0f0f23"/>
+  
+  <rect x="16" y="16" width="96" height="96" rx="20" fill="rgba(217,70,239,0.15)" stroke="url(#gradient)" stroke-width="2" filter="url(#glow)"/>
+  
+  <g transform="translate(64, 64)">
+    <path d="M -25 -10 Q -25 -30 -10 -30 L 15 -30 Q 30 -30 30 -10" stroke="#d946ef" stroke-width="3" fill="none"/>
+    <path d="M -25 10 Q -25 30 -10 30 L 15 30 Q 30 30 30 10" stroke="#d946ef" stroke-width="3" fill="none"/>
+    
+    <circle cx="-15" cy="-15" r="3" fill="#f0abfc">
+      <animate attributeName="opacity" values="1;0.3;1" dur="1.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="-5" cy="-15" r="3" fill="#f0abfc">
+      <animate attributeName="opacity" values="0.3;1;0.3" dur="1.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="5" cy="-15" r="3" fill="#f0abfc">
+      <animate attributeName="opacity" values="1;0.3;1" dur="1.5s" repeatCount="indefinite"/>
+    </circle>
+    
+    <circle cx="-15" cy="15" r="3" fill="#f0abfc">
+      <animate attributeName="opacity" values="0.3;1;0.3" dur="1.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="-5" cy="15" r="3" fill="#f0abfc">
+      <animate attributeName="opacity" values="1;0.3;1" dur="1.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="5" cy="15" r="3" fill="#f0abfc">
+      <animate attributeName="opacity" values="0.3;1;0.3" dur="1.5s" repeatCount="indefinite"/>
+    </circle>
+    
+    <path d="M 0 -5 L 0 5" stroke="#fff" stroke-width="2" stroke-linecap="round">
+      <animate attributeName="opacity" values="1;0.5;1" dur="2s" repeatCount="indefinite"/>
+    </path>
+  </g>
+  
+  <text x="64" y="110" font-family="system-ui, -apple-system, sans-serif" font-size="10" fill="#c084fc" text-anchor="middle">
+    交互对话
+  </text>
+</svg>

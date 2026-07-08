@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fbbf24"/>
+      <stop offset="100%" style="stop-color:#f59e0b"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <rect width="128" height="128" fill="#0f0f23"/>
+  
+  <rect x="16" y="16" width="96" height="96" rx="20" fill="rgba(251,191,36,0.15)" stroke="url(#gradient)" stroke-width="2" filter="url(#glow)"/>
+  
+  <g transform="translate(64, 64)">
+    <circle cx="0" cy="0" r="25" fill="#fbbf24"/>
+    <circle cx="0" cy="0" r="12" fill="#fff"/>
+    
+    <circle cx="-15" cy="-10" r="5" fill="#fbbf24">
+      <animate attributeName="opacity" values="1;0.5;1" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="15" cy="-10" r="5" fill="#fbbf24">
+      <animate attributeName="opacity" values="0.5;1;0.5" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="-18" cy="12" r="4" fill="#fbbf24">
+      <animate attributeName="opacity" values="1;0.5;1" dur="2.5s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="18" cy="12" r="4" fill="#fbbf24">
+      <animate attributeName="opacity" values="0.5;1;0.5" dur="2.5s" repeatCount="indefinite"/>
+    </circle>
+    
+    <circle cx="-25" cy="-5" r="3" fill="#fcd34d">
+      <animate attributeName="opacity" values="0.5;1;0.5" dur="3s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="25" cy="-5" r="3" fill="#fcd34d">
+      <animate attributeName="opacity" values="1;0.5;1" dur="3s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="-22" cy="20" r="3" fill="#fcd34d">
+      <animate attributeName="opacity" values="1;0.5;1" dur="3s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="22" cy="20" r="3" fill="#fcd34d">
+      <animate attributeName="opacity" values="0.5;1;0.5" dur="3s" repeatCount="indefinite"/>
+    </circle>
+    
+    <line x1="8" y1="0" x2="15" y2="-10" stroke="#fbbf24" stroke-width="1.5"/>
+    <line x1="-8" y1="0" x2="-15" y2="-10" stroke="#fbbf24" stroke-width="1.5"/>
+    <line x1="8" y1="0" x2="18" y2="12" stroke="#fbbf24" stroke-width="1.5"/>
+    <line x1="-8" y1="0" x2="-18" y2="12" stroke="#fbbf24" stroke-width="1.5"/>
+    
+    <line x1="15" y1="-10" x2="25" y2="-5" stroke="#fbbf24" stroke-width="1" opacity="0.5"/>
+    <line x1="-15" y1="-10" x2="-25" y2="-5" stroke="#fbbf24" stroke-width="1" opacity="0.5"/>
+    <line x1="18" y1="12" x2="22" y2="20" stroke="#fbbf24" stroke-width="1" opacity="0.5"/>
+    <line x1="-18" y1="12" x2="-22" y2="20" stroke="#fbbf24" stroke-width="1" opacity="0.5"/>
+    
+    <path d="M -35 -20 L -30 -15" stroke="#fcd34d" stroke-width="1.5" stroke-linecap="round">
+      <animate attributeName="opacity" values="1;0;1" dur="1.5s" repeatCount="indefinite"/>
+    </path>
+    <path d="M 35 -20 L 30 -15" stroke="#fcd34d" stroke-width="1.5" stroke-linecap="round">
+      <animate attributeName="opacity" values="0;1;0" dur="1.5s" repeatCount="indefinite"/>
+    </path>
+    <path d="M -35 25 L -30 20" stroke="#fcd34d" stroke-width="1.5" stroke-linecap="round">
+      <animate attributeName="opacity" values="0;1;0" dur="1.5s" repeatCount="indefinite"/>
+    </path>
+    <path d="M 35 25 L 30 20" stroke="#fcd34d" stroke-width="1.5" stroke-linecap="round">
+      <animate attributeName="opacity" values="1;0;1" dur="1.5s" repeatCount="indefinite"/>
+    </path>
+  </g>
+  
+  <text x="64" y="110" font-family="system-ui, -apple-system, sans-serif" font-size="10" fill="#fbbf24" text-anchor="middle">
+    AI 智能
+  </text>
+</svg>

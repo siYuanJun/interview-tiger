@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3b82f6"/>
+      <stop offset="100%" style="stop-color:#1d4ed8"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <rect width="128" height="128" fill="#0f0f23"/>
+  
+  <rect x="16" y="16" width="96" height="96" rx="20" fill="rgba(59,130,246,0.15)" stroke="url(#gradient)" stroke-width="2" filter="url(#glow)"/>
+  
+  <g transform="translate(64, 64)">
+    <path d="M -30 0 Q -20 -35 -5 0 Q -20 35 -30 0" stroke="#3b82f6" stroke-width="3" fill="none" opacity="0.7">
+      <animate attributeName="d" values="M -30 0 Q -20 -35 -5 0 Q -20 35 -30 0;M -30 0 Q -20 -50 -5 0 Q -20 50 -30 0;M -30 0 Q -20 -35 -5 0 Q -20 35 -30 0" dur="2s" repeatCount="indefinite"/>
+    </path>
+    <path d="M -18 0 Q -10 -25 8 0 Q -10 25 -18 0" stroke="#60a5fa" stroke-width="3" fill="none" opacity="0.8">
+      <animate attributeName="d" values="M -18 0 Q -10 -25 8 0 Q -10 25 -18 0;M -18 0 Q -10 -40 8 0 Q -10 40 -18 0;M -18 0 Q -10 -25 8 0 Q -10 25 -18 0" dur="2.2s" repeatCount="indefinite"/>
+    </path>
+    <path d="M -6 0 Q 4 -15 22 0 Q 4 15 -6 0" stroke="#93c5fd" stroke-width="3" fill="none" opacity="0.9">
+      <animate attributeName="d" values="M -6 0 Q 4 -15 22 0 Q 4 15 -6 0;M -6 0 Q 4 -28 22 0 Q 4 28 -6 0;M -6 0 Q 4 -15 22 0 Q 4 15 -6 0" dur="2.5s" repeatCount="indefinite"/>
+    </path>
+    
+    <circle cx="35" cy="0" r="12" fill="#3b82f6"/>
+    <circle cx="35" cy="0" r="6" fill="#fff"/>
+  </g>
+  
+  <text x="64" y="110" font-family="system-ui, -apple-system, sans-serif" font-size="10" fill="#60a5fa" text-anchor="middle">
+    语音识别
+  </text>
+</svg>
