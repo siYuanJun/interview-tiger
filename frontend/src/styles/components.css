@@ -1,0 +1,211 @@
+@layer components {
+  .btn-primary-gradient {
+    @apply bg-gradient-to-r from-[#60a5fa] via-[#c084fc] to-[#f472b6] text-white px-8 py-4 rounded-xl font-semibold text-lg
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none
+           transition-all duration-300 shadow-lg hover:shadow-[0_0_30px_rgba(123,58,237,0.5)]
+           hover:-translate-y-1 active:translate-y-0 cursor-pointer;
+    background-size: 200% 200%;
+    animation: gradientShift 3s ease infinite;
+  }
+  
+  .btn-primary-gradient:hover {
+    animation: gradientShift 1.5s ease infinite;
+  }
+  
+  .btn-gold-gradient {
+    @apply bg-gradient-to-r from-[#fbbf24] via-[#f59e0b] to-[#d97706] text-gray-900 px-8 py-4 rounded-xl font-bold text-lg
+           disabled:opacity-50 disabled:cursor-not-allowed
+           transition-all duration-300 shadow-lg hover:shadow-[0_0_30px_rgba(251,191,36,0.5)]
+           hover:-translate-y-1 active:translate-y-0 cursor-pointer;
+  }
+  
+  .btn-secondary-glass {
+    @apply bg-transparent border-2 border-[rgba(123,58,237,0.5)] text-foreground px-6 py-3 rounded-xl font-medium
+           hover:bg-[rgba(123,58,237,0.1)] hover:border-[rgba(192,132,252,0.7)]
+           disabled:opacity-50 disabled:cursor-not-allowed
+           transition-all duration-300 cursor-pointer;
+  }
+  
+  .btn-outline-gold {
+    @apply bg-transparent border-2 border-[#fbbf24] text-[#fbbf24] px-6 py-3 rounded-xl font-medium
+           hover:bg-[rgba(251,191,36,0.1)]
+           disabled:opacity-50 disabled:cursor-not-allowed
+           transition-all duration-300 cursor-pointer;
+  }
+  
+  .btn-danger-gradient {
+    @apply bg-gradient-to-r from-red-500 to-red-600 text-white px-6 py-3 rounded-xl font-medium
+           disabled:opacity-50 disabled:cursor-not-allowed
+           transition-all duration-300 shadow-lg hover:shadow-[0_0_30px_rgba(239,68,68,0.5)]
+           hover:-translate-y-1 active:translate-y-0 cursor-pointer;
+  }
+  
+  .btn-sm {
+    @apply px-4 py-2 text-sm;
+  }
+  
+  .btn-md {
+    @apply px-6 py-3 text-base;
+  }
+  
+  .btn-lg {
+    @apply px-8 py-4 text-lg;
+  }
+  
+  .glass-card {
+    @apply bg-[rgba(30,27,75,0.6)] backdrop-blur-xl border border-[rgba(123,58,237,0.3)] rounded-2xl;
+    box-shadow: 0 8px 32px rgba(123, 58, 237, 0.15);
+    transition: all 0.3s ease;
+  }
+  
+  .glass-card:hover {
+    @apply border-[rgba(192,132,252,0.5)];
+    box-shadow: 0 12px 48px rgba(123, 58, 237, 0.3);
+  }
+  
+  .glass-card-strong {
+    @apply bg-[rgba(30,27,75,0.8)] backdrop-blur-2xl border border-[rgba(123,58,237,0.4)] rounded-2xl;
+    box-shadow: 0 8px 32px rgba(123, 58, 237, 0.2);
+  }
+  
+  .glass-card-gold {
+    @apply bg-[rgba(30,27,75,0.6)] backdrop-blur-xl border border-[rgba(251,191,36,0.3)] rounded-2xl;
+    box-shadow: 0 8px 32px rgba(251, 191, 36, 0.15);
+  }
+  
+  .glass-card-gold:hover {
+    @apply border-[rgba(251,191,36,0.5)];
+    box-shadow: 0 12px 48px rgba(251, 191, 36, 0.3);
+  }
+  
+  .input-glass {
+    @apply w-full px-5 py-3.5 rounded-xl border border-[rgba(123,58,237,0.3)] 
+           bg-[rgba(30,27,75,0.8)] backdrop-blur-sm text-foreground
+           focus:outline-none focus:ring-2 focus:ring-[rgba(123,58,237,0.5)] focus:border-[rgba(192,132,252,0.5)]
+           transition-all duration-300 text-sm placeholder:text-[rgba(148,163,184,0.5)];
+  }
+  
+  .input-glass:focus {
+    box-shadow: 0 0 20px rgba(123, 58, 237, 0.2);
+  }
+  
+  .input-glass-error {
+    @apply border-red-500/50 focus:ring-red-500/50 focus:border-red-400;
+  }
+  
+  .input-glass-success {
+    @apply border-green-500/50 focus:ring-green-500/50 focus:border-green-400;
+  }
+  
+  .status-badge {
+    @apply flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium;
+  }
+  
+  .status-listening {
+    @apply bg-accent/20 text-accent border border-accent/30;
+  }
+  
+  .status-recognizing {
+    @apply bg-primary/20 text-secondary border border-primary/30;
+  }
+  
+  .status-starting {
+    @apply bg-yellow-500/20 text-yellow-400 border border-yellow-500/30;
+  }
+  
+  .status-error {
+    @apply bg-destructive/20 text-destructive border border-destructive/30;
+  }
+  
+  .status-success {
+    @apply bg-success/20 text-success border border-success/30;
+  }
+  
+  .status-idle {
+    @apply bg-muted/30 text-foreground/60 border border-border/30;
+  }
+  
+  .dialogue-bubble-user {
+    @apply bg-gradient-to-br from-primary to-secondary text-white px-5 py-4 rounded-2xl 
+           w-full shadow-lg shadow-primary/20 rounded-tr-sm;
+  }
+  
+  .dialogue-bubble-ai {
+    @apply bg-[rgba(30,27,75,0.6)] backdrop-blur-md text-foreground px-5 py-4 rounded-2xl 
+           w-full shadow-lg border border-[rgba(123,58,237,0.2)] rounded-tl-sm;
+  }
+  
+  .dialogue-question-title {
+    @apply bg-primary/5 border-l-2 border-primary px-3 py-2 rounded-r-lg;
+  }
+  
+  .dialogue-answer-content {
+    @apply bg-secondary/5 border-l-2 border-accent/50 px-3 py-2 rounded-r-lg 
+           max-h-[500px] overflow-y-auto;
+    transition: max-height 0.3s ease;
+  }
+  
+  .dialogue-answer-content.expanded {
+    max-height: none;
+  }
+  
+  .modal-overlay {
+    @apply fixed inset-0 bg-black/60 backdrop-blur-md z-50 flex items-center justify-center p-4;
+  }
+  
+  .modal-content {
+    @apply glass-card-strong w-full max-w-lg p-7 animate-slide-in-right max-h-[90vh] overflow-y-auto;
+  }
+  
+  .modal-content-sm {
+    @apply glass-card-strong w-full max-w-sm p-7 animate-slide-in-right;
+  }
+  
+  .card-icon-wrapper {
+    @apply w-14 h-14 rounded-xl flex items-center justify-center mx-auto;
+    background: linear-gradient(135deg, rgba(123, 58, 237, 0.2), rgba(192, 132, 252, 0.2));
+    border: 1px solid rgba(123, 58, 237, 0.3);
+  }
+  
+  .card-icon-wrapper-gold {
+    @apply w-14 h-14 rounded-xl flex items-center justify-center;
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(245, 158, 11, 0.2));
+    border: 1px solid rgba(251, 191, 36, 0.3);
+  }
+  
+  .badge {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium;
+  }
+  
+  .badge-primary {
+    @apply bg-primary/20 text-secondary border border-primary/30;
+  }
+  
+  .badge-gold {
+    @apply bg-gold/20 text-gold border border-gold/30;
+  }
+  
+  .badge-success {
+    @apply bg-success/20 text-success border border-success/30;
+  }
+  
+  .badge-warning {
+    @apply bg-warning/20 text-warning border border-warning/30;
+  }
+  
+  .badge-error {
+    @apply bg-error/20 text-error border border-error/30;
+  }
+  
+  .badge-info {
+    @apply bg-info/20 text-info border border-info/30;
+  }
+  
+  .loading-spinner {
+    @apply w-5 h-5 border-2 border-primary/30 border-t-primary rounded-full animate-spin;
+  }
+  
+  .loading-spinner-gold {
+    @apply w-5 h-5 border-2 border-gold/30 border-t-gold rounded-full animate-spin;
+  }
+}

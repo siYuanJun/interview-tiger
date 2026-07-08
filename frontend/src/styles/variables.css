@@ -1,0 +1,97 @@
+:root {
+  --color-tiger-gold-50: #FEFCE8;
+  --color-tiger-gold-100: #FEF9C3;
+  --color-tiger-gold-200: #FEF08A;
+  --color-tiger-gold-300: #FDE047;
+  --color-tiger-gold-400: #FACC15;
+  --color-tiger-gold-500: #FBBF24;
+  --color-tiger-gold-600: #F59E0B;
+  --color-tiger-gold-700: #D97706;
+  
+  --color-tech-purple-50: #FAF5FF;
+  --color-tech-purple-100: #F3E8FF;
+  --color-tech-purple-200: #E9D5FF;
+  --color-tech-purple-300: #D8B4FE;
+  --color-tech-purple-400: #C084FC;
+  --color-tech-purple-500: #A78BFA;
+  --color-tech-purple-600: #8B5CF6;
+  --color-tech-purple-700: #7C3AED;
+  
+  --color-primary: #7C3AED;
+  --color-primary-light: #818CF8;
+  --color-secondary: #A78BFA;
+  --color-accent: #F43F5E;
+  --color-gold: #FBBF24;
+  --color-gold-dark: #F59E0B;
+  
+  --color-background: #0F0F23;
+  --color-background-secondary: #1A1A3E;
+  --color-foreground: #E2E8F0;
+  --color-foreground-muted: #94A3B8;
+  --color-foreground-subtle: #64748B;
+  
+  --color-muted: #27273B;
+  --color-muted-light: #312E81;
+  --color-border: #4C1D95;
+  --color-border-light: rgba(123, 58, 237, 0.3);
+  
+  --color-success: #10B981;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
+  --color-info: #3B82F6;
+  
+  --font-heading: 'Orbitron', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  
+  --font-size-h1: 3rem;
+  --font-size-h2: 2rem;
+  --font-size-h3: 1.5rem;
+  --font-size-body: 1rem;
+  --font-size-body-sm: 0.875rem;
+  --font-size-body-xs: 0.75rem;
+  
+  --line-height-heading: 1.2;
+  --line-height-body: 1.6;
+  --line-height-body-sm: 1.5;
+  --line-height-body-xs: 1.4;
+  
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-black: 900;
+  
+  --spacing-8xs: 2px;
+  --spacing-4xs: 4px;
+  --spacing-2xs: 6px;
+  --spacing-xs: 8px;
+  --spacing-sm: 12px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-2xl: 48px;
+  --spacing-3xl: 64px;
+  
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-2xl: 32px;
+  
+  --shadow-glass: 0 8px 32px rgba(123, 58, 237, 0.15);
+  --shadow-glass-hover: 0 12px 48px rgba(123, 58, 237, 0.3);
+  --shadow-glow-primary: 0 0 20px rgba(123, 58, 237, 0.5), 0 0 40px rgba(192, 132, 252, 0.3);
+  --shadow-glow-gold: 0 0 20px rgba(251, 191, 36, 0.5), 0 0 40px rgba(245, 158, 11, 0.3);
+  --shadow-glow-red: 0 0 20px rgba(239, 68, 68, 0.5), 0 0 40px rgba(220, 38, 38, 0.3);
+  --shadow-inner-glow: inset 0 0 20px rgba(123, 58, 237, 0.1);
+  
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
+  
+  --backdrop-blur-sm: 8px;
+  --backdrop-blur-md: 16px;
+  --backdrop-blur-lg: 24px;
+  --backdrop-blur-xl: 32px;
+}
