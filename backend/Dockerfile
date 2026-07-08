@@ -6,13 +6,23 @@ FROM docker.m.daocloud.io/library/python:3.12-slim
 
 WORKDIR /app
 
-# 安装系统依赖（健康检查用 curl）
-RUN apt-get update && apt-get install -y --no-install-recommends curl \
+# 安装系统依赖（使用阿里云镜像源，健康检查用 curl + chroma-hnswlib 编译依赖）
+RUN echo "deb http://mirrors.aliyun.com/debian/ trixie main contrib non-free non-free-firmware" > /etc/apt/sources.list \
+    && echo "deb http://mirrors.aliyun.com/debian/ trixie-updates main contrib non-free non-free-firmware" >> /etc/apt/sources.list \
+    && echo "deb http://mirrors.aliyun.com/debian-security/ trixie-security main contrib non-free non-free-firmware" >> /etc/apt/sources.list \
+    && apt-get update && apt-get install -y --no-install-recommends \
+    curl g++ cmake build-essential python3-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# 安装 Python 依赖（使用清华源加速）
+# 复制本地 wheel 缓存（Docker 层缓存会保留，避免重复下载大文件）
+COPY wheels/ /app/wheels/
+
+# 安装 Python 依赖（先从本地 wheel 安装，再从镜像源安装剩余依赖）
 COPY requirements.txt .
-RUN pip install --no-cache-dir -i https://pypi.tuna.tsinghua.edu.cn/simple -r requirements.txt
+RUN pip install --no-cache-dir \
+    --find-links=/app/wheels/ \
+    -i https://pypi.tuna.tsinghua.edu.cn/simple \
+    -r requirements.txt
 
 # 复制应用代码
 COPY . .
