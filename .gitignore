@@ -39,3 +39,4 @@ data
 backend/data/chroma/originals/
 
 docs/产品原型/
+.codebuddy/rules/tcb
