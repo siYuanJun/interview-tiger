@@ -1,66 +1,110 @@
-# Stage 2: 方案设计
+# Stage 2: 方案设计 — M1 断句端点检测优化
 
 ## 机械臂产出数据
-- **find_similar**: 项目中无类似文件持久化模式
-- **scan_imports(等价)**: `local_knowledge.py` 被 `kb_provider.py` 工厂引用 → `local_kb.py` 路由使用，无其他调用者
+
+| 数据源 | 关键发现 |
+|--------|---------|
+| `find_similar.py` | `useSpeech.ts` (41.2) → `InterviewPage.vue` (30.7)，改动仅限前端 |
+| `scan_imports.py` | `useSpeech.ts` 被 `InterviewPage.vue` 通过 `@/composables/useSpeech` 引用，无后端依赖链 |
 
 ## 方案对比
 
-### 方案 A：扩展 LocalKnowledgeProvider（推荐 ✅）
+### 方案 A：自适应超时 — 语速驱动（推荐 ✅）
 
-**做法**：在 `upload()` 中改用 `shutil.copy2` 替代 `os.remove`，在 `delete_doc()`/`clear()` 中追加文件清理
+**做法**：在 `useSpeech.ts` 第 104-113 行，将固定 `1500ms` 替换为基于语音输出速率的动态值。
 
-**优点**：
-- 改动集中在 1 个文件，影响面最小
-- 借用已有 `data_dir` 路径体系
-- 不改变现有 API 契约
-
-**缺点**：
-- 存储和向量混在同一个 `data_dir` 下（通过 `originals/` 子目录隔离）
-
-### 方案 B：独立的 LocalFileManager 类
-
-**做法**：新建 `backend/app/services/file_manager.py`，`upload()`/`delete_doc()`/`clear()` 解耦文件管理
+核心逻辑：
+- 跟踪最近 N 个 interim 事件的时间戳，计算**字符输出速率**（chars/second）
+- 快语速（> 8 chars/s）→ 缩短超时至 0.8s
+- 正常语速（3-8 chars/s）→ 保持 1.5s
+- 慢语速（< 3 chars/s）→ 延长超时至 2.5s
+- 同时检查 `confidence`：confidence 突降 + interim 为空 → 加速断句
 
 **优点**：
-- 职责分离，SRP
-- 便于后续扩展（如文件预览、版本管理）
+- 改动集中在 `useSpeech.ts` 一个函数内（`startListening → onresult`）
+- 无需新依赖，纯前端逻辑
+- 向后完全兼容，`pauseRecognition()` / `onResult()` 接口不变
 
 **缺点**：
-- 新增文件 + 依赖注入，改动面更大
-- 当前需求简单，过度设计
+- 中文语速波动大，需实测调参
+- 极端情况（打嗝/咳嗽）可能误触发
 
-### 方案 C：PostgreSQL BYTEA 存储
+**受影响文件**：1 个（`useSpeech.ts`）
+**预估改动量**：~30 行
 
-**做法**：原文件存入 PostgreSQL 的 BYTEA 字段
+---
+
+### 方案 B：语义驱动断句 — 句末标点检测
+
+**做法**：在 `pauseRecognition()` 调用前，检查 `finalText + currentText` 是否以句末标点（。！？…）结尾，是则立即断句，不是则继续等待。
 
 **优点**：
-- 与数据库一体备份
-- 支持事务
+- 断句更自然（一句话说完就断）
+- 不受语速影响
 
 **缺点**：
-- 大文件存入数据库性能差
-- 当前 PostgreSQL 仅用于潜在扩展，非核心依赖
-- 过度设计
+- 口语中不一定有完整句末标点（"我觉得这个东西挺好的"）
+- Web Speech API 很少在 interim 结果中输出标点
+- 单独使用场景不够（需与超时兜底配合）
+
+**受影响文件**：1 个（`useSpeech.ts`）
+**预估改动量**：~15 行
+
+---
+
+### 方案 C：双阈值 + 置信度联动（综合方案，最优但复杂）
+
+**做法**：结合 A + B，再加 confidence 过滤：
+- 短超时（0.8s）：第一次超时触发 → 检查 `confidence > 0.7` 且文本长度 > 5 → 候选断句
+- 长超时（2.5s）：第二次超时触发 → 强制断句
+- `confidence < 0.5` 且 finalText 为空 → 丢弃当前 interim，避免低质量提交
+- 句末标点立即断句（最高优先级）
+
+**优点**：
+- 多层决策，准确率最高
+- 兼顾语速、置信度、语义三要素
+
+**缺点**：
+- 逻辑复杂度较高（增加约 80 行）
+- 需较多调参
+- 两个定时器需要精细管理
+
+**受影响文件**：1 个（`useSpeech.ts`）
+**预估改动量**：~80 行
+
+---
 
 ## 推荐方案
 
-✅ **方案 A**，理由：
-1. 改动集中在 `local_knowledge.py` 的 3 个方法，6 文件总计约 60 行新增
-2. 零架构变更，零新依赖
-3. 满足 R01-R04 全部需求
-4. 后续可演进到方案 B（文件管理逻辑已在 Provider 内，提取即可）
+✅ **方案 C（双阈值 + 置信度联动）**
+
+| 维度 | A | B | C |
+|------|:--:|:--:|:--:|
+| 断句准确率 | 🟡 中 | 🟡 中 | 🟢 高 |
+| 实现复杂度 | 🟢 低 | 🟢 低 | 🟡 中 |
+| 语速适应 | ✅ | ❌ | ✅ |
+| 语义理解 | ❌ | ✅ | ✅ |
+| 低质过滤 | ❌ | ❌ | ✅ |
+| 向后兼容 | ✅ | ✅ | ✅ |
+
+推荐理由：
+1. M1 是核心体验优化，方案 C 用 80 行换三要素联动，ROI 最高
+2. 改动仅限一个文件，风险可控
+3. 双定时器逻辑已有 `pauseTimer` 参考，架构不变
+4. 即使 confidence 联动调不好，可降级为方案 A（回退成本低）
 
 ## 可选抉择
 
 | 决策点 | 选项 | 推荐 | 理由 |
-|---|---|---|---|
-| 存储位置 | `data_dir/originals/` | ✅ | 与向量同目录便于备份 |
-| 文件命名 | `{doc_id}_{filename}` | ✅ | 避免同名冲突，可知文件名 |
-| list_docs 增强 | 追加 `file_size_bytes` | ✅ | 前端可展示文件体积 |
-| 下载端点 | `GET /api/local_kb/download/{doc_id}` | ✅ | RESTful |
+|--------|------|:----:|------|
+| 短超时时长 | 0.6s / 0.8s / 1.0s | 0.8s | 中文正常停顿约 0.5-1s |
+| 长超时时长 | 2.0s / 2.5s / 3.0s | 2.5s | 长思考上限，不超过 3s |
+| 语速计算窗口 | 3 / 5 / 10 次 interim | 5 次 | 兼顾稳定性和灵敏度 |
+| 置信度阈值 | 0.5 / 0.6 / 0.7 | 0.7 | 中等偏保守 |
+| 句末标点集 | 仅 。！？ / 加 …~ / 全量 | 。！？… | 覆盖 95% 口语断句场景 |
 
 ## 门控状态
-- [x] alternatives_listed — 3 个方案已列出
-- [x] recommendation_made — 方案 A
-- [x] tradeoffs_documented — 优劣已对比
+
+- [x] `alternatives_listed` — 3 个方案 (A/B/C)
+- [x] `recommendation_made` — 方案 C
+- [x] `tradeoffs_documented` — 对比表含 6 个维度

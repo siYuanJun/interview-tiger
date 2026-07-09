@@ -1,9 +1,327 @@
 {
   "symbol": "/Users/siyuan/Documents/www/ai-project/interview-tiger",
-  "project_root": "/Users/siyuan/Documents/www/skills/ai-project-prompt/skills/meta-feature-dev",
-  "scanned_at": "2026-07-08T15:03:58.103709+00:00",
-  "total_references": 0,
-  "affected_files": 0,
-  "by_file": {},
+  "project_root": "/Users/siyuan/Documents/www/ai-project/interview-tiger",
+  "scanned_at": "2026-07-09T04:51:26.495736+00:00",
+  "total_references": 137,
+  "affected_files": 36,
+  "by_file": {
+    "README.md": {
+      "count": 1,
+      "lines": [
+        283
+      ]
+    },
+    ".trae/documents/logo_design_plan.md": {
+      "count": 1,
+      "lines": [
+        17
+      ]
+    },
+    "scripts/backend/parse_api.py": {
+      "count": 1,
+      "lines": [
+        14
+      ]
+    },
+    "scripts/backend/tests/logs/test_2026-07-08_23-40-27.log": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "scripts/backend/tests/logs/test_2026-07-09_00-32-27.log": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "scripts/backend/tests/logs/test_2026-07-08_23-40-50.log": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "scripts/backend/tests/logs/test_2026-07-08_23-41-07.log": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "scripts/backend/tests/logs/test_2026-07-09_00-34-00.log": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "scripts/backend/tests/logs/test_2026-07-09_00-31-20.log": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "scripts/backend/tests/logs/test_2026-07-08_23-40-11.log": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    ".ai-workflow/meta-agent-collaboration/docs/模块7-知识库验证与性能优化需求文档.md": {
+      "count": 7,
+      "lines": [
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82
+      ]
+    },
+    ".ai-workflow/meta-agent-collaboration/docs/模块6-配置帮助文档需求文档.md": {
+      "count": 2,
+      "lines": [
+        75,
+        141
+      ]
+    },
+    ".ai-workflow/meta-agent-collaboration/docs/模块9-清空与暂停功能需求文档.md": {
+      "count": 8,
+      "lines": [
+        52,
+        53,
+        54,
+        55,
+        65,
+        66,
+        67,
+        68
+      ]
+    },
+    ".ai-workflow/meta-agent-collaboration/docs/模块10-本地知识库原始文件持久化需求文档.md": {
+      "count": 9,
+      "lines": [
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85
+      ]
+    },
+    ".ai-workflow/meta-agent-collaboration/docs/模块5-对话体验优化需求文档.md": {
+      "count": 3,
+      "lines": [
+        38,
+        62,
+        76
+      ]
+    },
+    ".ai-workflow/meta-agent-collaboration/docs/模块9-刷新页面后AI回答丢失问题需求文档.md": {
+      "count": 7,
+      "lines": [
+        57,
+        58,
+        59,
+        60,
+        61,
+        109,
+        110
+      ]
+    },
+    ".ai-workflow/security/secret-leak-report-20260708.md": {
+      "count": 1,
+      "lines": [
+        4
+      ]
+    },
+    ".ai-workflow/meta-feature-dev/STATE.json": {
+      "count": 6,
+      "lines": [
+        23,
+        28,
+        44,
+        48,
+        49,
+        106
+      ]
+    },
+    ".ai-workflow/meta-feature-dev/stage_3/find_callers.json": {
+      "count": 1,
+      "lines": [
+        2
+      ]
+    },
+    ".ai-workflow/meta-feature-dev/archive/STATE_20260706T144804Z.json": {
+      "count": 1,
+      "lines": [
+        90
+      ]
+    },
+    ".ai-workflow/meta-feature-dev/archive/STATE_20260709T044448Z.json": {
+      "count": 12,
+      "lines": [
+        27,
+        32,
+        52,
+        56,
+        57,
+        77,
+        78,
+        82,
+        83,
+        87,
+        88,
+        151
+      ]
+    },
+    ".ai-workflow/meta-feature-dev/archive/STATE_20260708T150044Z.json": {
+      "count": 3,
+      "lines": [
+        11,
+        12,
+        13
+      ]
+    },
+    ".ai-workflow/meta-feature-dev/archive/STATE_20260706T114409Z.json": {
+      "count": 1,
+      "lines": [
+        127
+      ]
+    },
+    ".ai-workflow/meta-feature-dev/docs/02-solution-design.md": {
+      "count": 1,
+      "lines": [
+        5
+      ]
+    },
+    ".ai-workflow/meta-feature-dev/stage_1/find_similar.json": {
+      "count": 1,
+      "lines": [
+        3
+      ]
+    },
+    ".ai-workflow/troubleshooting/interview-tiger-docker-build-slow-download-全过程.md": {
+      "count": 7,
+      "lines": [
+        129,
+        131,
+        169,
+        173,
+        313,
+        314,
+        315
+      ]
+    },
+    ".ai-workflow/troubleshooting/interview-tiger-知识库鉴权失败排查全过程.md": {
+      "count": 7,
+      "lines": [
+        151,
+        152,
+        153,
+        243,
+        244,
+        245,
+        253
+      ]
+    },
+    ".ai-workflow/troubleshooting/interview-tiger-知识库认证方式错误-全过程.md": {
+      "count": 11,
+      "lines": [
+        137,
+        248,
+        392,
+        393,
+        394,
+        395,
+        396,
+        397,
+        398,
+        432,
+        433
+      ]
+    },
+    ".ai-workflow/troubleshooting/interview-tiger-语音识别重复启动错误-全过程.md": {
+      "count": 7,
+      "lines": [
+        89,
+        314,
+        315,
+        316,
+        317,
+        318,
+        319
+      ]
+    },
+    ".ai-workflow/troubleshooting/interview-tiger-api-question-stream-500-全过程.md": {
+      "count": 3,
+      "lines": [
+        101,
+        256,
+        257
+      ]
+    },
+    ".ai-workflow/troubleshooting/interview-tiger-知识库URL路径缺失-全过程.md": {
+      "count": 5,
+      "lines": [
+        85,
+        210,
+        211,
+        212,
+        217
+      ]
+    },
+    ".ai-workflow/troubleshooting/interview-tiger-知识库API签名失败-全过程.md": {
+      "count": 7,
+      "lines": [
+        127,
+        130,
+        139,
+        309,
+        310,
+        311,
+        312
+      ]
+    },
+    ".ai-workflow/troubleshooting/interview-tiger-lucide-icon-export-error-全过程.md": {
+      "count": 2,
+      "lines": [
+        202,
+        203
+      ]
+    },
+    ".ai-workflow/troubleshooting/interview-tiger-AI建议刷新后丢失-全过程.md": {
+      "count": 12,
+      "lines": [
+        60,
+        61,
+        64,
+        76,
+        84,
+        119,
+        146,
+        153,
+        271,
+        272,
+        273,
+        274
+      ]
+    },
+    ".ai-workflow/troubleshooting/interview-tiger-local-kb-file-size-bug-全过程.md": {
+      "count": 2,
+      "lines": [
+        71,
+        164
+      ]
+    },
+    ".ai-workflow/meta-self-iteration/session_delta.json": {
+      "count": 1,
+      "lines": [
+        99
+      ]
+    }
+  },
   "references": null
 }

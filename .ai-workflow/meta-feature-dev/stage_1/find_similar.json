@@ -1,0 +1,12 @@
+{
+  "keywords": ["speech", "pause", "timeout", "endpoint", "detection"],
+  "project_root": "/Users/siyuan/Documents/www/ai-project/interview-tiger",
+  "scanned_at": "2026-07-09T04:46:14+00:00",
+  "total_matches": 80,
+  "top_matches": [
+    {"file": "frontend/src/composables/useSpeech.ts", "score": 41.2, "role": "核心改动目标"},
+    {"file": "frontend/env.d.ts", "score": 36.67, "role": "类型声明"},
+    {"file": "frontend/src/components/InterviewPage.vue", "score": 30.68, "role": "集成调度点"},
+    {"file": "backend/config.py", "score": 24.17, "role": "配置项"}
+  ]
+}

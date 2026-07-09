@@ -1,31 +1,63 @@
-# Stage 1: 需求澄清
+# Stage 1: 需求澄清 — M1 断句端点检测优化
 
-## 机械臂产出数据
-- **build_index**: 项目共 52 个源文件（后端 26 + 前端 26），核心改动目标 `LocalKnowledgeProvider` 类位于 `backend/app/services/local_knowledge.py`（298 行，含 8 个方法）
-- **find_similar**: 项目中无 `originals` 或文件持久化相关模式，这是全新功能
+> 生成时间：2026-07-09  
+> 机械臂产出：`find_similar.json`（build_index 脚本 bug 跳过，已用代码探索替代）
 
-## 需求确认
+---
 
-### 范围定义 (scope_defined ✅)
-1. **retain-originals**: 上传到本地知识库的文件保留原始副本
-2. **download-api**: 新增下载原文件 API 端点
-3. **lifecycle-sync**: 删除/清空知识库时同步处理原文件
-4. **frontend-download**: 前端文档列表增加下载按钮
+## 1. 需求范围定义
 
-### 约束条件 (constraints_listed ✅)
-1. 存储位置：`LOCAL_KB_DATA_DIR/originals/`（默认 `./data/chroma/originals/`）
-2. 文件命名：`{doc_id}_{原始文件名}` 避免冲突
-3. 不影响现有向量化流程，仅修改 `finally` 块
-4. Docker 卷挂载自动覆盖（`./backend:/app`）
-5. `.gitignore` 排除 originals 目录
-6. 无新增 Python 依赖（`shutil` 是标准库）
+| 要素 | 内容 |
+|------|------|
+| **核心目标** | 将 `useSpeech.ts` 中固定 1.5 秒超时的断句机制，替换为自适应策略 |
+| **触发场景** | 面试双向对话中，系统需要准确判断"用户说完一句话/一个语义段落"，触发 LLM 回答 |
+| **期望结果** | 慢速说话不被过早切断，快速说话不会延迟断句，断句时机准确率显著提升 |
 
-### 已有模块发现 (similar_modules_found ✅)
-- `list_docs()` 返回文档列表但缺少 `file_size` 字段
-- 无现成的文件下载端点
-- 无现成的原文件管理逻辑
+## 2. 约束条件
 
-## 门控状态
-- [x] scope_defined
-- [x] constraints_listed
-- [x] similar_modules_found
+| 类型 | 约束 | 来源 |
+|------|------|------|
+| 技术约束 | 必须基于 Web Speech API，不引入新 ASR 引擎 | R2 |
+| 成本约束 | 免费方案，不依赖付费 API/SaaS | R5 |
+| 性能约束 | 断句延迟 ≤ 1 秒（用户说完到触发 LLM 的时间窗） | 推导 |
+| 兼容约束 | 不破坏现有 `pauseRecognition()` / `resumeListening()` 接口 | 代码兼容性 |
+| 场景约束 | 双向对话，需区分"短暂思考停顿"和"说话结束" | R4 |
+
+## 3. 相似模块（机械臂产出）
+
+| 文件 | 相似度 | 角色 |
+|------|:-----:|------|
+| `frontend/src/composables/useSpeech.ts` | 41.2 | **核心改动目标** — 断句逻辑所在 |
+| `frontend/env.d.ts` | 36.7 | 类型声明，需关注 SpeechRecognition API 类型 |
+| `frontend/src/components/InterviewPage.vue` | 30.7 | 集成调度点，`handleSpeechResult()` 处理断句结果 |
+| `backend/config.py` | 24.2 | 可增加断句相关配置项（如超时范围） |
+
+## 4. 现状分析
+
+### 4.1 当前断句流程
+
+```
+SpeechRecognition.onresult
+  ├─ interimText → 重置 1.5s 超时定时器
+  ├─ 1.5s 无新 interim → pauseRecognition() → stop+提交
+  └─ finalChunk → 累积到 finalText，不触发断句
+```
+
+### 4.2 已知缺陷
+
+| 缺陷 | 影响 |
+|------|------|
+| 固定 1.5s 超时 | 慢速者过早切断，快速者延迟 |
+| `pauseRecognition()` 调用 `rec.stop()` | 完全停止识别实例，需 `resumeListening()` 重建，有启动开销 |
+| `confidence` 未使用 | 低置信度 interim 结果与高置信度结果同等对待 |
+| 无语义完整性检查 | 不会判断句子是否完整（是否有句末标点） |
+
+## 5. 门控检查
+
+| 门控条件 | 状态 | 证据 |
+|----------|:----:|------|
+| `scope_defined` | ✅ | 核心目标/触发场景/期望结果三要素完整 |
+| `constraints_listed` | ✅ | 5 类约束（技术/成本/性能/兼容/场景） |
+| `similar_modules_found` | ✅ | `find_similar.py` 产出 4 个相关模块 |
+
+**🟢 Stage 1 完成，可推进至 Stage 2。**

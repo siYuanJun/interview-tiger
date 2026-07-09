@@ -1,45 +1,49 @@
 {
-  "total_modules": 53,
+  "total_modules": 59,
   "language_distribution": {
     "typescript": 9,
     "vue": 6,
-    "python": 38
+    "python": 44
   },
   "top_depended": [
     [
       "config",
-      15
+      18
     ],
     [
       "json",
       14
     ],
     [
+      "sys",
+      14
+    ],
+    [
+      "logging",
+      13
+    ],
+    [
       "vue",
       12
+    ],
+    [
+      "utils.http_client",
+      12
+    ],
+    [
+      "requests",
+      11
+    ],
+    [
+      "typing",
+      11
     ],
     [
       "os",
       10
     ],
     [
-      "requests",
-      10
-    ],
-    [
-      "typing",
-      10
-    ],
-    [
-      "sys",
-      9
-    ],
-    [
       "fastapi",
-      9
-    ],
-    [
-      "logger",
       9
     ],
     [
@@ -47,11 +51,11 @@
       8
     ],
     [
-      "logging",
+      "logger",
       8
     ],
     [
-      "utils.http_client",
+      "pathlib",
       7
     ],
     [
@@ -71,7 +75,7 @@
       4
     ],
     [
-      "datetime",
+      "fastapi.responses",
       4
     ],
     [
@@ -83,7 +87,7 @@
       3
     ],
     [
-      "fastapi.responses",
+      "datetime",
       3
     ],
     [
@@ -120,10 +124,6 @@
     ],
     [
       "app.services.llm",
-      2
-    ],
-    [
-      "asyncio",
       2
     ]
   ]
