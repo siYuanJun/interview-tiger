@@ -45,6 +45,12 @@ docker compose up -d backend
 cd frontend && npm run dev
 ```
 
+## graphify 知识图谱
+- 已初始化（2517 节点，2618 边，193 社区）
+- 规则文件：`.codebuddy/rules/graphify.md`（自动加载）
+- 分析模块依赖/调用链路/影响面时优先使用 graphify，不逐文件读源码
+- 代码变更后运行 `uv tool run --from graphifyy graphify update .`
+
 ## 用户偏好
 - 用户喜欢看到完整的需求分析文档（meta-agent-collaboration 风格）
 - 用户喜欢用指令驱动工作流（ai-dev-workflow, meta-feature-dev 等）
