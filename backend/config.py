@@ -35,6 +35,16 @@ ASR_TOKEN = os.getenv("ASR_TOKEN", "")
 ASR_CLUSTER = os.getenv("ASR_CLUSTER", "volcengine_streaming_common")
 ASR_WS_URL = os.getenv("ASR_WS_URL", "wss://openspeech.bytedance.com/api/v2/asr")
 
+# RAG 3.0 混合检索配置
+BM25_WEIGHT = float(os.getenv("BM25_WEIGHT", "0.3"))
+HYBRID_ENABLED = os.getenv("HYBRID_ENABLED", "true").lower() == "true"
+QUERY_EXPAND_ENABLED = os.getenv("QUERY_EXPAND_ENABLED", "true").lower() == "true"
+VALIDATOR_ENABLED = os.getenv("VALIDATOR_ENABLED", "true").lower() == "true"
+VALIDATOR_TIMEOUT = float(os.getenv("VALIDATOR_TIMEOUT", "3.0"))
+SESSION_MEMORY_ENABLED = os.getenv("SESSION_MEMORY_ENABLED", "true").lower() == "true"
+SESSION_MEMORY_TTL = int(os.getenv("SESSION_MEMORY_TTL", "1800"))
+SESSION_MEMORY_MAX = int(os.getenv("SESSION_MEMORY_MAX", "50"))
+
 # 服务配置
 BACKEND_HOST = os.getenv("BACKEND_HOST", "0.0.0.0")
 BACKEND_PORT = int(os.getenv("BACKEND_PORT", "8000"))

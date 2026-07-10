@@ -21,6 +21,7 @@ class QuestionRequest(BaseModel):
     kb_api_key: str = Field(default="", description="知识库API Key（留空则使用.env配置）")
     kb_provider: str = Field(default="", description="知识库提供者（volcengine/local）")
     stream: bool = Field(default=True, description="是否流式输出")
+    session_id: str = Field(default="", description="会话ID，用于多轮记忆")
 
 
 def resolve_config(req: QuestionRequest):
@@ -39,12 +40,12 @@ class QuestionResponse(BaseModel):
     data: dict = {}
 
 
-def fetch_knowledge_sync(query: str, cfg: dict) -> str:
+def fetch_knowledge_sync(query: str, cfg: dict, session_id: str = "") -> str:
     provider_type = get_kb_provider_type(cfg.get("kb_provider"))
     
     if provider_type == "local":
         provider = get_knowledge_provider("local")
-        return provider.search(query)
+        return provider.search(query, session_id=session_id)
     else:
         kb_id = cfg.get("kb_id")
         kb_api_key = cfg.get("kb_api_key")
@@ -75,7 +76,8 @@ async def process_question(req: QuestionRequest):
         knowledge_context = await asyncio.to_thread(
             fetch_knowledge_sync,
             query=req.question,
-            cfg=cfg
+            cfg=cfg,
+            session_id=req.session_id
         )
         if knowledge_context:
             logger.info(f"知识库命中: {len(knowledge_context)}字")
@@ -131,7 +133,8 @@ async def process_question_stream(req: QuestionRequest):
         knowledge_context = await asyncio.to_thread(
             fetch_knowledge_sync,
             query=req.question,
-            cfg=cfg
+            cfg=cfg,
+            session_id=req.session_id
         )
 
     await fetch_knowledge()
