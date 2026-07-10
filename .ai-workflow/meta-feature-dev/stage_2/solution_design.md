@@ -1,110 +1,169 @@
-# Stage 2: 方案设计 — M1 断句端点检测优化
+# Stage 2: 方案设计 — RAG 2.5→3.0 四模块多方案对比
 
-## 机械臂产出数据
+## 依赖图基线（机械臂 `scan_imports`）
 
-| 数据源 | 关键发现 |
-|--------|---------|
-| `find_similar.py` | `useSpeech.ts` (41.2) → `InterviewPage.vue` (30.7)，改动仅限前端 |
-| `scan_imports.py` | `useSpeech.ts` 被 `InterviewPage.vue` 通过 `@/composables/useSpeech` 引用，无后端依赖链 |
-
-## 方案对比
-
-### 方案 A：自适应超时 — 语速驱动（推荐 ✅）
-
-**做法**：在 `useSpeech.ts` 第 104-113 行，将固定 `1500ms` 替换为基于语音输出速率的动态值。
-
-核心逻辑：
-- 跟踪最近 N 个 interim 事件的时间戳，计算**字符输出速率**（chars/second）
-- 快语速（> 8 chars/s）→ 缩短超时至 0.8s
-- 正常语速（3-8 chars/s）→ 保持 1.5s
-- 慢语速（< 3 chars/s）→ 延长超时至 2.5s
-- 同时检查 `confidence`：confidence 突降 + interim 为空 → 加速断句
-
-**优点**：
-- 改动集中在 `useSpeech.ts` 一个函数内（`startListening → onresult`）
-- 无需新依赖，纯前端逻辑
-- 向后完全兼容，`pauseRecognition()` / `onResult()` 接口不变
-
-**缺点**：
-- 中文语速波动大，需实测调参
-- 极端情况（打嗝/咳嗽）可能误触发
-
-**受影响文件**：1 个（`useSpeech.ts`）
-**预估改动量**：~30 行
+```
+Top 被依赖模块:
+  config(18) > json(14) > sys(14) > logging(13) > vue(12) > ...
+  
+关键检索链路依赖:
+  app.services.llm(2) → 可用于 Validator 的 LLM 调用
+  app.utils.kb_provider(3) → Provider 工厂，插入混合检索的理想位置
+  app.services.local_knowledge → LocalKnowledgeProvider，需扩展 search() 方法
+```
 
 ---
 
-### 方案 B：语义驱动断句 — 句末标点检测
+## 模块 1: 混合检索（P0）
 
-**做法**：在 `pauseRecognition()` 调用前，检查 `finalText + currentText` 是否以句末标点（。！？…）结尾，是则立即断句，不是则继续等待。
+### 方案对比
 
-**优点**：
-- 断句更自然（一句话说完就断）
-- 不受语速影响
+| 维度 | 方案 A: rank-bm25 裸库 | 方案 B: LangChain BM25Retriever | 方案 C: Chroma 原生全文 |
+|------|------------------------|--------------------------------|------------------------|
+| 实现方式 | `from rank_bm25 import BM25Okapi` | `from langchain_community.retrievers import BM25Retriever` + `EnsembleRetriever` | Chrome 默认不支持全文检索 |
+| 与 LangChain 集成 | 需手动包装为 Retriever | 原生 EnsembleRetriever(RRF融合) | ❌ 不支持 |
+| 依赖 | `pip install rank-bm25` (~50KB) | 已依赖 langchain_community | N/A |
+| 分词 | 需手动 jieba 分词 | 内置空格分词（英文），中文需自定义 tokenizer | N/A |
+| RRF 融合 | 需手动实现 | `EnsembleRetriever` 内置 RRF | N/A |
+| 代码量 | ~80行 | ~40行 | N/A |
+| **推荐** | | ✅ **首选** | ❌ |
 
-**缺点**：
-- 口语中不一定有完整句末标点（"我觉得这个东西挺好的"）
-- Web Speech API 很少在 interim 结果中输出标点
-- 单独使用场景不够（需与超时兜底配合）
+### 推荐方案：**B — LangChain BM25Retriever + EnsembleRetriever**
 
-**受影响文件**：1 个（`useSpeech.ts`）
-**预估改动量**：~15 行
+**理由**：
+1. 项目已使用 `langchain_community`（Chroma, HuggingFaceEmbeddings, document_loaders），零额外依赖
+2. `EnsembleRetriever` 内置 RRF 融合算法，无需手写
+3. BM25Retriever 需要自定义中文分词器（jieba），但代码量仍然最小
+4. 与现有 `LocalKnowledgeProvider.search()` 方法天然兼容
+
+```
+方案B 架构:
+  ┌──────────────────────────────────────────────────┐
+  │            EnsembleRetriever (RRF)                │
+  │  ┌─────────────────┐  ┌──────────────────────┐   │
+  │  │ BM25Retriever    │  │ Chroma.as_retriever()│   │
+  │  │ (keywords:30%)   │  │ (vectors:70%)        │   │
+  │  └────────┬────────┘  └──────────┬───────────┘   │
+  │           │                      │                │
+  │           └──────────┬───────────┘                │
+  │                      ▼                            │
+  │              RRF 融合排序 (Top K)                  │
+  └──────────────────────────────────────────────────┘
+```
 
 ---
 
-### 方案 C：双阈值 + 置信度联动（综合方案，最优但复杂）
+## 模块 2: Query 改写（P0）
 
-**做法**：结合 A + B，再加 confidence 过滤：
-- 短超时（0.8s）：第一次超时触发 → 检查 `confidence > 0.7` 且文本长度 > 5 → 候选断句
-- 长超时（2.5s）：第二次超时触发 → 强制断句
-- `confidence < 0.5` 且 finalText 为空 → 丢弃当前 interim，避免低质量提交
-- 句末标点立即断句（最高优先级）
+### 方案对比
 
-**优点**：
-- 多层决策，准确率最高
-- 兼顾语速、置信度、语义三要素
+| 维度 | 方案 A: 词典扩展 | 方案 B: LLM改写 | 方案 C: HyDE |
+|------|-----------------|----------------|--------------|
+| 实现方式 | 复用 `TERM_CORRECTIONS` + 追加检索同义词词典 | `call_llm("把'{query}'扩展为检索友好的形式")` | 让 LLM 生成假设文档再向量化检索 |
+| 延迟 | 0ms | +500~800ms | +1~2s |
+| Token 成本 | 0 | +1次额外 LLM 调用 | +1~2次额外 LLM 调用 |
+| 精准度 | 覆盖已知术语，对未知术语无效 | 覆盖面广，但可能过度改写 | 最高，但成本最高 |
+| 代码量 | ~30行 | ~50行 | ~80行 |
+| **推荐** | ✅ **首选** | 可选增强 | ❌ 不适合面试场景 |
 
-**缺点**：
-- 逻辑复杂度较高（增加约 80 行）
-- 需较多调参
-- 两个定时器需要精细管理
+### 推荐方案：**A — 词典扩展（复用已有基础设施）**
 
-**受影响文件**：1 个（`useSpeech.ts`）
-**预估改动量**：~80 行
+**理由**：
+1. 面试虎已有的 `TERM_CORRECTIONS`（~80条）已覆盖面试领域高频音译词
+2. 新增 `RETRIEVAL_SYNONYMS`（检索同义词词典）零延迟，仅 CPU 内存操作
+3. 面试场景中问题改写需求远低于知识库问答，HyDE 的 ROI 很低
+4. 如果未来需要，方案 B（LLM 改写）可作为 option flag 叠加
+
+```
+方案A 流程:
+  Query → 同义词扩展器 → [原始Query, 扩展Query1, ...] 
+       → 每个变体分别检索 → 去重合并 → 返回结果
+```
 
 ---
 
-## 推荐方案
+## 模块 3: Validator（P1）
 
-✅ **方案 C（双阈值 + 置信度联动）**
+### 方案对比
 
-| 维度 | A | B | C |
-|------|:--:|:--:|:--:|
-| 断句准确率 | 🟡 中 | 🟡 中 | 🟢 高 |
-| 实现复杂度 | 🟢 低 | 🟢 低 | 🟡 中 |
-| 语速适应 | ✅ | ❌ | ✅ |
-| 语义理解 | ❌ | ✅ | ✅ |
-| 低质过滤 | ❌ | ❌ | ✅ |
-| 向后兼容 | ✅ | ✅ | ✅ |
+| 维度 | 方案 A: LLM 判断 | 方案 B: Cross-Encoder | 方案 C: 简单规则 |
+|------|-----------------|----------------------|-----------------|
+| 实现方式 | `call_llm("以下片段是否与问题相关？回答YES/NO")` | 加载 MiniLM-L6 做 rerank | if score > 0.5: valid |
+| 准确性 | 高 | 中高 | 低 |
+| 延迟 | +300~500ms | +100ms（需加载模型） | 0ms |
+| Token 成本 | 每次检索多一次 LLM 调用 | 0 | 0 |
+| 依赖 | 无新依赖 | `sentence-transformers` (~100MB) | 无 |
+| **推荐** | ✅ **首选** | 可选优化 | ❌ 准确性不足 |
 
-推荐理由：
-1. M1 是核心体验优化，方案 C 用 80 行换三要素联动，ROI 最高
-2. 改动仅限一个文件，风险可控
-3. 双定时器逻辑已有 `pauseTimer` 参考，架构不变
-4. 即使 confidence 联动调不好，可降级为方案 A（回退成本低）
+### 推荐方案：**A — LLM Content Validator**
 
-## 可选抉择
+**理由**：
+1. 面试虎已有可用的 LLM 基础设施（`call_llm`），零额外集成
+2. 面试场景检索结果量小（k=3~5），一次 LLM 调用可批量判断全部分片
+3. Cross-Encoder 需要额外下载 100MB+ 模型，增加 Docker 镜像体积
+4. 可复用现有 `call_llm` 的降级/超时机制
 
-| 决策点 | 选项 | 推荐 | 理由 |
-|--------|------|:----:|------|
-| 短超时时长 | 0.6s / 0.8s / 1.0s | 0.8s | 中文正常停顿约 0.5-1s |
-| 长超时时长 | 2.0s / 2.5s / 3.0s | 2.5s | 长思考上限，不超过 3s |
-| 语速计算窗口 | 3 / 5 / 10 次 interim | 5 次 | 兼顾稳定性和灵敏度 |
-| 置信度阈值 | 0.5 / 0.6 / 0.7 | 0.7 | 中等偏保守 |
-| 句末标点集 | 仅 。！？ / 加 …~ / 全量 | 。！？… | 覆盖 95% 口语断句场景 |
+```
+方案A 流程:
+  检索结果(5条) → LLM Prompt: "问题=X, 以下片段是否相关? [1], [2], ..." 
+              → 返回 [YES, NO, YES, NO, YES] 
+              → 过滤后保留相关片段 → 拼接进最终 Prompt
+```
 
-## 门控状态
+---
 
-- [x] `alternatives_listed` — 3 个方案 (A/B/C)
-- [x] `recommendation_made` — 方案 C
-- [x] `tradeoffs_documented` — 对比表含 6 个维度
+## 模块 4: 多轮记忆（P2）
+
+### 方案对比
+
+| 维度 | 方案 A: 内存字典 | 方案 B: SQLite 缓存 | 方案 C: Redis |
+|------|-----------------|--------------------|---------------|
+| 实现方式 | `{session_id: [last_kb_results, ...]}` | SQLite 表存储 session→context | Redis 键值存储 |
+| 持久化 | ❌ 进程重启丢失 | ✅ 持久化 | ✅ 持久化 |
+| 延迟 | 0ms | ~5ms | ~1ms |
+| 编码量 | ~30行 | ~60行 | ~80行 + 部署配置 |
+| 依赖 | 无 | 已有 SQLAlchemy | `redis` |
+| **推荐** | ✅ **首选** | 后续升级 | ❌ 过度工程 |
+
+### 推荐方案：**A — 内存字典（session_id: context）**
+
+**理由**：
+1. 面试场景中对话通常在 30 分钟内完成，内存生命周期足够
+2. 知识库规模小（几十到几百切片），缓存全量检索结果无内存压力
+3. 如果未来需要持久化记忆，可切换到方案 B（SQLAlchemy 已集成）
+
+```
+方案A 数据结构:
+  session_context: Dict[str, Dict] = {}
+  
+  {
+    "session_abc123": {
+      "last_query": "什么是微服务",
+      "last_kb_results": "chunk1\\nchunk2\\n...",
+      "timestamp": 1750000000,
+      "question_count": 3
+    }
+  }
+  
+  逻辑:
+  if is_follow_up_question(new_query, session.last_query):
+      reuse last_kb_results  # 避免重复检索
+  else:
+      do_hybrid_search()     # 正常检索
+```
+
+---
+
+## 总体方案推荐总结
+
+| 模块 | 方案 | 新依赖 | 延迟增量 | Token 增量 |
+|------|------|--------|----------|-----------|
+| **混合检索** | LangChain BM25Retriever + RRF | jieba（分词） | +100ms | 0 |
+| **Query 改写** | 词典扩展（复用 TERM_CORRECTIONS） | 无 | 0ms | 0 |
+| **Validator** | LLM 批量判断 | 无 | +300ms | +1次调用 |
+| **记忆** | 内存字典 | 无 | 0ms | 0 |
+| **合计** | | jieba (300KB) | +400ms | +1次 LLM 调用/问 |
+
+兼容性：所有方案不修改火山引擎云端知识库路径，仅在 local provider 中生效。
+
+降级策略：BM25 初始化失败 → 回退纯向量检索；LLM Validator 超时 → 跳过校验，保留全部片段。

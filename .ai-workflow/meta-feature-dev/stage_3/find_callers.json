@@ -1,9 +1,9 @@
 {
   "symbol": "/Users/siyuan/Documents/www/ai-project/interview-tiger",
   "project_root": "/Users/siyuan/Documents/www/ai-project/interview-tiger",
-  "scanned_at": "2026-07-09T04:51:26.495736+00:00",
-  "total_references": 137,
-  "affected_files": 36,
+  "scanned_at": "2026-07-10T06:55:22.785765+00:00",
+  "total_references": 200,
+  "affected_files": 56,
   "by_file": {
     "README.md": {
       "count": 1,
@@ -15,6 +15,417 @@
       "count": 1,
       "lines": [
         17
+      ]
+    },
+    "graphify-out/.graphify_uncached.txt": {
+      "count": 142,
+      "lines": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119,
+        120,
+        121,
+        122,
+        123,
+        124,
+        125,
+        126,
+        127,
+        128,
+        129,
+        130,
+        131,
+        132,
+        133,
+        134,
+        135,
+        136,
+        137,
+        138,
+        139,
+        140,
+        141,
+        142
+      ]
+    },
+    "graphify-out/.graphify_detect.json": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "graphify-out/cache/stat-index.json": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "graphify-out/cache/ast/v0.9.10/393f24f6d83984a42e02520714f6cc4dca8df5ef136724a1093652065bd650e1.json": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "graphify-out/cache/ast/v0.9.10/91999e457f14c46578756492a4969f4599bb2861acb297f32fbd2e1b4cdd4ecb.json": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "graphify-out/cache/ast/v0.9.10/94df683d749ce6b2bc9569b2205f734a2821669a30a61e4c874a929f9828600f.json": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "graphify-out/cache/ast/v0.9.10/987a286337154bb4aefb46d04c01d4a6c4746ae41e87fe375a34add57f4b6708.json": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "graphify-out/cache/ast/v0.9.10/d9c7ec2b69b70eef818d8f4352e05e893ac492a0b0b59321f407e219a6526f10.json": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "graphify-out/cache/ast/v0.9.10/968b59a2ca358c4c83dc03cbafd3a7c1936cba685bf8f0b0d754d54118ef57a0.json": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "graphify-out/cache/ast/v0.9.10/2bc22318c217f77eb1e1755ee6ec967bbb128a9f8b2aa1189a6a0e4ae97d44a4.json": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "graphify-out/cache/ast/v0.9.10/609e77cfd5f83f255994e3a1a0e9b8dcd530cb1e631f16607500428733e6a11c.json": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "graphify-out/cache/ast/v0.9.10/161e2fd13b1d7eaa557b4f61a99be8c19b8bcf0dca77d8d9071a86606ace5bac.json": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "graphify-out/cache/ast/v0.9.10/e7ae758a8a807d0db0f63f330bacacc6aff72232ae426922cf2c3dc02058ec62.json": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "graphify-out/cache/ast/v0.9.10/56a619bffd6c4a2588b9abfb8fe907b0f923f3ec5b57c55bd15237943745d840.json": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "graphify-out/cache/ast/v0.9.10/afebc5dc49c14ab13195f681ec55cd0986571c6da46d912f0beca3d9f7e0e7af.json": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "graphify-out/cache/ast/v0.9.10/7336321b4534fb8584e44ca4d70d16810c2391d8c9c6e59c1ec33999a0fda28d.json": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "graphify-out/cache/ast/v0.9.10/7cf6623fd2e10f687b0c95a04412e88651d060bd9136fd6b9d26958caa5c91ef.json": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "graphify-out/cache/ast/v0.9.10/abd4240461c77cfe20545154586637057e5b46aa46919e35a705674d0556fe5f.json": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "graphify-out/cache/ast/v0.9.10/116be321bb246a440bd2f7d1dd6d245ab30c96b9269c4d2b153f580df19a37ef.json": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "graphify-out/cache/ast/v0.9.10/029e6909439d6ce4f82ad250608a99a4b118653ad52c290a11b62ff7e802a336.json": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "graphify-out/cache/ast/v0.9.10/dd0a644e6241f135fca34515976e35aca8be0c0cd2be4458c14aa48ad40abce5.json": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "graphify-out/cache/ast/v0.9.10/d5a49ddd309c65c4561e6e48a7e6851792b14fe8d086ffa1435464ebc26311fa.json": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "graphify-out/cache/ast/v0.9.10/8d423421813568b6fb09ea8d77e192d4e9fa449cba74bc1eb874b878d431c8db.json": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "graphify-out/cache/ast/v0.9.10/af950b5309241ca723827ab2407aec70881878b96c46a79d5f890c823533f850.json": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "graphify-out/cache/ast/v0.9.10/c5b00f6de3687af2661b22b5ce002fb4c6351625dbab6ed7b02376189192f598.json": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "graphify-out/cache/ast/v0.9.10/be0d1903d7700c1fda041c5d8af92b88375f6725c2de056bde88c14bae8376e3.json": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "graphify-out/cache/ast/v0.9.10/3884b7472ae62efdae46fb1b240be7b2d3fec7d070f6c7bdbcd913c167f89ef0.json": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "graphify-out/cache/ast/v0.9.10/564468bc6974090205281e9edc344b0beb51e5b3135913113e83472e9662d28c.json": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "graphify-out/cache/ast/v0.9.10/0bf0d7e93fb22e3f8f53c1c5e6c28d2c23e4a6840452ee687147831d89fb2e68.json": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "graphify-out/cache/ast/v0.9.10/5316a0bca0113fa061f6f9b01ea5e99d043146ecdc0d2456e8b6f6bca3272d87.json": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "graphify-out/cache/ast/v0.9.10/2017ca369939d2c231e07960ecb0e1b848b39e04e5379fcb070eebcd2e6bdffd.json": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "graphify-out/cache/ast/v0.9.10/6dc3c70b9606e9dee6acb1904000a4ac052dd9c246ba3011a78f6904faa513b5.json": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "graphify-out/cache/ast/v0.9.10/0ff00fb914dd34b702ec404ce3db7bc70b01c0b66b1b5b76e2cd44333c54641e.json": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "graphify-out/cache/ast/v0.9.10/71fab65392bc49846a055bcc7e9e617857fadbc36f1bf9dcea0afdc04100c37c.json": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "graphify-out/cache/ast/v0.9.10/b2bbd709b25f90b60a5fea85a165bb4f041a0f15425183bcc703bc34f06903d0.json": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "graphify-out/cache/ast/v0.9.10/e6c9f403d4818f90316354284cd6a565720f4016ac17f9f17199601106d77ba0.json": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "graphify-out/cache/ast/v0.9.10/e353cf6bf922d70280a57578f94646fc33496432c2bb92570ba617170444c2bd.json": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "graphify-out/cache/ast/v0.9.10/4332224f27cdca3c04543afc98abfa99ea2207f80817a6968f99a7d56d27def6.json": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "graphify-out/cache/ast/v0.9.10/954a29128cf4b726091ee879513b93c0cdf5385708bfc8d5ed134a0bfbaad88c.json": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "graphify-out/cache/ast/v0.9.10/d426962d7b8c6793a1473822a6ed0f7963bbf17838e1a49d9ec1bc85de82cc8b.json": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "graphify-out/cache/ast/v0.9.10/d2cc4b9cf4014d857ed570b1b16f5dd5a22cc3808b5f5a255fcc0f44a2705de3.json": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "graphify-out/cache/ast/v0.9.10/e4347d8ad41e6f5c445486b00810ad8000b2be5aed785e428697c46f83cb65ec.json": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "graphify-out/cache/ast/v0.9.10/8cfd40ee5ddeb13e00576c678c635d0c8ff842822a09dedbbf6eee600a73ff79.json": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "graphify-out/cache/ast/v0.9.10/f3f7fea681912712f5fd89c02ebc4bb7a7a087c31b4367490539962a6be81ffd.json": {
+      "count": 1,
+      "lines": [
+        1
+      ]
+    },
+    "graphify-out/cache/ast/v0.9.10/96179f66608d2fd37c51604aca52ebdb65c906945e2b82ced27d77f8801771ab.json": {
+      "count": 1,
+      "lines": [
+        1
       ]
     },
     "scripts/backend/parse_api.py": {
@@ -66,260 +477,12 @@
       ]
     },
     ".ai-workflow/meta-agent-collaboration/docs/模块7-知识库验证与性能优化需求文档.md": {
-      "count": 7,
+      "count": 4,
       "lines": [
         76,
         77,
         78,
-        79,
-        80,
-        81,
-        82
-      ]
-    },
-    ".ai-workflow/meta-agent-collaboration/docs/模块6-配置帮助文档需求文档.md": {
-      "count": 2,
-      "lines": [
-        75,
-        141
-      ]
-    },
-    ".ai-workflow/meta-agent-collaboration/docs/模块9-清空与暂停功能需求文档.md": {
-      "count": 8,
-      "lines": [
-        52,
-        53,
-        54,
-        55,
-        65,
-        66,
-        67,
-        68
-      ]
-    },
-    ".ai-workflow/meta-agent-collaboration/docs/模块10-本地知识库原始文件持久化需求文档.md": {
-      "count": 9,
-      "lines": [
-        77,
-        78,
-        79,
-        80,
-        81,
-        82,
-        83,
-        84,
-        85
-      ]
-    },
-    ".ai-workflow/meta-agent-collaboration/docs/模块5-对话体验优化需求文档.md": {
-      "count": 3,
-      "lines": [
-        38,
-        62,
-        76
-      ]
-    },
-    ".ai-workflow/meta-agent-collaboration/docs/模块9-刷新页面后AI回答丢失问题需求文档.md": {
-      "count": 7,
-      "lines": [
-        57,
-        58,
-        59,
-        60,
-        61,
-        109,
-        110
-      ]
-    },
-    ".ai-workflow/security/secret-leak-report-20260708.md": {
-      "count": 1,
-      "lines": [
-        4
-      ]
-    },
-    ".ai-workflow/meta-feature-dev/STATE.json": {
-      "count": 6,
-      "lines": [
-        23,
-        28,
-        44,
-        48,
-        49,
-        106
-      ]
-    },
-    ".ai-workflow/meta-feature-dev/stage_3/find_callers.json": {
-      "count": 1,
-      "lines": [
-        2
-      ]
-    },
-    ".ai-workflow/meta-feature-dev/archive/STATE_20260706T144804Z.json": {
-      "count": 1,
-      "lines": [
-        90
-      ]
-    },
-    ".ai-workflow/meta-feature-dev/archive/STATE_20260709T044448Z.json": {
-      "count": 12,
-      "lines": [
-        27,
-        32,
-        52,
-        56,
-        57,
-        77,
-        78,
-        82,
-        83,
-        87,
-        88,
-        151
-      ]
-    },
-    ".ai-workflow/meta-feature-dev/archive/STATE_20260708T150044Z.json": {
-      "count": 3,
-      "lines": [
-        11,
-        12,
-        13
-      ]
-    },
-    ".ai-workflow/meta-feature-dev/archive/STATE_20260706T114409Z.json": {
-      "count": 1,
-      "lines": [
-        127
-      ]
-    },
-    ".ai-workflow/meta-feature-dev/docs/02-solution-design.md": {
-      "count": 1,
-      "lines": [
-        5
-      ]
-    },
-    ".ai-workflow/meta-feature-dev/stage_1/find_similar.json": {
-      "count": 1,
-      "lines": [
-        3
-      ]
-    },
-    ".ai-workflow/troubleshooting/interview-tiger-docker-build-slow-download-全过程.md": {
-      "count": 7,
-      "lines": [
-        129,
-        131,
-        169,
-        173,
-        313,
-        314,
-        315
-      ]
-    },
-    ".ai-workflow/troubleshooting/interview-tiger-知识库鉴权失败排查全过程.md": {
-      "count": 7,
-      "lines": [
-        151,
-        152,
-        153,
-        243,
-        244,
-        245,
-        253
-      ]
-    },
-    ".ai-workflow/troubleshooting/interview-tiger-知识库认证方式错误-全过程.md": {
-      "count": 11,
-      "lines": [
-        137,
-        248,
-        392,
-        393,
-        394,
-        395,
-        396,
-        397,
-        398,
-        432,
-        433
-      ]
-    },
-    ".ai-workflow/troubleshooting/interview-tiger-语音识别重复启动错误-全过程.md": {
-      "count": 7,
-      "lines": [
-        89,
-        314,
-        315,
-        316,
-        317,
-        318,
-        319
-      ]
-    },
-    ".ai-workflow/troubleshooting/interview-tiger-api-question-stream-500-全过程.md": {
-      "count": 3,
-      "lines": [
-        101,
-        256,
-        257
-      ]
-    },
-    ".ai-workflow/troubleshooting/interview-tiger-知识库URL路径缺失-全过程.md": {
-      "count": 5,
-      "lines": [
-        85,
-        210,
-        211,
-        212,
-        217
-      ]
-    },
-    ".ai-workflow/troubleshooting/interview-tiger-知识库API签名失败-全过程.md": {
-      "count": 7,
-      "lines": [
-        127,
-        130,
-        139,
-        309,
-        310,
-        311,
-        312
-      ]
-    },
-    ".ai-workflow/troubleshooting/interview-tiger-lucide-icon-export-error-全过程.md": {
-      "count": 2,
-      "lines": [
-        202,
-        203
-      ]
-    },
-    ".ai-workflow/troubleshooting/interview-tiger-AI建议刷新后丢失-全过程.md": {
-      "count": 12,
-      "lines": [
-        60,
-        61,
-        64,
-        76,
-        84,
-        119,
-        146,
-        153,
-        271,
-        272,
-        273,
-        274
-      ]
-    },
-    ".ai-workflow/troubleshooting/interview-tiger-local-kb-file-size-bug-全过程.md": {
-      "count": 2,
-      "lines": [
-        71,
-        164
-      ]
-    },
-    ".ai-workflow/meta-self-iteration/session_delta.json": {
-      "count": 1,
-      "lines": [
-        99
+        79
       ]
     }
   },

@@ -1,0 +1,47 @@
+{
+  "skill": "meta-feature-dev",
+  "version": "2.0.0",
+  "created_at": "2026-07-09T04:44:48.540427+00:00",
+  "updated_at": "2026-07-10T05:30:00.000000+00:00",
+  "current_stage": null,
+  "current_stage_name": "completed",
+  "planning_complete": true,
+  "execution_approved": true,
+  "requirement": "M1+M2+M3: 语音识别全链路优化 — 端点检测+后处理管线+触发时机",
+  "stages": {
+    "1": {"name": "requirement_analysis", "label": "需求澄清", "status": "completed", "completed_at": "2026-07-09T04:47:05.044065+00:00"},
+    "2": {"name": "solution_design", "label": "方案设计", "status": "completed", "completed_at": "2026-07-09T04:48:23.590186+00:00"},
+    "3": {"name": "impact_assessment", "label": "影响评估", "status": "completed", "completed_at": "2026-07-09T04:51:27.419096+00:00"},
+    "4": {"name": "detailed_design", "label": "详细设计", "status": "completed", "completed_at": "2026-07-09T04:52:00.597971+00:00"},
+    "5": {"name": "step_guidance", "label": "分步指导", "status": "completed", "completed_at": "2026-07-10T04:57:00.000000+00:00"},
+    "6": {
+      "name": "implementation", "label": "逐步实现", "status": "completed",
+      "completed_at": "2026-07-10T05:30:00.000000+00:00",
+      "outputs": {
+        "m1_completed": true,
+        "m2_completed": true,
+        "m3_completed": true,
+        "changed_files": [
+          "frontend/src/composables/useSpeech.ts",
+          "frontend/src/composables/useApi.ts",
+          "frontend/src/components/InterviewPage.vue",
+          "backend/app/services/question_judge.py",
+          "backend/app/routes/transcript.py"
+        ],
+        "build_result": "PASS: vue-tsc + vite build 零错误"
+      }
+    },
+    "7": {
+      "name": "testing_and_docs", "label": "测试与文档", "status": "completed",
+      "completed_at": "2026-07-10T05:30:00.000000+00:00",
+      "outputs": {
+        "test_script": "tests/test_m1_m2_m3.py",
+        "test_report": "reports/07-test-report-m1m2m3.md",
+        "test_result": "58/58 passed (100%)",
+        "tested_modules": ["M2 correct_terms", "M2 post_process", "M3 is_interview_question", "M3 validate_question", "API /transcript", "M1 frontend build"],
+        "build_result": "vue-tsc + vite build 零错误"
+      }
+    }
+  },
+  "project_info": {"root": "/Users/siyuan/Documents/www/ai-project/interview-tiger"}
+}
