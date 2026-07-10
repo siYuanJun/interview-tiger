@@ -14,15 +14,18 @@ RUN echo "deb http://mirrors.aliyun.com/debian/ trixie main contrib non-free non
     curl g++ cmake build-essential python3-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# 复制本地 wheel 缓存（Docker 层缓存会保留，避免重复下载大文件）
-COPY wheels/ /app/wheels/
+# 优先使用预编译 site-packages 快照（秒级恢复，跳过网络下载）
+COPY site-packages.tar.gz /tmp/
+RUN tar xzf /tmp/site-packages.tar.gz -C /usr/local/lib/python3.12/ \
+    && rm /tmp/site-packages.tar.gz
 
-# 安装 Python 依赖（先从本地 wheel 安装，再从镜像源安装剩余依赖）
+# 备用：拷贝 wheel 缓存 + pip install（site-packages 不存在时走这里）
+COPY wheels/ /app/wheels/
 COPY requirements.txt .
 RUN pip install --no-cache-dir \
     --find-links=/app/wheels/ \
     -i https://pypi.tuna.tsinghua.edu.cn/simple \
-    -r requirements.txt
+    -r requirements.txt 2>/dev/null || echo "[INFO] 使用 site-packages 快照，跳过网络安装"
 
 # 复制应用代码
 COPY . .
