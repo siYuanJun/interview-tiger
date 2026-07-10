@@ -14,18 +14,24 @@ RUN echo "deb http://mirrors.aliyun.com/debian/ trixie main contrib non-free non
     curl g++ cmake build-essential python3-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# 优先使用预编译 site-packages 快照（秒级恢复，跳过网络下载）
-COPY site-packages.tar.gz /tmp/
-RUN tar xzf /tmp/site-packages.tar.gz -C /usr/local/lib/python3.12/ \
-    && rm /tmp/site-packages.tar.gz
+# 复制依赖清单和 wheel 缓存（总是存在）
+COPY requirements.txt wheels/ /app/deps/
 
-# 备用：拷贝 wheel 缓存 + pip install（site-packages 不存在时走这里）
-COPY wheels/ /app/wheels/
-COPY requirements.txt .
-RUN pip install --no-cache-dir \
-    --find-links=/app/wheels/ \
-    -i https://pypi.tuna.tsinghua.edu.cn/simple \
-    -r requirements.txt 2>/dev/null || echo "[INFO] 使用 site-packages 快照，跳过网络安装"
+# 安装 Python 依赖（有快照则秒级恢复，无快照则 pip 在线安装）
+# 注意：site-packages.tar.gz 是可选的，不存在会自动降级到网络安装
+COPY . /tmp/build/
+RUN if [ -f /tmp/build/site-packages.tar.gz ] && [ -s /tmp/build/site-packages.tar.gz ]; then \
+        echo "[BUILD] ✅ site-packages 快照命中，秒级恢复..."; \
+        tar xzf /tmp/build/site-packages.tar.gz -C /usr/local/lib/python3.12/; \
+    else \
+        echo "[BUILD] ⚠️  快照不存在，pip 在线安装（首次构建较慢）"; \
+        pip install --no-cache-dir \
+            --find-links=/tmp/build/wheels/ \
+            -i https://pypi.tuna.tsinghua.edu.cn/simple \
+            -r /tmp/build/requirements.txt; \
+    fi && \
+    cp /tmp/build/requirements.txt /app/requirements.txt && \
+    rm -rf /tmp/build
 
 # 复制应用代码
 COPY . .
