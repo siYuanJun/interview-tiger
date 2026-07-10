@@ -51,6 +51,14 @@ cd frontend && npm run dev
 - 分析模块依赖/调用链路/影响面时优先使用 graphify，不逐文件读源码
 - 代码变更后运行 `uv tool run --from graphifyy graphify update .`
 
+## RAG 3.0 升级（2026-07-10）
+- 使用 meta-feature-dev 7 阶段工作流实施
+- 4 个新服务模块：hybrid_retriever / query_rewriter / memory / validator
+- 混合检索：LangChain BM25Retriever + Chroma EnsembleRetriever + RRF 融合
+- jieba 分词（可选导入，有正则回退）
+- Docker 测试策略：`docker exec pip install` 而非重建镜像（避免 PyTorch 重下）
+- macOS wheels 与 Linux Docker 不兼容，不要用 pip download 加速
+
 ## 用户偏好
 - 用户喜欢看到完整的需求分析文档（meta-agent-collaboration 风格）
 - 用户喜欢用指令驱动工作流（ai-dev-workflow, meta-feature-dev 等）
