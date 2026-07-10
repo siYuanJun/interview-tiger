@@ -31,16 +31,22 @@ interview-tiger/
 │   │   │   ├── config.py                # 配置接口 (GET/POST)
 │   │   │   ├── generate.py              # 大模型生成接口
 │   │   │   ├── health.py                # 健康检查 (GET)
-│   │   │   ├── question.py              # 问题处理接口 (POST/stream)
+│   │   │   ├── local_kb.py              # 本地知识库管理接口 (POST/GET/DELETE)
+│   │   │   ├── question.py              # 问题处理接口 (POST/stream, 含 session_id)
 │   │   │   ├── search.py                # 知识库检索接口 (POST)
 │   │   │   └── transcript.py            # 对话记录接口 (POST/GET)
 │   │   ├── services/
 │   │   │   ├── __init__.py
 │   │   │   ├── asr.py                   # ASR 服务
+│   │   │   ├── hybrid_retriever.py      # [NEW] BM25+向量混合检索（RRF 融合）
 │   │   │   ├── knowledge.py             # 知识库检索服务
 │   │   │   ├── llm.py                   # 大模型调用服务
+│   │   │   ├── local_knowledge.py       # 本地知识库 + RAG 3.0 管线
+│   │   │   ├── memory.py                # [NEW] 会话多轮记忆缓存
 │   │   │   ├── prompt.py                # Prompt 拼接服务
-│   │   │   └── question_judge.py        # 问题判断服务
+│   │   │   ├── query_rewriter.py        # [NEW] 查询同义词扩展
+│   │   │   ├── question_judge.py        # 问题判断服务
+│   │   │   └── validator.py             # [NEW] LLM 内容校验
 │   │   └── utils/
 │   │       └── __init__.py
 │   ├── .dockerignore
@@ -91,8 +97,8 @@ interview-tiger/
 | 保存配置 | POST | /api/config | {ark_api_key, kb_id, kb_api_key} | {code, message} |
 | 知识库检索 | POST | /api/search | {query, kb_id, kb_api_key} | {code, data} |
 | 大模型生成 | POST | /api/generate | {prompt, ark_api_key, stream} | {code, data} |
-| 问题处理 | POST | /api/question | {question, ark_api_key, kb_id, kb_api_key} | {code, data} |
-| 问题处理(流式) | POST | /api/question/stream | {question, ark_api_key, kb_id, kb_api_key} | SSE stream |
+| 问题处理 | POST | /api/question | {question, ark_api_key, kb_id, kb_api_key, kb_provider, stream, session_id} | {code, data} |
+| 问题处理(流式) | POST | /api/question/stream | {question, ark_api_key, kb_id, kb_api_key, kb_provider, session_id} | SSE stream |
 | 提交对话记录 | POST | /api/transcript | {content, speaker, session_id} | {code, data} |
 | 获取对话列表 | GET | /api/dialogues | {session_id} | {code, data} |
 | ASR 流式识别 | WS | /api/asr/stream | PCM 音频流 | 识别文本流 |
@@ -101,6 +107,10 @@ interview-tiger/
 
 - **routes/**：HTTP/WebSocket 接口层，处理请求路由和参数校验
 - **services/**：业务逻辑层，封装外部 API 调用（LLM、知识库、ASR）
+- **services/hybrid_retriever.py**：[NEW] BM25+向量混合检索器，LangChain EnsembleRetriever + RRF 融合
+- **services/query_rewriter.py**：[NEW] 查询扩展器，15 组同义词映射，最多 3 个变体
+- **services/memory.py**：[NEW] 会话内存缓存，TTL 过期 + 追问模式检测
+- **services/validator.py**：[NEW] LLM 批量内容校验器，3s 超时兜底
 - **composables/**：前端组合式 API，封装录音、语音识别、API 调用等逻辑
 - **stores/**：Pinia 状态管理，维护面试会话状态
 - **components/**：Vue 组件，负责 UI 渲染和用户交互

@@ -14,6 +14,12 @@ RUN echo "deb http://mirrors.aliyun.com/debian/ trixie main contrib non-free non
     curl g++ cmake build-essential python3-dev \
     && rm -rf /var/lib/apt/lists/*
 
+# pip 全局镜像源 — 所有 pip install 自动走清华源，包括 docker exec
+RUN mkdir -p /root/.pip && \
+    echo "[global]" > /root/.pip/pip.conf && \
+    echo "index-url = https://pypi.tuna.tsinghua.edu.cn/simple" >> /root/.pip/pip.conf && \
+    echo "trusted-host = pypi.tuna.tsinghua.edu.cn" >> /root/.pip/pip.conf
+
 # 复制依赖清单和 wheel 缓存（总是存在）
 COPY requirements.txt wheels/ /app/deps/
 
@@ -27,7 +33,6 @@ RUN if [ -f /tmp/build/site-packages.tar.gz ] && [ -s /tmp/build/site-packages.t
         echo "[BUILD] ⚠️  快照不存在，pip 在线安装（首次构建较慢）"; \
         pip install --no-cache-dir \
             --find-links=/tmp/build/wheels/ \
-            -i https://pypi.tuna.tsinghua.edu.cn/simple \
             -r /tmp/build/requirements.txt; \
     fi && \
     cp /tmp/build/requirements.txt /app/requirements.txt && \

@@ -164,3 +164,64 @@
 
 - [架构总览](./ARCHITECTURE-OVERVIEW.md)
 - [文档导航索引](./DOCS-INDEX.md)
+
+---
+
+## 🆕 RAG 3.0 升级经验（2026-07-10）
+
+### 有效模式
+
+#### 5. RAG 混合检索 + 多模块管道架构
+
+**模式**: 检索管线从单一向量检索升级为 4 模块管道（QueryExpand → Hybrid → Validate → Memory），每个模块可独立开关/降级，不阻塞主流程。
+
+**适用场景**: 需要同时支持精确关键词匹配和语义理解的检索场景。
+
+**收益**: 
+- BM25+Dense 混合检索覆盖精确匹配和语义理解
+- 内容校验过滤无关噪音，提高回答质量
+- 多轮记忆减少重复检索，响应更快
+
+#### 6. Docker 容器依赖管理：快照 + 条件回退
+
+**模式**: 导出 site-packages 全量快照（tar.gz），Dockerfile 条件解压。有快照则秒级恢复，无快照则 pip install 自动降级。
+
+**适用场景**: Python Docker 镜像构建，避免大依赖（PyTorch）重复下载。
+
+**收益**: 
+- 有快照时构建从分钟级降到秒级
+- 无快照时自动降级，不阻塞构建
+- pip 全局镜像源（清华源），所有安装自动走国内加速
+
+### 踩过的坑
+
+#### 4. macOS wheels 与 Linux Docker 不兼容
+
+**问题**: 在 Mac 宿主机执行 `pip download` 下载的 wheels 文件（.whl）带有 `macosx` 平台标记，放入 Docker Linux 容器后无法安装。
+
+**严重程度**: 🔴高
+
+**根因**: `pip download` 默认下载当前平台（macOS）的二进制包，与 Linux 架构不兼容。
+
+**方案**: 
+- 不要在宿主机 `pip download`，让 Docker 内部下载 Linux 版本
+- 或指定 `--platform manylinux2014_x86_64`
+- 最优方案：导出容器内已安装的 site-packages 作为快照
+
+**影响面**: 所有需要在 Docker 中安装 Python 依赖的场景
+
+**预防措施**: 永远从 Docker 容器内部安装/导出 Python 包，不跨平台混用。
+
+#### 5. pydantic 版本与 Python 3.12 兼容性
+
+**问题**: pydantic 2.6.1 + Python 3.12 触发 `ForwardRef._evaluate() missing 1 required keyword-only argument: 'recursive_guard'`，导致 langchain 导入崩溃。
+
+**严重程度**: 🔴高
+
+**根因**: langchain 依赖 langsmith，langsmith 内部使用 pydantic v1 兼容层，与 Python 3.12 不兼容。
+
+**方案**: 升级 pydantic 到 2.13.4 修复兼容性。
+
+**影响面**: 所有使用 langchain + Python 3.12 的项目
+
+**预防措施**: 新项目固定 pydantic >= 2.10，老项目升级时注意测试 langchain 导入。

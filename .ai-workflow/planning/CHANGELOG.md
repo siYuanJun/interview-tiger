@@ -1,5 +1,27 @@
 # 变更日志
 
+## [1.2.0] - 2026-07-10
+
+### Added
+- RAG 3.0 混合检索管线 — BM25+向量混合检索（LangChain BM25Retriever + RRF 融合，BM25权重=0.3）
+- 查询扩展模块 — 15 个面试领域同义词映射，最多生成 3 个查询变体
+- LLM 内容校验模块 — 批量判断检索片段相关性，3s 超时兜底
+- 会话多轮记忆缓存 — TTL=1800s，max=50 会话，追问模式检测（"还有呢""继续说"等）
+- session_id 字段 — QuestionRequest 新增会话标识，贯穿全管道
+- RAG3 配置项 — 8 个环境变量（HYBRID_ENABLED/QUERY_EXPAND_ENABLED/VALIDATOR_ENABLED 等）
+- site-packages 快照备份 — 2.8G tar.gz，Dockerfile 可选解压跳过网络下载
+- pip 全局清华源 — `/root/.pip/pip.conf`，所有 pip install 自动走国内镜像
+
+### Fixed
+- pydantic 2.6.1 + Python 3.12 兼容性 Bug — langsmith 触发 ForwardRef._evaluate() 崩溃，升级到 2.13.4
+- BM25 检索回退 — rank_bm25 缺失导致降级纯向量检索，添加 rank_bm25==0.2.2
+
+### Changed
+- local_knowledge.py — 从纯向量检索升级为 4 模块全管道（QueryExpand → Hybrid → Validate → Memory）
+- question.py — 新增 session_id 参数支持
+- Dockerfile — 条件解压 site-packages 快照 + pip 全局镜像源
+- requirements.txt — 新增 jieba/rank_bm25，pydantic 版本放宽
+
 ## [1.1.2] - 2026-07-06
 
 ### Added
