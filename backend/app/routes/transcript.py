@@ -15,6 +15,7 @@ router = APIRouter()
 class TranscriptRequest(BaseModel):
     text: str = Field(..., min_length=1, max_length=2000, description="识别出的文本")
     session_id: Optional[str] = Field(None, description="会话ID，用于区分不同浏览器会话")
+    confidence: Optional[float] = Field(None, ge=0.0, le=1.0, description="ASR 置信度 (0.0-1.0)")
 
 
 class TranscriptResponse(BaseModel):
@@ -38,10 +39,18 @@ class UpdateDialogueRequest(BaseModel):
 
 @router.post("/transcript", response_model=TranscriptResponse)
 async def process_transcript(req: TranscriptRequest, db: Session = Depends(get_db)):
-    """接收前端识别的文本，进行问题判断"""
-    logger.info(f"收到识别文本: {req.text[:50]}...")
+    """接收前端识别的文本，进行问题判断 + M2后处理 + M3意图识别"""
+    logger.info(f"收到识别文本: {req.text[:50]}..., confidence={req.confidence}")
 
-    validation = validate_question(req.text)
+    # M2+M3: 增强版校验（含术语纠错 + 意图识别）
+    validation = validate_question(req.text, req.confidence or 1.0)
+
+    # M2: 记录术语纠错
+    if validation.get('was_corrected'):
+        logger.info(f"M2 术语纠错: '{req.text[:30]}' → '{validation.get('corrected_text', '')[:30]}'")
+
+    if validation.get('low_confidence'):
+        logger.warning(f"M2 低置信度: confidence={req.confidence}")
 
     if not validation['is_valid']:
         logger.info(f"问题判断跳过: {validation['reason']}")
@@ -50,7 +59,8 @@ async def process_transcript(req: TranscriptRequest, db: Session = Depends(get_d
             'message': '已接收',
             'data': {
                 'is_valid': False,
-                'reason': validation['reason']
+                'reason': validation['reason'],
+                'was_corrected': validation.get('was_corrected', False),
             }
         }
 
@@ -58,10 +68,13 @@ async def process_transcript(req: TranscriptRequest, db: Session = Depends(get_d
     dialogue_id = f"dialogue_{uuid4().hex[:8]}"
     now = datetime.now().isoformat()
 
+    # M2: 使用修正后的文本入库
+    question_text = validation.get('corrected_text', req.text.strip())
+
     dialogue = Dialogue(
         id=dialogue_id,
         session_id=session_id,
-        question=req.text.strip(),
+        question=question_text,
         answer='',
         is_valid=True,
         rule=validation['rule']

@@ -181,9 +181,13 @@ export function useApi() {
   }
 
   // 提交识别文本
-  async function submitTranscript(text: string, sessionId?: string): Promise<ApiResponse | null> {
+  async function submitTranscript(text: string, sessionId?: string, confidence?: number): Promise<ApiResponse | null> {
     try {
-      const res = await client.post<ApiResponse>('/transcript', { text, session_id: sessionId })
+      const payload: Record<string, any> = { text, session_id: sessionId }
+      if (confidence !== undefined) {
+        payload.confidence = confidence
+      }
+      const res = await client.post<ApiResponse>('/transcript', payload)
       return res.data
     } catch {
       return null

@@ -52,6 +52,11 @@ const isPaused = ref(false)
 let sessionId = sessionStorage.getItem('interview_session_id') || `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
 sessionStorage.setItem('interview_session_id', sessionId)
 
+// M3: 提交缓冲队列 — 200ms 内连续的 isFinal 合并后提交
+let submitBuffer: ReturnType<typeof setTimeout> | null = null
+let pendingText = ''
+let pendingConfidence = 0
+
 onMounted(async () => {
   if (!isSupported()) {
     statusMessage.value = '浏览器不支持语音识别，请使用 Chrome 或 Edge 浏览器'
@@ -96,6 +101,7 @@ onMounted(async () => {
 
 onUnmounted(() => {
   stopListening()
+  if (submitBuffer) clearTimeout(submitBuffer)
 })
 
 async function handleSpeechResult(result: { text: string; isFinal: boolean; confidence: number }) {
@@ -112,32 +118,45 @@ async function handleSpeechResult(result: { text: string; isFinal: boolean; conf
     return
   }
 
-  interimDialogue.value = null
-  console.log('识别完成:', text)
+  // M3: 缓冲队列 — 累积 isFinal 文本，200ms 无新结果后统一提交
+  pendingText = (pendingText + ' ' + text).trim()
+  pendingConfidence = result.confidence || 0
 
-  resumeListening()
+  if (submitBuffer) clearTimeout(submitBuffer)
 
-  const response = await submitTranscript(text, sessionId)
+  submitBuffer = setTimeout(async () => {
+    const finalText = pendingText
+    const finalConf = pendingConfidence
+    pendingText = ''
+    pendingConfidence = 0
 
-  if (response?.data?.is_valid) {
-    const dialogue = response.data
-    dialogue.generating = true
-    dialogues.value.push(dialogue)
-    autoScroll()
-    statusMessage.value = '问题已识别，正在生成回答...'
+    interimDialogue.value = null
+    console.log('M3 缓冲提交:', finalText, 'confidence:', finalConf)
 
-    if (!store.isConfigured && !backendConfigured.value) {
-      const idx = dialogues.value.findIndex(d => d.id === dialogue.id)
-      if (idx !== -1) {
-        dialogues.value[idx].answer = '请先在首页配置火山引擎API Key'
+    resumeListening()
+
+    // M2: 传递 confidence 到后端
+    const response = await submitTranscript(finalText, sessionId, finalConf)
+
+    if (response?.data?.is_valid) {
+      const dialogue = response.data
+      dialogue.generating = true
+      dialogues.value.push(dialogue)
+      autoScroll()
+      statusMessage.value = '问题已识别，正在生成回答...'
+
+      if (!store.isConfigured && !backendConfigured.value) {
+        const idx = dialogues.value.findIndex(d => d.id === dialogue.id)
+        if (idx !== -1) {
+          dialogues.value[idx].answer = '请先在首页配置火山引擎API Key'
+        }
+        statusMessage.value = '未配置API Key，无法调用大模型'
+        return
       }
-      statusMessage.value = '未配置API Key，无法调用大模型'
-      return
-    }
 
     processQuestionStream(
       {
-        question: text,
+        question: finalText,
         ark_api_key: store.apiKey,
         model_id: store.modelId,
         kb_id: store.kbId,
@@ -175,6 +194,7 @@ async function handleSpeechResult(result: { text: string; isFinal: boolean; conf
     interimDialogue.value = null
     console.log('语音输入跳过:', response?.data?.reason)
   }
+  }, 200)  // M3: 200ms 缓冲窗口
 }
 
 function autoScroll() {

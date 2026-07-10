@@ -30,6 +30,19 @@ export function useSpeech() {
   let isStarting = false
   let generation = 0
 
+  // M1 断句优化：自适应端点检测
+  const SHORT_TIMEOUT_MS = 800
+  const LONG_TIMEOUT_MS = 2500
+  const CONFIDENCE_THRESHOLD = 0.7
+  const MIN_TEXT_LENGTH = 5
+  const REMARK_WINDOW_SIZE = 5
+  const SENTENCE_ENDINGS = new Set(['。', '！', '？', '…', '!', '?'])
+
+  let shortTimer: ReturnType<typeof setTimeout> | null = null
+  let longTimer: ReturnType<typeof setTimeout> | null = null
+  let remarkWindow: Array<{ time: number; chars: number }> = []
+  let lastConfidence = 0
+
   function isSupported(): boolean {
     return !!(window.SpeechRecognition || window.webkitSpeechRecognition)
   }
@@ -100,17 +113,39 @@ export function useSpeech() {
         if (interimText) {
           currentText.value = interimText
           state.value = 'recognizing'
-          
-          if (pauseTimer) clearTimeout(pauseTimer)
-          pauseTimer = setTimeout(() => {
-            if (generation !== currentGeneration) return
-            if (isListening.value && currentText.value.trim()) {
-              const pausedResult = pauseRecognition()
-              if (pausedResult) {
-                options.onResult?.(pausedResult)
+
+          // M1: 语速跟踪 — 记录本次 interim 的时间戳和字符数
+          remarkWindow.push({ time: Date.now(), chars: interimText.length })
+          if (remarkWindow.length > REMARK_WINDOW_SIZE) remarkWindow.shift()
+
+          // M1: 记录最后一次置信度
+          const lastResult = event.results[event.results.length - 1]
+          if (lastResult?.[0]?.confidence) {
+            lastConfidence = lastResult[0].confidence
+          }
+
+          // M1: 双定时器策略 — 自适应端点检测
+          clearTimers()
+
+          if (currentText.value.trim().length >= MIN_TEXT_LENGTH) {
+            // 短超时：句末标点 或 高置信度时优先断句
+            shortTimer = setTimeout(() => {
+              if (generation !== currentGeneration) return
+              if (isListening.value && shouldPauseEarly()) {
+                const result = pauseRecognition()
+                if (result) options.onResult?.(result)
               }
-            }
-          }, 1500)
+            }, SHORT_TIMEOUT_MS)
+
+            // 长超时：强制断句兜底
+            longTimer = setTimeout(() => {
+              if (generation !== currentGeneration) return
+              if (isListening.value && currentText.value.trim()) {
+                const result = pauseRecognition()
+                if (result) options.onResult?.(result)
+              }
+            }, LONG_TIMEOUT_MS)
+          }
         } else if (!finalChunk) {
           currentText.value = ''
         }
@@ -213,6 +248,41 @@ export function useSpeech() {
     return errors[errorCode] || `语音识别错误: ${errorCode}`
   }
 
+  // M1 辅助函数：语速计算
+  function calculateSpeechRate(): number {
+    if (remarkWindow.length < 2) return 5 // 默认正常语速 (~5 chars/s)
+    const first = remarkWindow[0]
+    const last = remarkWindow[remarkWindow.length - 1]
+    const duration = (last.time - first.time) / 1000
+    if (duration <= 0) return 5
+    const totalChars = remarkWindow.reduce((sum, r) => sum + r.chars, 0)
+    return totalChars / duration
+  }
+
+  // M1 辅助函数：句末标点检测
+  function hasSentenceEnding(text: string): boolean {
+    if (!text) return false
+    const lastChar = text[text.length - 1]
+    return SENTENCE_ENDINGS.has(lastChar)
+  }
+
+  // M1 辅助函数：短超时决策
+  function shouldPauseEarly(): boolean {
+    const text = currentText.value.trim()
+    if (!text || text.length < MIN_TEXT_LENGTH) return false
+    // 句末标点 → 立即断
+    if (hasSentenceEnding(text)) return true
+    // 高置信度 + 较长文本 → 候选断
+    if (lastConfidence > CONFIDENCE_THRESHOLD && text.length > 10) return true
+    return false
+  }
+
+  // M1 辅助函数：统一清理双定时器
+  function clearTimers() {
+    if (shortTimer) { clearTimeout(shortTimer); shortTimer = null }
+    if (longTimer) { clearTimeout(longTimer); longTimer = null }
+  }
+
   function stopListening() {
     isListening.value = false
     isStopping = true
@@ -224,6 +294,10 @@ export function useSpeech() {
       clearTimeout(pauseTimer)
       pauseTimer = null
     }
+    // M1: 清理自适应端点检测状态
+    clearTimers()
+    remarkWindow = []
+    lastConfidence = 0
     if (recognition) {
       try {
         recognition.stop()
