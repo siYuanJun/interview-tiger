@@ -42,3 +42,4 @@ docs/产品原型/
 .codebuddy/rules/tcb
 
 *.tar.gz
+graphify-out
